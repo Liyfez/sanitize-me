@@ -1,0 +1,41 @@
+{
+  "name": "sanitize-me",
+  "version": "1.0.0",
+  "description": "Local-first document, image, URL, and log sanitizer that strips tracking tags, EXIF GPS locations, and confidential data before sharing.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "sanitize-me": "./bin/sanitize-me.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "start": "node bin/sanitize-me.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Liyfez/sanitize-me.git"
+  },
+  "keywords": [
+    "privacy",
+    "sanitizer",
+    "exif",
+    "exif-remover",
+    "pii",
+    "redact",
+    "clean-url",
+    "metadata-stripper",
+    "offline-first",
+    "npx"
+  ],
+  "author": "Liyfez",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

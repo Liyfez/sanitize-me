@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sanitize-me | Local-First Privacy Airlock</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #131b2e;
+      --card-border: #1e293b;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --danger: #ef4444;
+      --code-bg: #070a12;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      max-width: 650px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      background: var(--card);
+      padding: 0.35rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--card-border);
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 1.25rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: var(--card-border);
+      color: #fff;
+    }
+    .tab-btn:hover:not(.active) {
+      color: var(--text);
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.75rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    /* Drop Zone */
+    .dropzone {
+      border: 2px dashed var(--card-border);
+      border-radius: 0.75rem;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(15, 23, 42, 0.4);
+    }
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .dropzone p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .dropzone svg {
+      width: 48px;
+      height: 48px;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      fill: none;
+      margin-bottom: 0.5rem;
+    }
+    /* Inputs & Textareas */
+    textarea, input[type="text"] {
+      width: 100%;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      color: #052e16;
+      font-weight: 700;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 1rem;
+    }
+    .btn:hover {
+      background: var(--accent-hover);
+    }
+    .btn-secondary {
+      background: var(--card-border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #334155;
+    }
+    .result-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      display: none;
+    }
+    .result-box.visible {
+      display: block;
+    }
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .tag {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .tag.clean {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    footer {
+      margin-top: auto;
+      padding-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="badge">100% Offline & Local-First</div>
+    <h1>sanitize-me</h1>
+    <p class="subtitle">Zero-trace airlock. Strips camera EXIF GPS locations, tracking URLs, and confidential credentials before you share or feed to AI.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-files')">Images & Files</button>
+    <button class="tab-btn" onclick="switchTab('tab-text')">Logs & Text</button>
+    <button class="tab-btn" onclick="switchTab('tab-url')">Clean URL</button>
+  </div>
+
+  <div class="container">
+    <!-- Tab 1: Files & Media -->
+    <div id="tab-files" class="tab-content active">
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+        <svg viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+        </svg>
+        <h3>Drag & Drop Image, PDF, or Log file</h3>
+        <p>Supports JPEG, PNG, WebP, PDF, TXT. Lossless metadata strip.</p>
+        <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(this.files)">
+      </div>
+
+      <div id="file-result" class="result-box">
+        <div class="result-header">
+          <h4 id="file-result-title">File Sanitized</h4>
+          <span id="file-stats" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+        </div>
+        <div id="file-tags" class="tag-list"></div>
+        <button id="download-btn" class="btn" onclick="downloadCleanFile()">Download Clean File</button>
+      </div>
+    </div>
+
+    <!-- Tab 2: Logs & Text -->
+    <div id="tab-text" class="tab-content">
+      <label style="display:block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">Paste error log, config file, or clipboard snippet:</label>
+      <textarea id="raw-text" placeholder="Paste text here with emails, sk-..., IPs, auth headers, etc."></textarea>
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn" onclick="processText()">Sanitize Text</button>
+        <button class="btn btn-secondary" onclick="pasteFromClipboard()">Paste Clipboard</button>
+      </div>
+
+      <div id="text-result" class="result-box">
+        <div class="result-header">
+          <h4>Sanitized Output</h4>
+          <span id="text-redaction-count" style="font-size: 0.85rem; color: var(--accent);"></span>
+        </div>
+        <textarea id="clean-text" readonly style="margin-bottom: 0.75rem;"></textarea>
+        <button class="btn" onclick="copyCleanText()">Copy Sanitized Text</button>
+      </div>
+    </div>
+
+    <!-- Tab 3: URL Cleaner -->
+    <div id="tab-url" class="tab-content">
+      <label style="display:block; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">Paste URL with tracking/UTM/affiliate parameters:</label>
+      <input type="text" id="raw-url" placeholder="https://youtube.com/watch?v=...&si=xyz&utm_source=share">
+      <button class="btn" onclick="processUrl()">Clean Tracking Tags</button>
+
+      <div id="url-result" class="result-box">
+        <div class="result-header">
+          <h4>Clean URL</h4>
+          <span id="url-tags-count" style="font-size: 0.85rem; color: var(--accent);"></span>
+        </div>
+        <input type="text" id="clean-url" readonly style="margin-bottom: 0.75rem;">
+        <div id="url-removed-tags" class="tag-list" style="margin-bottom: 1rem;"></div>
+        <button class="btn" onclick="copyCleanUrl()">Copy Clean URL</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    sanitize-me &bull; Running locally on 127.0.0.1 &bull; Zero external network requests
+  </footer>
+
+  <script>
+    let cleanFileBlob = null;
+    let cleanFileName = 'sanitized-file';
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // Drag and Drop
+    const dropzone = document.getElementById('dropzone');
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); });
+    });
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length) handleFileSelect(e.dataTransfer.files);
+    });
+
+    async function handleFileSelect(files) {
+      if (!files.length) return;
+      const file = files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch(`/api/sanitize-file?filename=${encodeURIComponent(file.name)}`, {
+          method: 'POST',
+          body: file
+        });
+
+        if (!res.ok) throw new Error('Sanitization failed');
+
+        const strippedHeader = res.headers.get('X-Stripped-Tags') || '';
+        const tags = strippedHeader ? JSON.parse(strippedHeader) : [];
+        cleanFileBlob = await res.blob();
+        cleanFileName = 'clean_' + file.name;
+
+        document.getElementById('file-result').classList.add('visible');
+        document.getElementById('file-result-title').textContent = `Cleaned: ${file.name}`;
+        document.getElementById('file-stats').textContent = `${(file.size / 1024).toFixed(1)} KB → ${(cleanFileBlob.size / 1024).toFixed(1)} KB`;
+
+        const tagContainer = document.getElementById('file-tags');
+        tagContainer.innerHTML = '';
+        if (tags.length === 0) {
+          tagContainer.innerHTML = '<span class="tag clean">No sensitive metadata detected</span>';
+        } else {
+          tags.forEach(t => {
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.textContent = 'Stripped: ' + t;
+            tagContainer.appendChild(tag);
+          });
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function downloadCleanFile() {
+      if (!cleanFileBlob) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(cleanFileBlob);
+      a.download = cleanFileName;
+      a.click();
+    }
+
+    async function processText() {
+      const text = document.getElementById('raw-text').value;
+      if (!text) return;
+
+      const res = await fetch('/api/sanitize-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+
+      document.getElementById('clean-text').value = data.text;
+      document.getElementById('text-redaction-count').textContent = `${data.totalRedactions} item(s) redacted`;
+      document.getElementById('text-result').classList.add('visible');
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('raw-text').value = text;
+        processText();
+      } catch {
+        alert('Clipboard access denied. Please paste directly into text box.');
+      }
+    }
+
+    function copyCleanText() {
+      const val = document.getElementById('clean-text').value;
+      navigator.clipboard.writeText(val);
+      alert('Copied clean text to clipboard!');
+    }
+
+    async function processUrl() {
+      const url = document.getElementById('raw-url').value;
+      if (!url) return;
+
+      const res = await fetch('/api/sanitize-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+
+      document.getElementById('clean-url').value = data.cleanUrl;
+      document.getElementById('url-tags-count').textContent = `${data.removedParams.length} tracker(s) removed`;
+      
+      const removedContainer = document.getElementById('url-removed-tags');
+      removedContainer.innerHTML = '';
+      data.removedParams.forEach(p => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = 'Removed ?' + p;
+        removedContainer.appendChild(tag);
+      });
+
+      document.getElementById('url-result').classList.add('visible');
+    }
+
+    function copyCleanUrl() {
+      const val = document.getElementById('clean-url').value;
+      navigator.clipboard.writeText(val);
+      alert('Copied clean URL to clipboard!');
+    }
+  </script>
+</body>
+</html>
