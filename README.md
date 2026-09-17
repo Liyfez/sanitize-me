@@ -27,16 +27,22 @@
 Run directly from any terminal or workflow via `npx`:
 
 ```bash
-# Clean an image losslessly (strips GPS, camera serial, maker notes)
+# 1. Don't know the file path? Open native File Explorer / Finder to pick a file
+npx sanitize-me --pick
+
+# 2. Clean an image losslessly (strips GPS, camera serial, maker notes)
 npx sanitize-me photo.jpg
 
-# Clean and unwrap a tracking link
+# 3. Clean and unwrap a tracking link
 npx sanitize-me "https://amazon.com/dp/B00000?utm_source=twitter&tag=affiliate-20"
 
-# Redact logs, auth headers, and API keys before feeding to ChatGPT / Claude
+# 4. Redact logs, auth headers, and API keys before feeding to ChatGPT / Claude
 cat debug.log | npx sanitize-me
 
-# Launch local drag-and-drop Web GUI (100% offline localhost)
+# 5. Show detailed command guide and cheatsheet
+npx sanitize-me /help
+
+# 6. Launch interactive terminal menu (or browser GUI with --gui)
 npx sanitize-me
 ```
 
@@ -139,29 +145,36 @@ sanitize-me
 ## Terminal Preview
 
 ```text
-  ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗       ███╗   ███╗███████╗
-  ██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝       ████╗ ████║██╔════╝
-  ███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗  █████╗ ██╔████╔██║█████╗  
-  ╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝  ╚════╝ ██║╚██╔╝██║██╔══╝  
-  ███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗       ██║ ╚═╝ ██║███████╗
-  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝       ╚═╝     ╚═╝╚══════╝
-  ⚡ Local-First Document, Media & Data Privacy Airlock v1.0.1
+COMMAND GUIDE (/help)
 
-USAGE:
-  # Stdin pipe (Logs & clipboard data)
-  cat logs.txt | npx sanitize-me
-  pbpaste | npx sanitize-me
+1. FILE CLEANING (Images, PDFs, Logs)
+   npx sanitize-me --pick             Open native File Explorer dialog to pick a file
+   npx sanitize-me photo.jpg          Strips EXIF, GPS, camera serial, maker notes
+   npx sanitize-me doc.pdf            Blanks PDF /Author, /Creator, /Producer metadata
+   npx sanitize-me file.png -i        Overwrite file in-place
+   npx sanitize-me f1.jpg f2.pdf -o ./out Save sanitized files to custom folder
 
-  # Clean URLs (strip tracking params, UTM, and redirect wrappers)
-  npx sanitize-me "https://amazon.com/dp/1234?utm_source=fb&tag=affiliate"
+2. TEXT & LOG SANITIZING (AI Pre-Flight)
+   cat server.log | npx sanitize-me   Redact API keys, tokens, IPs, emails from piped stream
+   pbpaste | npx sanitize-me | pbcopy Sanitize clipboard before pasting into ChatGPT / Claude
 
-  # Sanitize files (strip EXIF, GPS, camera metadata, PDF author, PII)
-  npx sanitize-me photo.jpg
-  npx sanitize-me doc.pdf log.txt -o ./clean/
+3. URL TRACKER STRIPPING
+   npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"
+   Strips UTM parameters, affiliate tags, Facebook clids, YouTube session IDs.
 
-  # Launch local offline web GUI (drag-and-drop UI)
-  npx sanitize-me
-  npx sanitize-me --gui
+4. INTERACTIVE & WEB MODES
+   npx sanitize-me                    Launch interactive terminal menu
+   npx sanitize-me --gui              Open local drag-and-drop web UI in browser
+
+OPTIONS & FLAGS
+   -p, --pick             Open file explorer to browse and choose a file
+   -o, --output <dir>     Specify output directory for sanitized files
+   -i, --in-place         Overwrite original file directly
+   -d, --dry-run          Analyze metadata/PII without writing files
+   -j, --json             Output machine-readable JSON format
+       --gui, --ui        Force launch localhost Web GUI
+   -h, --help, /help      Show this guide
+   -v, --version          Show version
 ```
 
 ---

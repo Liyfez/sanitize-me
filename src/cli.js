@@ -1,16 +1,21 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import * as readline from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 import { sanitizeFile } from './index.js';
 import { sanitizeText } from './sanitizers/text.js';
 import { sanitizeUrl, isLikelyUrl } from './sanitizers/url.js';
 import { startServer } from './ui/server.js';
+import { openFilePicker } from './utils/picker.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 const LIME = '\x1b[38;2;57;255;20m';
 const DIM = '\x1b[90m';
+const BOLD = '\x1b[1m';
 const RESET = '\x1b[0m';
 const CYAN = '\x1b[36m';
+const GREEN = '\x1b[32m';
 
 const BANNER = `${LIME}
   ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗       ███╗   ███╗███████╗
@@ -19,35 +24,41 @@ const BANNER = `${LIME}
   ╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝  ╚════╝ ██║╚██╔╝██║██╔══╝  
   ███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗       ██║ ╚═╝ ██║███████╗
   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝       ╚═╝     ╚═╝╚══════╝
-${RESET}  ${LIME}⚡ Local-First Document, Media & Data Privacy Airlock${RESET} ${DIM}v${pkg.version}${RESET}\n`;
+${RESET}  ${LIME}Local-First Document, Media & Data Privacy Airlock${RESET} ${DIM}v${pkg.version}${RESET}\n`;
 
 function printHelp() {
   console.log(BANNER);
   console.log(`
-USAGE:
-  # Stdin pipe (Logs & clipboard data)
-  cat logs.txt | npx sanitize-me
-  pbpaste | npx sanitize-me
+${BOLD}COMMAND GUIDE (/help)${RESET}
 
-  # Clean URLs (strip tracking params, UTM, and redirect wrappers)
-  npx sanitize-me "https://amazon.com/dp/1234?utm_source=fb&tag=affiliate"
+${BOLD}1. FILE CLEANING (Images, PDFs, Logs)${RESET}
+   ${CYAN}npx sanitize-me --pick${RESET}             Open native File Explorer dialog to pick a file
+   ${CYAN}npx sanitize-me photo.jpg${RESET}          Strips EXIF, GPS, camera serial, maker notes
+   ${CYAN}npx sanitize-me doc.pdf${RESET}            Blanks PDF /Author, /Creator, /Producer metadata
+   ${CYAN}npx sanitize-me file.png -i${RESET}        Overwrite file in-place
+   ${CYAN}npx sanitize-me f1.jpg f2.pdf -o ./out${RESET} Save sanitized files to custom folder
 
-  # Sanitize files (strip EXIF, GPS, camera metadata, PDF author, PII)
-  npx sanitize-me photo.jpg
-  npx sanitize-me doc.pdf log.txt -o ./clean/
+${BOLD}2. TEXT & LOG SANITIZING (AI Pre-Flight)${RESET}
+   ${CYAN}cat server.log | npx sanitize-me${RESET}   Redact API keys, tokens, IPs, emails from piped stream
+   ${CYAN}pbpaste | npx sanitize-me | pbcopy${RESET} Sanitize clipboard before pasting into ChatGPT / Claude
 
-  # Launch local offline web GUI (drag-and-drop UI)
-  npx sanitize-me
-  npx sanitize-me --gui
+${BOLD}3. URL TRACKER STRIPPING${RESET}
+   ${CYAN}npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"${RESET}
+   Strips UTM parameters, affiliate tags, Facebook clids, YouTube session IDs.
 
-OPTIONS:
-  -o, --output <path>    Custom output destination
-  -i, --in-place         Overwrite original file directly
-  -d, --dry-run          Inspect metadata/PII without modifying files
-  -j, --json             Output machine-readable JSON
-      --gui, --ui        Force launch local Web UI
-  -h, --help             Display this help message
-  -v, --version          Display version
+${BOLD}4. INTERACTIVE & WEB MODES${RESET}
+   ${CYAN}npx sanitize-me${RESET}                    Launch interactive terminal menu
+   ${CYAN}npx sanitize-me --gui${RESET}              Open local drag-and-drop web UI in browser
+
+${BOLD}OPTIONS & FLAGS${RESET}
+   ${GREEN}-p, --pick${RESET}             Open file explorer to browse and choose a file
+   ${GREEN}-o, --output <dir>${RESET}     Specify output directory for sanitized files
+   ${GREEN}-i, --in-place${RESET}         Overwrite original file directly
+   ${GREEN}-d, --dry-run${RESET}          Analyze metadata/PII without writing files
+   ${GREEN}-j, --json${RESET}             Output machine-readable JSON format
+   ${GREEN}    --gui, --ui${RESET}        Force launch localhost Web GUI
+   ${GREEN}-h, --help, /help${RESET}      Show this guide
+   ${GREEN}-v, --version${RESET}          Show version
 `);
 }
 
@@ -61,11 +72,141 @@ async function readStdin() {
   });
 }
 
+async function processSingleFile(filePath, flags) {
+  try {
+    const resolvedPath = resolve(process.cwd(), filePath);
+    const result = sanitizeFile(resolvedPath, {
+      outputPath: flags.output,
+      inPlace: flags.inPlace,
+      dryRun: flags.dryRun
+    });
+
+    if (flags.json) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log(`\n${GREEN}✔ Sanitized [${result.type}]:${RESET} ${filePath}`);
+      if (result.outputPath) {
+        console.log(`  Output: ${result.outputPath}`);
+      }
+      if (result.stripped && result.stripped.length > 0) {
+        console.log(`  Stripped: ${result.stripped.join(', ')}`);
+      }
+      if (result.totalRedactions) {
+        console.log(`  Redacted: ${result.totalRedactions} sensitive item(s)`);
+      }
+      if (result.bytesSaved > 0) {
+        console.log(`  Space saved: ${(result.bytesSaved / 1024).toFixed(1)} KB`);
+      }
+    }
+  } catch (err) {
+    console.error(`\x1b[31m✖ Error processing ${filePath}:${RESET} ${err.message}`);
+  }
+}
+
+async function runInteractiveMenu(flags) {
+  console.log(BANNER);
+  console.log(`${BOLD}Choose an action or type /help:${RESET}
+  ${GREEN}[1]${RESET} Pick file via File Explorer ${DIM}(or type: pick)${RESET}
+  ${GREEN}[2]${RESET} Paste text or error log to scrub
+  ${GREEN}[3]${RESET} Clean a tracking link (URL)
+  ${GREEN}[4]${RESET} Launch offline Web GUI ${DIM}(browser)${RESET}
+  ${GREEN}[5]${RESET} Command guide & examples ${DIM}(/help)${RESET}
+  ${GREEN}[0]${RESET} Exit
+`);
+
+  const rl = readline.createInterface({ input, output });
+
+  try {
+    const rawChoice = await rl.question(`${BOLD}> ${RESET}`);
+    const choice = rawChoice.trim();
+
+    if (!choice || choice === '0' || choice.toLowerCase() === 'exit' || choice.toLowerCase() === 'q') {
+      console.log('Exiting.');
+      return;
+    }
+
+    if (choice === '1' || choice.toLowerCase() === 'pick' || choice.toLowerCase() === 'p') {
+      console.log(`${DIM}Opening file explorer...${RESET}`);
+      const selected = await openFilePicker();
+      if (selected) {
+        console.log(`Selected: ${selected}`);
+        await processSingleFile(selected, flags);
+      } else {
+        console.log(`${DIM}File selection cancelled.${RESET}`);
+      }
+      return;
+    }
+
+    if (choice === '2' || choice.toLowerCase() === 'text' || choice.toLowerCase() === 'log') {
+      console.log(`${DIM}Enter text (paste and press Enter):${RESET}`);
+      const text = await rl.question('> ');
+      if (text) {
+        const res = sanitizeText(text);
+        console.log(`\n${GREEN}✔ Sanitized output (${res.totalRedactions} redacted):${RESET}`);
+        console.log(res.text);
+      }
+      return;
+    }
+
+    if (choice === '3' || choice.toLowerCase() === 'url') {
+      console.log(`${DIM}Paste target URL:${RESET}`);
+      const url = await rl.question('> ');
+      if (url) {
+        const clean = sanitizeUrl(url);
+        console.log(`\n${GREEN}Clean URL:${RESET} ${clean.cleanUrl}`);
+        if (clean.removedParams.length > 0) {
+          console.log(`${DIM}Removed ${clean.removedParams.length} tracker(s): ${clean.removedParams.join(', ')}${RESET}`);
+        }
+      }
+      return;
+    }
+
+    if (choice === '4' || choice.toLowerCase() === 'gui' || choice.toLowerCase() === 'web') {
+      console.log(`${GREEN}[sanitize-me]${RESET} Starting local web airlock...`);
+      const { url } = await startServer({ open: true });
+      console.log(`${CYAN}✔ Web GUI running at:${RESET} ${url}`);
+      console.log(`${DIM}(Press Ctrl+C to terminate)${RESET}\n`);
+      return;
+    }
+
+    if (choice === '5' || choice === '/help' || choice.toLowerCase() === 'help' || choice === '?') {
+      printHelp();
+      return;
+    }
+
+    // Check if user directly pasted or typed a URL
+    if (isLikelyUrl(choice)) {
+      const clean = sanitizeUrl(choice);
+      console.log(`\n${GREEN}Clean URL:${RESET} ${clean.cleanUrl}`);
+      if (clean.removedParams.length > 0) {
+        console.log(`${DIM}Removed: ${clean.removedParams.join(', ')}${RESET}`);
+      }
+      return;
+    }
+
+    // Check if user dragged-and-dropped or entered a valid file path
+    const strippedPath = choice.replace(/^["']|["']$/g, '');
+    if (existsSync(strippedPath)) {
+      await processSingleFile(strippedPath, flags);
+      return;
+    }
+
+    // Otherwise treat as plain text to scrub
+    const res = sanitizeText(choice);
+    console.log(`\n${GREEN}Sanitized output (${res.totalRedactions} redacted):${RESET}`);
+    console.log(res.text);
+
+  } finally {
+    rl.close();
+  }
+}
+
 export async function runCli(argv = process.argv.slice(2)) {
   const flags = {
-    help: argv.includes('-h') || argv.includes('--help'),
+    help: argv.includes('-h') || argv.includes('--help') || argv.includes('/help') || argv.includes('help') || argv.includes('?'),
     version: argv.includes('-v') || argv.includes('--version'),
     gui: argv.includes('--gui') || argv.includes('--ui'),
+    pick: argv.includes('-p') || argv.includes('--pick') || argv.includes('pick'),
     inPlace: argv.includes('-i') || argv.includes('--in-place'),
     dryRun: argv.includes('-d') || argv.includes('--dry-run'),
     json: argv.includes('-j') || argv.includes('--json'),
@@ -81,6 +222,7 @@ export async function runCli(argv = process.argv.slice(2)) {
   const targets = argv.filter((arg, idx) => {
     if (arg.startsWith('-')) return false;
     if (idx > 0 && (argv[idx - 1] === '-o' || argv[idx - 1] === '--output')) return false;
+    if (['help', '/help', '?', 'pick', 'gui', 'web'].includes(arg.toLowerCase())) return false;
     return true;
   });
 
@@ -91,6 +233,19 @@ export async function runCli(argv = process.argv.slice(2)) {
 
   if (flags.version) {
     console.log(pkg.version);
+    return;
+  }
+
+  // Handle direct file picker flag
+  if (flags.pick) {
+    console.log(`${DIM}Opening file explorer...${RESET}`);
+    const selected = await openFilePicker();
+    if (selected) {
+      console.log(`Selected: ${selected}`);
+      await processSingleFile(selected, flags);
+    } else {
+      console.log(`${DIM}File selection cancelled.${RESET}`);
+    }
     return;
   }
 
@@ -115,61 +270,38 @@ export async function runCli(argv = process.argv.slice(2)) {
     return;
   }
 
-  // 2. Explicit GUI flag or no args provided in terminal -> launch offline Web GUI
-  if (flags.gui || targets.length === 0) {
+  // 2. Explicit GUI flag
+  if (flags.gui) {
     console.log(BANNER);
-    console.log(`${LIME}[sanitize-me]${RESET} Starting local-first privacy airlock UI...`);
+    console.log(`${GREEN}[sanitize-me]${RESET} Starting local web airlock...`);
     const { url } = await startServer({ open: true });
     console.log(`${CYAN}✔ Web GUI running at:${RESET} ${url}`);
     console.log(`${DIM}(100% offline, zero cloud connections. Press Ctrl+C to terminate)${RESET}\n`);
     return;
   }
 
-  // 3. Process positional targets
+  // 3. No targets specified in interactive terminal -> Run intuitive menu
+  if (targets.length === 0) {
+    await runInteractiveMenu(flags);
+    return;
+  }
+
+  // 4. Process positional targets
   for (const target of targets) {
-    // Check if target is a URL
     if (isLikelyUrl(target)) {
       const clean = sanitizeUrl(target);
       if (flags.json) {
         console.log(JSON.stringify(clean, null, 2));
       } else {
-        console.log(`\n\x1b[32mClean URL:\x1b[0m ${clean.cleanUrl}`);
+        console.log(`\n${GREEN}Clean URL:${RESET} ${clean.cleanUrl}`);
         if (clean.removedParams.length > 0) {
-          console.log(`\x1b[90mRemoved ${clean.removedParams.length} tracker(s): ${clean.removedParams.join(', ')}\x1b[0m`);
+          console.log(`${DIM}Removed ${clean.removedParams.length} tracker(s): ${clean.removedParams.join(', ')}${RESET}`);
         }
       }
       continue;
     }
 
-    // Process file
-    try {
-      const resolvedPath = resolve(process.cwd(), target);
-      const result = sanitizeFile(resolvedPath, {
-        outputPath: flags.output,
-        inPlace: flags.inPlace,
-        dryRun: flags.dryRun
-      });
-
-      if (flags.json) {
-        console.log(JSON.stringify(result, null, 2));
-      } else {
-        console.log(`\x1b[32m✔ Sanitized [${result.type}]:\x1b[0m ${target}`);
-        if (result.outputPath) {
-          console.log(`  Output: ${result.outputPath}`);
-        }
-        if (result.stripped && result.stripped.length > 0) {
-          console.log(`  Stripped: ${result.stripped.join(', ')}`);
-        }
-        if (result.totalRedactions) {
-          console.log(`  Redacted: ${result.totalRedactions} sensitive item(s)`);
-        }
-        if (result.bytesSaved > 0) {
-          console.log(`  Space saved: ${(result.bytesSaved / 1024).toFixed(1)} KB`);
-        }
-      }
-    } catch (err) {
-      console.error(`\x1b[31m✖ Error processing ${target}:\x1b[0m ${err.message}`);
-    }
+    await processSingleFile(target, flags);
   }
 }
 
