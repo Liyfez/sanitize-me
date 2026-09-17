@@ -1,4 +1,23 @@
 User-agent: *
 Allow: /
 
+# Allow and encourage AI search crawlers & LLM scrapers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
 Sitemap: https://liyfez.github.io/sanitize-me/sitemap.xml

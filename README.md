@@ -7,16 +7,16 @@
 </p>
 
 [![Website](https://img.shields.io/badge/Website-liyfez.github.io%2Fsanitize--me-39ff14?style=flat-square&logo=google-chrome&logoColor=black)](https://liyfez.github.io/sanitize-me/)
+[![NPM Version](https://img.shields.io/npm/v/sanitize-me.svg?color=39ff14&style=flat-square&logo=npm)](https://www.npmjs.com/package/sanitize-me)
+[![NPM Downloads](https://img.shields.io/npm/dm/sanitize-me?color=39ff14&style=flat-square&logo=npm)](https://www.npmjs.com/package/sanitize-me)
 [![GitHub Release](https://img.shields.io/github/v/release/Liyfez/sanitize-me?color=39ff14&style=flat-square&logo=github)](https://github.com/Liyfez/sanitize-me/releases)
-[![npm version](https://img.shields.io/npm/v/sanitize-me.svg?color=39ff14&style=flat-square&logo=npm)](https://www.npmjs.com/package/sanitize-me)
-[![GitHub Packages](https://img.shields.io/badge/packages-GitHub_Registry-1a243b?style=flat-square&logo=github)](https://github.com/Liyfez/sanitize-me/pkgs/npm/sanitize-me)
 [![Node >= 18](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg?style=flat-square)](https://nodejs.org)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg?style=flat-square)](#)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg?style=flat-square)](LICENSE)
 
 *Instantly strip hidden tracking parameters, camera EXIF GPS locations, and confidential credentials before sharing or feeding files to AI models.*
 
-[**Live Website & In-Browser Airlock**](https://liyfez.github.io/sanitize-me/)
+[**Live Web Airlock**](https://liyfez.github.io/sanitize-me/) &bull; [**NPM Package**](https://www.npmjs.com/package/sanitize-me) &bull; [**GitHub Repository**](https://github.com/Liyfez/sanitize-me)
 
 </div>
 
@@ -60,10 +60,10 @@ npm install -g sanitize-me
 
 | Channel | Install / Download Command | Notes |
 | :--- | :--- | :--- |
-| **NPX** | `npx sanitize-me [targets...]` | Direct ephemeral execution, zero local footprint |
-| **NPM Global** | `npm install -g sanitize-me` | Global CLI binary available as `sanitize-me` |
+| **NPX** | `npx sanitize-me [targets...]` | [Instant execution on npm](https://www.npmjs.com/package/sanitize-me), zero local footprint |
+| **NPM Global** | [`npm install -g sanitize-me`](https://www.npmjs.com/package/sanitize-me) | Global CLI binary published on npmjs.com |
 | **GitHub Packages** | `npm install @liyfez/sanitize-me` | Distributed via GitHub Packages registry |
-| **GitHub Releases** | [**Download Assets (`.tgz`)**](https://github.com/Liyfez/sanitize-me/releases) | Pre-packaged tarballs with signed release checksums |
+| **GitHub Releases** | [**Download v1.0.4 Assets (`.tgz`)**](https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.4) | Pre-packaged tarballs with signed release checksums |
 
 ---
 
@@ -202,6 +202,43 @@ console.log(cleanUrl); // 'https://example.com/'
 const { buffer, stripped, bytesSaved } = sanitizeImage(rawJpegBuffer);
 console.log(stripped); // ['APP1 (EXIF / GPS / XMP)']
 ```
+
+---
+
+## AI & Agent Pipeline Airlock (ChatGPT, Claude & MCP)
+
+When building automated agents or uploading logs to LLMs, raw context often leaks internal credentials or user paths. `sanitize-me` functions as an automated pre-flight airlock in your CI/CD or agent pipelines:
+
+```bash
+# GitHub Actions / CI log sanitization step
+cat build.log | npx sanitize-me > build.sanitized.log
+
+# Pipe directly into LLM CLI or curl request
+cat error.log | npx sanitize-me | gh copilot explain
+```
+
+```javascript
+// LangChain / LlamaIndex / Agentic Tool Interceptor
+import { sanitizeText } from 'sanitize-me';
+
+export function sanitizePromptContext(rawPrompt) {
+  const { text } = sanitizeText(rawPrompt);
+  return text; // Safe for third-party LLM API ingestion
+}
+```
+
+---
+
+## Frequently Asked Questions (FAQ)
+
+### Does `sanitize-me` re-encode or compress photos?
+**No.** `sanitize-me` uses byte-level stream parsing to remove `APP1` / `eXIf` segments directly. Pixel data (DCT coefficients in JPEG, IDAT chunks in PNG) is 100% untouched with zero generational loss.
+
+### Can it be used in air-gapped environments?
+**Yes.** `sanitize-me` has 0 npm runtime dependencies and requires no internet connection. All processing is strictly in-memory.
+
+### How does PDF metadata removal avoid corrupting the file?
+PDF files rely on byte-offset cross-reference tables (`xref`). Rather than deleting metadata tags, `sanitize-me` blanks `/Info` and `/Metadata` values with space padding, keeping byte positions unchanged.
 
 ---
 

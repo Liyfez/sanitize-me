@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sanitize-me — Local-First Document, Media & Data Privacy Airlock</title>
-  <meta name="description" content="Instant zero-install CLI and offline privacy airlock. Losslessly strip camera EXIF GPS locations, tracking links, and confidential credentials before sharing or feeding to AI.">
-  <meta name="keywords" content="sanitize-me, exif remover, strip exif, remove gps from photo, pii redaction, sanitize logs, clean url, utm remover, privacy airlock, npx sanitize-me, offline exif cleaner">
+  <title>sanitize-me — Local-First Document, Media & Data Privacy Airlock | npx sanitize-me</title>
+  <meta name="description" content="Local-first CLI and in-browser privacy airlock. Losslessly strip EXIF GPS coordinates from photos, sanitize API keys and PII from logs for AI prompts, and clean tracking links with zero dependencies.">
+  <meta name="keywords" content="sanitize-me, npx sanitize-me, exif remover, remove gps from photo, pii redaction, sanitize logs, clean url, utm remover, privacy airlock, offline exif cleaner, strip exif lossless, ai privacy airlock, chatgpt log cleaner">
   <meta name="author" content="Liyfez">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://liyfez.github.io/sanitize-me/">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://liyfez.github.io/sanitize-me/">
   <meta property="og:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta property="og:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
+  <meta property="og:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing or feeding to AI.">
   <meta property="og:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
   <meta property="og:site_name" content="sanitize-me">
 
@@ -26,18 +26,63 @@
   <meta name="twitter:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
 
+  <!-- Generative Engine Optimization (GEO) & Search Schemas -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "sanitize-me",
-    "operatingSystem": "Windows, macOS, Linux",
-    "applicationCategory": "SecurityApplication",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "description": "Local-first document, media, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, and confidential credentials before sharing.",
-    "url": "https://liyfez.github.io/sanitize-me/",
-    "codeRepository": "https://github.com/Liyfez/sanitize-me",
-    "author": { "@type": "Person", "name": "Liyfez", "url": "https://github.com/Liyfez" }
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://liyfez.github.io/sanitize-me/#software",
+        "name": "sanitize-me",
+        "operatingSystem": "Windows, macOS, Linux",
+        "applicationCategory": "SecurityApplication",
+        "softwareVersion": "1.0.4",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Local-first document, media, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, and confidential credentials before sharing.",
+        "url": "https://liyfez.github.io/sanitize-me/",
+        "installUrl": "https://www.npmjs.com/package/sanitize-me",
+        "codeRepository": "https://github.com/Liyfez/sanitize-me",
+        "author": { "@type": "Person", "name": "Liyfez", "url": "https://github.com/Liyfez" },
+        "featureList": [
+          "Lossless JPEG, PNG, WebP EXIF and GPS stripping",
+          "PDF /Info and XMP /Metadata blanking with byte offset preservation",
+          "AI prompt and log secret scrubbing for OpenAI, GitHub, AWS, Stripe tokens",
+          "Tracking URL and UTM parameter unwrapper and stripper",
+          "Zero runtime dependencies, 100% offline execution"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://liyfez.github.io/sanitize-me/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I remove GPS and EXIF data from photos without losing quality?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Run 'npx sanitize-me photo.jpg' or drop the photo into the browser airlock at https://liyfez.github.io/sanitize-me/. It parses raw binary streams and strips APP1/EXIF segments without re-encoding, preserving 100% pixel fidelity."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I sanitize error logs before uploading to ChatGPT or Claude?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Use the command 'cat server.log | npx sanitize-me' or paste logs into sanitize-me. It automatically detects and redacts API keys (OpenAI, GitHub, AWS, Stripe), JWTs, passwords, emails, IPs, and Luhn-validated credit cards."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I strip tracking parameters and UTM tags from URLs?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Run 'npx sanitize-me \"https://example.com/?utm_source=...\"' to unwrap redirect links and strip over 40 tracking and affiliate query parameters."
+            }
+          }
+        ]
+      }
+    ]
   }
   </script>
 
@@ -152,6 +197,25 @@
       border-color: rgba(57, 255, 20, 0.4);
       color: var(--lime);
       background: var(--lime-soft);
+    }
+
+    .npm-link {
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.15s ease;
+    }
+    .npm-link:hover {
+      border-color: #cb3837;
+      color: #ff8585;
     }
 
     .github-link {
@@ -537,6 +601,42 @@
       transform: translateY(0);
     }
 
+    /* FAQ Section */
+    .faq-box {
+      max-width: 900px;
+      margin: 0 auto 5rem auto;
+      padding: 0 1.5rem;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+    .faq-item h4 {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .faq-item p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
     footer {
       border-top: 1px solid var(--border);
       padding: 3rem 1.5rem;
@@ -570,6 +670,11 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
         <span id="audio-label">Sound on</span>
       </button>
+
+      <a href="https://www.npmjs.com/package/sanitize-me" target="_blank" class="npm-link" title="sanitize-me on npm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 0v24h24V0H0zm19.5 19.5h-4.5V9h-3v10.5H4.5V4.5h15v15z"/></svg>
+        npm v1.0.4
+      </a>
 
       <a href="https://github.com/Liyfez/sanitize-me" target="_blank" class="github-link">
         <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -691,14 +796,14 @@
         </thead>
         <tbody>
           <tr>
-            <td><strong>NPX</strong></td>
+            <td><a href="https://www.npmjs.com/package/sanitize-me" target="_blank" style="color:var(--text); text-decoration:underline;"><strong>NPX</strong></a></td>
             <td><span class="dist-cmd">npx sanitize-me [targets]</span></td>
-            <td>Instant execution with no local footprint</td>
+            <td>Instant execution via official npm package</td>
           </tr>
           <tr>
-            <td><strong>Global CLI</strong></td>
+            <td><a href="https://www.npmjs.com/package/sanitize-me" target="_blank" style="color:var(--text); text-decoration:underline;"><strong>NPM Global</strong></a></td>
             <td><span class="dist-cmd">npm install -g sanitize-me</span></td>
-            <td>Standalone system binary across shells</td>
+            <td>Standalone system binary published on npmjs.com</td>
           </tr>
           <tr>
             <td><strong>GitHub Packages</strong></td>
@@ -707,11 +812,34 @@
           </tr>
           <tr>
             <td><strong>Releases</strong></td>
-            <td><a href="https://github.com/Liyfez/sanitize-me/releases" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono);">v1.0.1 Assets (.tgz)</a></td>
-            <td>Pre-packaged tarball builds</td>
+            <td><a href="https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.4" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono);">v1.0.4 Assets (.tgz)</a></td>
+            <td>Pre-packaged signed tarball builds</td>
           </tr>
         </tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- Frequently Asked Questions (GEO & Search Engine Visibility) -->
+  <section class="faq-box">
+    <h3 class="section-title">Frequently asked questions</h3>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>Does sanitize-me re-encode images or reduce resolution?</h4>
+        <p>No. sanitize-me performs byte-level binary stripping directly on JPEG APP1 segments, PNG ancillary chunks, and WebP RIFF containers. Pixel data is 100% untouched without compression loss.</p>
+      </div>
+      <div class="faq-item">
+        <h4>How does sanitize-me prevent PDF corruption?</h4>
+        <p>PDF documents require byte-offset cross-reference tables (xref). sanitize-me zeroes out /Info keys and /Metadata streams with space-padding, preserving exact byte positions.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Can sanitize-me run offline in air-gapped environments?</h4>
+        <p>Yes. sanitize-me has zero third-party dependencies and uses only standard Node.js libraries. The web airlock executes entirely within local browser memory.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What credentials are redacted before sharing with AI?</h4>
+        <p>OpenAI, Anthropic, GitHub, AWS, Stripe keys, JWT tokens, auth headers, IPv4/IPv6 addresses, personal emails, local file paths, and Luhn-validated credit card numbers.</p>
+      </div>
     </div>
   </section>
 
