@@ -14,7 +14,7 @@
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg?style=flat-square)](#)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg?style=flat-square)](LICENSE)
 
-*Instantly strip hidden tracking parameters, camera EXIF GPS locations, and confidential credentials before sharing or feeding files to AI models.*
+*Instantly strip hidden tracking parameters, camera EXIF GPS locations, and confidential credentials before sharing files, sending to clients, or posting online.*
 
 [**Live Web Airlock**](https://liyfez.github.io/sanitize-me/) &bull; [**NPM Package**](https://www.npmjs.com/package/sanitize-me) &bull; [**GitHub Repository**](https://github.com/Liyfez/sanitize-me)
 
@@ -36,7 +36,7 @@ npx sanitize-me photo.jpg
 # 3. Clean and unwrap a tracking link
 npx sanitize-me "https://amazon.com/dp/B00000?utm_source=twitter&tag=affiliate-20"
 
-# 4. Redact logs, auth headers, and API keys before feeding to ChatGPT / Claude
+# 4. Redact logs, auth headers, and API keys before sharing or sending
 cat debug.log | npx sanitize-me
 
 # 5. Show detailed command guide and cheatsheet
@@ -88,7 +88,7 @@ sanitize-me -i profile.jpg
 
 ---
 
-### 2. Text, Log & Clipboard Mode (AI Privacy Pre-Flight)
+### 2. Text, Log & Clipboard Mode (Credentials, Secrets & PII)
 Scans for regex patterns of sensitive tokens, secrets, and PII, replacing them with generic tags:
 - **API Keys & Tokens**: OpenAI (`sk-...`), GitHub (`ghp_...`), AWS (`AKIA...`), Google (`AIza...`), Slack (`xox...`), Stripe (`sk_...`)
 - **JWTs**: Decoupled JSON Web Tokens (`eyJ...`) -> `<JWT_REDACTED>`
@@ -101,7 +101,7 @@ Scans for regex patterns of sensitive tokens, secrets, and PII, replacing them w
 # Pipe server traces or env dumps
 cat app.log | sanitize-me
 
-# macOS: Sanitize clipboard before pasting into ChatGPT
+# macOS: Sanitize clipboard before pasting into public chats or tickets
 pbpaste | sanitize-me | pbcopy
 
 # Linux:
@@ -154,9 +154,9 @@ COMMAND GUIDE (/help)
    npx sanitize-me file.png -i        Overwrite file in-place
    npx sanitize-me f1.jpg f2.pdf -o ./out Save sanitized files to custom folder
 
-2. TEXT & LOG SANITIZING (AI Pre-Flight)
+2. TEXT & LOG SANITIZING (Secrets & PII)
    cat server.log | npx sanitize-me   Redact API keys, tokens, IPs, emails from piped stream
-   pbpaste | npx sanitize-me | pbcopy Sanitize clipboard before pasting into ChatGPT / Claude
+   pbpaste | npx sanitize-me | pbcopy Sanitize clipboard before pasting into tickets or chats
 
 3. URL TRACKER STRIPPING
    npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"
@@ -205,25 +205,25 @@ console.log(stripped); // ['APP1 (EXIF / GPS / XMP)']
 
 ---
 
-## AI & Agent Pipeline Airlock (ChatGPT, Claude & MCP)
+## CI/CD & Pipeline Airlock (Automated Sanitization)
 
-When building automated agents or uploading logs to LLMs, raw context often leaks internal credentials or user paths. `sanitize-me` functions as an automated pre-flight airlock in your CI/CD or agent pipelines:
+When sharing diagnostic traces, submitting bug tickets, or publishing build artifacts, raw output often leaks internal credentials or local user paths. `sanitize-me` functions as an automated privacy airlock in your CI/CD and deployment pipelines:
 
 ```bash
 # GitHub Actions / CI log sanitization step
 cat build.log | npx sanitize-me > build.sanitized.log
 
-# Pipe directly into LLM CLI or curl request
-cat error.log | npx sanitize-me | gh copilot explain
+# Pipe directly into clean output file for public tickets
+cat error.log | npx sanitize-me > clean-error.log
 ```
 
 ```javascript
-// LangChain / LlamaIndex / Agentic Tool Interceptor
+// Pre-sharing log interceptor
 import { sanitizeText } from 'sanitize-me';
 
-export function sanitizePromptContext(rawPrompt) {
-  const { text } = sanitizeText(rawPrompt);
-  return text; // Safe for third-party LLM API ingestion
+export function sanitizeDiagnosticLogs(rawOutput) {
+  const { text } = sanitizeText(rawOutput);
+  return text; // Safe for external sharing or ticket attachments
 }
 ```
 

@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# Allow and encourage AI search crawlers & LLM scrapers
+# Search crawlers and indexing bots
 User-agent: GPTBot
 Allow: /
 

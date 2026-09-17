@@ -38,9 +38,9 @@ ${BOLD}1. FILE CLEANING (Images, PDFs, Logs)${RESET}
    ${CYAN}npx sanitize-me file.png -i${RESET}        Overwrite file in-place
    ${CYAN}npx sanitize-me f1.jpg f2.pdf -o ./out${RESET} Save sanitized files to custom folder
 
-${BOLD}2. TEXT & LOG SANITIZING (AI Pre-Flight)${RESET}
+${BOLD}2. TEXT & LOG SANITIZING (Secrets & PII)${RESET}
    ${CYAN}cat server.log | npx sanitize-me${RESET}   Redact API keys, tokens, IPs, emails from piped stream
-   ${CYAN}pbpaste | npx sanitize-me | pbcopy${RESET} Sanitize clipboard before pasting into ChatGPT / Claude
+   ${CYAN}pbpaste | npx sanitize-me | pbcopy${RESET} Sanitize clipboard before pasting into tickets or chats
 
 ${BOLD}3. URL TRACKER STRIPPING${RESET}
    ${CYAN}npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"${RESET}

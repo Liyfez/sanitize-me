@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>sanitize-me — Local-First Document, Media & Data Privacy Airlock | npx sanitize-me</title>
-  <meta name="description" content="Local-first CLI and in-browser privacy airlock. Losslessly strip EXIF GPS coordinates from photos, sanitize API keys and PII from logs for AI prompts, and clean tracking links with zero dependencies.">
-  <meta name="keywords" content="sanitize-me, npx sanitize-me, exif remover, remove gps from photo, pii redaction, sanitize logs, clean url, utm remover, privacy airlock, offline exif cleaner, strip exif lossless, ai privacy airlock, chatgpt log cleaner">
+  <meta name="description" content="Local-first CLI and in-browser privacy airlock. Losslessly strip EXIF GPS coordinates from photos, sanitize API keys and PII from logs, and clean tracking links before sharing with anyone.">
+  <meta name="keywords" content="sanitize-me, npx sanitize-me, exif remover, remove gps from photo, pii redaction, sanitize logs, clean url, utm remover, privacy airlock, offline exif cleaner, strip exif lossless, secret scrubber, log privacy">
   <meta name="author" content="Liyfez">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://liyfez.github.io/sanitize-me/">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://liyfez.github.io/sanitize-me/">
   <meta property="og:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta property="og:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing or feeding to AI.">
+  <meta property="og:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing with anyone.">
   <meta property="og:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
   <meta property="og:site_name" content="sanitize-me">
 
@@ -23,7 +23,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://liyfez.github.io/sanitize-me/">
   <meta name="twitter:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta name="twitter:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
+  <meta name="twitter:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing with anyone.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
 
   <!-- Generative Engine Optimization (GEO) & Search Schemas -->
@@ -47,7 +47,7 @@
         "featureList": [
           "Lossless JPEG, PNG, WebP EXIF and GPS stripping",
           "PDF /Info and XMP /Metadata blanking with byte offset preservation",
-          "AI prompt and log secret scrubbing for OpenAI, GitHub, AWS, Stripe tokens",
+          "Log and text secret scrubbing for OpenAI, GitHub, AWS, Stripe tokens",
           "Tracking URL and UTM parameter unwrapper and stripper",
           "Zero runtime dependencies, 100% offline execution"
         ]
@@ -66,10 +66,10 @@
           },
           {
             "@type": "Question",
-            "name": "How do I sanitize error logs before uploading to ChatGPT or Claude?",
+            "name": "How do I sanitize error logs before sharing publicly or in bug reports?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Use the command 'cat server.log | npx sanitize-me' or paste logs into sanitize-me. It automatically detects and redacts API keys (OpenAI, GitHub, AWS, Stripe), JWTs, passwords, emails, IPs, and Luhn-validated credit cards."
+              "text": "Use the command 'cat server.log | npx sanitize-me' or paste logs into sanitize-me. It automatically detects and redacts API keys, JWTs, passwords, emails, IPs, and Luhn-validated credit cards."
             }
           },
           {
@@ -691,7 +691,7 @@
     <img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME" class="hero-banner">
 
     <p class="hero-desc">
-      Losslessly strip <strong>camera EXIF GPS locations</strong>, tracking links, and <strong>confidential API credentials</strong> before sharing or feeding files to AI models.
+      Losslessly strip <strong>camera EXIF GPS locations</strong>, tracking links, and <strong>confidential API credentials</strong> before sharing files, sending to clients, or posting online.
     </p>
 
     <div class="quickstart">
@@ -774,8 +774,8 @@
       <p>Direct binary byte manipulation on JPEG APP1/EXIF, PNG ancillary chunks, and WebP RIFF containers. Preserves 100% original pixel data without re-encoding.</p>
     </div>
     <div class="feature-card">
-      <h3>AI pre-flight scrubbing</h3>
-      <p>Scrub error logs and config dumps before sharing with ChatGPT or Claude. Redacts API tokens, private keys, JWTs, IPs, and Luhn-validated card numbers.</p>
+      <h3>Confidential log scrubbing</h3>
+      <p>Scrub error logs, configs, and terminal traces before sharing with anyone. Redacts API tokens, private keys, JWTs, IPs, and Luhn-validated card numbers.</p>
     </div>
     <div class="feature-card">
       <h3>Zero runtime dependencies</h3>
@@ -837,8 +837,8 @@
         <p>Yes. sanitize-me has zero third-party dependencies and uses only standard Node.js libraries. The web airlock executes entirely within local browser memory.</p>
       </div>
       <div class="faq-item">
-        <h4>What credentials are redacted before sharing with AI?</h4>
-        <p>OpenAI, Anthropic, GitHub, AWS, Stripe keys, JWT tokens, auth headers, IPv4/IPv6 addresses, personal emails, local file paths, and Luhn-validated credit card numbers.</p>
+        <h4>What credentials and data are redacted before sharing?</h4>
+        <p>API keys, secret tokens, private keys, JWTs, auth headers, IPv4/IPv6 addresses, personal emails, local file paths, and Luhn-validated credit card numbers.</p>
       </div>
     </div>
   </section>
