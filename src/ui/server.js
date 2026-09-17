@@ -106,8 +106,9 @@ export function startServer(options = {}) {
 
       // API: File Sanitization
       if (req.method === 'POST' && parsedUrl.pathname === '/api/sanitize-file') {
-        const filename = parsedUrl.searchParams.get('filename') || 'file.bin';
-        const ext = extname(filename).toLowerCase();
+        const rawName = parsedUrl.searchParams.get('filename') || 'file.bin';
+        const cleanBase = basename(rawName).replace(/[^\w.-]/g, '_') || 'file.bin';
+        const ext = extname(cleanBase).toLowerCase();
         const chunks = [];
 
         req.on('data', chunk => chunks.push(chunk));
@@ -133,9 +134,10 @@ export function startServer(options = {}) {
               stripped = result.stripped;
             }
 
+            res.setHeader('Access-Control-Expose-Headers', 'X-Stripped-Tags, Content-Disposition');
             res.writeHead(200, {
               'Content-Type': 'application/octet-stream',
-              'Content-Disposition': `attachment; filename="clean_${filename}"`,
+              'Content-Disposition': `attachment; filename="clean_${cleanBase}"`,
               'X-Stripped-Tags': JSON.stringify(stripped)
             });
             res.end(result.buffer);

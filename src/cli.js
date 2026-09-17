@@ -82,7 +82,8 @@ async function processSingleFile(filePath, flags) {
     });
 
     if (flags.json) {
-      console.log(JSON.stringify(result, null, 2));
+      const { buffer: _buf, ...jsonSafe } = result;
+      console.log(JSON.stringify(jsonSafe, null, 2));
     } else {
       console.log(`\n${GREEN}✔ Sanitized [${result.type}]:${RESET} ${filePath}`);
       if (result.outputPath) {

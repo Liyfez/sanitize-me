@@ -49,15 +49,15 @@ export function sanitizeText(text) {
   );
 
   // 2. Auth Headers (Authorization, Cookie, Set-Cookie)
-  sanitized = sanitized.replace(/(Authorization:\s*(?:Bearer|Basic)?\s*)([^\r\n]+)/gi, (match, p1) => {
+  sanitized = sanitized.replace(/(Authorization:\s*(?:Bearer|Basic)?\s*)([^\r\n"';,]+)/gi, (match, p1) => {
     recordRedaction('authHeader');
     return `${p1}<AUTH_REDACTED>`;
   });
-  sanitized = sanitized.replace(/(Set-Cookie:\s*)([^\r\n]+)/gi, (match, p1) => {
+  sanitized = sanitized.replace(/(Set-Cookie:\s*)([^\r\n"';]+)/gi, (match, p1) => {
     recordRedaction('cookieHeader');
     return `${p1}<COOKIE_REDACTED>`;
   });
-  sanitized = sanitized.replace(/(Cookie:\s*)([^\r\n]+)/gi, (match, p1) => {
+  sanitized = sanitized.replace(/(Cookie:\s*)([^\r\n"';]+)/gi, (match, p1) => {
     recordRedaction('cookieHeader');
     return `${p1}<COOKIE_REDACTED>`;
   });

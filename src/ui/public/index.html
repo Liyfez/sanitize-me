@@ -599,9 +599,9 @@
   <!-- Interactive Airlock Card -->
   <section class="airlock-box">
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('tab-media')">Files & media</button>
-      <button class="tab-btn" onclick="switchTab('tab-text')">Logs & text</button>
-      <button class="tab-btn" onclick="switchTab('tab-url')">Clean URLs</button>
+      <button class="tab-btn active" onclick="switchTab('tab-media', this)">Files & media</button>
+      <button class="tab-btn" onclick="switchTab('tab-text', this)">Logs & text</button>
+      <button class="tab-btn" onclick="switchTab('tab-url', this)">Clean URLs</button>
     </div>
 
     <!-- Tab 1: Files & Media -->
@@ -932,12 +932,13 @@
       setTimeout(() => { toast.classList.remove('show'); }, 2000);
     }
 
-    function switchTab(tabId) {
+    function switchTab(tabId, el) {
       sfx.tab();
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+      if (el) el.classList.add('active');
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
     }
 
     function copyQuickstart(cmd) {
@@ -953,7 +954,7 @@
       }, 1800);
     }
 
-    // Media Sanitizer
+    // Media & Document Sanitizers (Client-Side Lossless ArrayBuffer)
     let cleanMediaBlob = null;
     let cleanMediaFilename = 'clean_file';
 
@@ -987,6 +988,8 @@
       const stripped = [];
       const chunks = [bytes.slice(0, 2)];
       let offset = 2;
+      const view = new DataView(arrayBuffer);
+
       while (offset < bytes.length) {
         if (bytes[offset] !== 0xff) {
           chunks.push(bytes.slice(offset));
@@ -1002,12 +1005,26 @@
           offset += 2;
           continue;
         }
-        const len = (bytes[offset + 2] << 8) | bytes[offset + 3];
+        if (offset + 4 > bytes.length) {
+          chunks.push(bytes.slice(offset));
+          break;
+        }
+        const len = view.getUint16(offset + 2, false);
         const end = offset + 2 + len;
+        if (end > bytes.length) {
+          chunks.push(bytes.slice(offset));
+          break;
+        }
         let drop = false;
         if (marker === 0xe1) { drop = true; stripped.push('APP1 (EXIF / GPS / XMP)'); }
         else if (marker === 0xed) { drop = true; stripped.push('APP13 (IPTC / Photoshop)'); }
         else if (marker === 0xfe) { drop = true; stripped.push('COM (User Comments)'); }
+        else if (marker === 0xe2) {
+          let h = '';
+          for (let i = 0; i < 4 && offset + 4 + i < bytes.length; i++) h += String.fromCharCode(bytes[offset + 4 + i]);
+          if (h === 'FPXR') { drop = true; stripped.push('APP2 (FlashPix)'); }
+        }
+
         if (!drop) chunks.push(bytes.slice(offset, end));
         if (marker === 0xda) { chunks.push(bytes.slice(end)); break; }
         offset = end;
@@ -1019,22 +1036,219 @@
       return { bytes: cleanBytes, stripped };
     }
 
+    function cleanPngClient(arrayBuffer) {
+      const bytes = new Uint8Array(arrayBuffer);
+      const view = new DataView(arrayBuffer);
+      const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+      if (bytes.length < 8 || !sig.every((b, i) => bytes[i] === b)) {
+        return { bytes, stripped: [] };
+      }
+      const stripped = [];
+      const chunks = [bytes.slice(0, 8)];
+      const dropTypes = new Set(['eXIf', 'tEXt', 'zTXt', 'iTXt', 'tIME', 'dSIG']);
+      let offset = 8;
+
+      while (offset + 8 <= bytes.length) {
+        const len = view.getUint32(offset, false);
+        let type = '';
+        for (let i = 0; i < 4; i++) type += String.fromCharCode(bytes[offset + 4 + i]);
+        const totalChunk = 12 + len;
+        if (offset + totalChunk > bytes.length) {
+          chunks.push(bytes.slice(offset));
+          break;
+        }
+        if (dropTypes.has(type)) {
+          stripped.push(`PNG ${type}`);
+        } else {
+          chunks.push(bytes.slice(offset, offset + totalChunk));
+        }
+        offset += totalChunk;
+        if (type === 'IEND') break;
+      }
+      const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+      const cleanBytes = new Uint8Array(totalLen);
+      let pos = 0;
+      for (const c of chunks) { cleanBytes.set(c, pos); pos += c.length; }
+      return { bytes: cleanBytes, stripped };
+    }
+
+    function cleanWebpClient(arrayBuffer) {
+      const bytes = new Uint8Array(arrayBuffer);
+      const view = new DataView(arrayBuffer);
+      if (bytes.length < 12) return { bytes, stripped: [] };
+      let riff = '', webp = '';
+      for (let i = 0; i < 4; i++) {
+        riff += String.fromCharCode(bytes[i]);
+        webp += String.fromCharCode(bytes[8 + i]);
+      }
+      if (riff !== 'RIFF' || webp !== 'WEBP') return { bytes, stripped: [] };
+
+      const stripped = [];
+      const chunks = [];
+      let offset = 12;
+
+      while (offset + 8 <= bytes.length) {
+        let fourCC = '';
+        for (let i = 0; i < 4; i++) fourCC += String.fromCharCode(bytes[offset + i]);
+        const chunkSize = view.getUint32(offset + 4, true);
+        const paddedSize = chunkSize + (chunkSize % 2);
+        const nextOffset = offset + 8 + paddedSize;
+
+        if (fourCC === 'EXIF' || fourCC === 'XMP ') {
+          stripped.push(`WebP ${fourCC.trim()}`);
+        } else if (fourCC === 'VP8X') {
+          const chunkCopy = bytes.slice(offset, Math.min(nextOffset, bytes.length));
+          if (chunkCopy.length >= 9) {
+            chunkCopy[8] &= ~((1 << 3) | (1 << 2)); // clear EXIF & XMP flags
+          }
+          chunks.push(chunkCopy);
+        } else {
+          chunks.push(bytes.slice(offset, Math.min(nextOffset, bytes.length)));
+        }
+        offset = nextOffset;
+      }
+
+      const bodyLen = chunks.reduce((acc, c) => acc + c.length, 0);
+      const cleanBytes = new Uint8Array(12 + bodyLen);
+      for (let i = 0; i < 4; i++) cleanBytes[i] = 'RIFF'.charCodeAt(i);
+      new DataView(cleanBytes.buffer).setUint32(4, bodyLen + 4, true);
+      for (let i = 0; i < 4; i++) cleanBytes[8 + i] = 'WEBP'.charCodeAt(i);
+
+      let pos = 12;
+      for (const c of chunks) { cleanBytes.set(c, pos); pos += c.length; }
+      return { bytes: cleanBytes, stripped };
+    }
+
+    function cleanPdfClient(arrayBuffer) {
+      const bytes = new Uint8Array(arrayBuffer.slice(0));
+      let str = '';
+      for (let i = 0; i < bytes.length; i++) str += String.fromCharCode(bytes[i]);
+      if (!str.startsWith('%PDF-')) return { bytes, stripped: [] };
+
+      const stripped = [];
+      const fields = ['Author', 'Creator', 'Producer', 'CreationDate', 'ModDate', 'Keywords', 'Subject', 'Company', 'SourceModified'];
+      for (const f of fields) {
+        const re = new RegExp(`(/${f}\\s*)(\\((?:[^\\\\)]|\\\\.)*\\)|<[0-9a-fA-F\\s]*>)`, 'g');
+        let m;
+        while ((m = re.exec(str)) !== null) {
+          const valOffset = m.index + m[1].length;
+          const valLen = m[2].length;
+          if (valLen >= 2) {
+            for (let i = valOffset; i < valOffset + valLen; i++) bytes[i] = 0x20;
+            bytes[valOffset] = 0x28; // '('
+            bytes[valOffset + 1] = 0x29; // ')'
+            stripped.push(`PDF /Info /${f}`);
+          }
+        }
+      }
+
+      const metaRegex = /\/Type\s*\/Metadata[\s\S]*?stream\r?\n([\s\S]*?)\r?\nendstream/g;
+      let metaMatch;
+      while ((metaMatch = metaRegex.exec(str)) !== null) {
+        const streamContent = metaMatch[1];
+        const streamOffset = metaMatch.index + metaMatch[0].indexOf(streamContent);
+        for (let i = streamOffset; i < streamOffset + streamContent.length; i++) bytes[i] = 0x20;
+        stripped.push('PDF XMP /Metadata Stream');
+      }
+
+      return { bytes, stripped: [...new Set(stripped)] };
+    }
+
+    function isLuhnValid(str) {
+      const clean = str.replace(/\D/g, '');
+      if (clean.length < 13 || clean.length > 19) return false;
+      let sum = 0, alt = false;
+      for (let i = clean.length - 1; i >= 0; i--) {
+        let d = parseInt(clean.charAt(i), 10);
+        if (alt) { d *= 2; if (d > 9) d -= 9; }
+        sum += d;
+        alt = !alt;
+      }
+      return sum % 10 === 0;
+    }
+
+    function cleanTextClient(rawText) {
+      let t = rawText;
+      let count = 0;
+
+      // 1. Private Keys
+      t = t.replace(/-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g, () => { count++; return '<PRIVATE_KEY_REDACTED>'; });
+      // 2. Auth Headers (safe boundary delimiter)
+      t = t.replace(/(Authorization:\s*(?:Bearer|Basic)?\s*)([^\r\n"';,]+)/gi, (m, p1) => { count++; return `${p1}<AUTH_REDACTED>`; });
+      t = t.replace(/(Set-Cookie:\s*)([^\r\n"';]+)/gi, (m, p1) => { count++; return `${p1}<COOKIE_REDACTED>`; });
+      t = t.replace(/(Cookie:\s*)([^\r\n"';]+)/gi, (m, p1) => { count++; return `${p1}<COOKIE_REDACTED>`; });
+      // 3. JWTs
+      t = t.replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, () => { count++; return '<JWT_REDACTED>'; });
+      // 4. API Keys & Secrets
+      t = t.replace(/\b(?:sk-(?:proj-|svcacct-|live-|ant-api03-)?[A-Za-z0-9_\-]{20,})\b/g, () => { count++; return '<API_KEY_REDACTED>'; });
+      t = t.replace(/\b(?:gh[pousr]_[A-Za-z0-9_]{36,}|github_pat_[A-Za-z0-9_]{82})\b/g, () => { count++; return '<GITHUB_TOKEN_REDACTED>'; });
+      t = t.replace(/\b(AKIA[0-9A-Z]{16})\b/g, () => { count++; return '<AWS_KEY_REDACTED>'; });
+      t = t.replace(/\b(AIza[0-9A-Za-z\-_]{35})\b/g, () => { count++; return '<GOOGLE_KEY_REDACTED>'; });
+      t = t.replace(/\b(?:sk|pk)_(?:live|test)_[0-9a-zA-Z]{24,}\b/g, () => { count++; return '<STRIPE_KEY_REDACTED>'; });
+      t = t.replace(/\b(xox[baprs]-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*)\b/g, () => { count++; return '<SLACK_TOKEN_REDACTED>'; });
+      t = t.replace(/((?:api[_-]?key|access[_-]?token|client[_-]?secret|password|secret)[\s]*[:=][\s]*["']?)([^"'\s\r\n]{8,})(["']?)/gi, (m, p, v, q) => {
+        if (v.startsWith('<') && v.endsWith('>')) return m;
+        count++; return `${p}<SECRET_REDACTED>${q}`;
+      });
+      // 5. Credit Cards with Luhn check
+      t = t.replace(/\b(?:\d{4}[ -]?){3}\d{4}\b|\b(?:\d{4}[ -]?\d{6}[ -]?\d{4,5})\b/g, (m) => {
+        if (isLuhnValid(m)) { count++; return '<CREDIT_CARD_REDACTED>'; }
+        return m;
+      });
+      // 6. Emails
+      t = t.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, () => { count++; return '<EMAIL_REDACTED>'; });
+      // 7. IPv4 & IPv6
+      t = t.replace(/\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b/g, () => { count++; return '<IP_REDACTED>'; });
+      t = t.replace(/\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b|\b(?:[0-9a-fA-F]{1,4}:){1,7}:(?::[0-9a-fA-F]{1,4}){1,7}\b/g, () => { count++; return '<IPV6_REDACTED>'; });
+      // 8. User Paths
+      t = t.replace(/(C:\\Users\\)[a-zA-Z0-9_. -]+/gi, '$1<USER>');
+      t = t.replace(/(\/(?:home|Users)\/)[a-zA-Z0-9_. -]+/g, '$1<USER>');
+
+      return { text: t, count };
+    }
+
     async function handleFileSelect(file) {
       if (!file) return;
+
+      // Reset file input so selecting same file twice works reliably
+      const fileInput = document.getElementById('file-input');
+      if (fileInput) fileInput.value = '';
+
       sfx.fileDrop();
       setTimeout(() => sfx.purge(), 75);
 
       const buffer = await file.arrayBuffer();
       const ext = file.name.split('.').pop().toLowerCase();
       let result;
+      let mimeType = file.type || 'application/octet-stream';
 
       if (['jpg', 'jpeg'].includes(ext)) {
         result = cleanJpegClient(buffer);
+        mimeType = 'image/jpeg';
+      } else if (ext === 'png') {
+        result = cleanPngClient(buffer);
+        mimeType = 'image/png';
+      } else if (ext === 'webp') {
+        result = cleanWebpClient(buffer);
+        mimeType = 'image/webp';
+      } else if (ext === 'pdf') {
+        result = cleanPdfClient(buffer);
+        mimeType = 'application/pdf';
+      } else if (['txt', 'log', 'env', 'json', 'yaml', 'yml', 'csv', 'md', 'conf', 'ini', 'xml'].includes(ext) || file.type.startsWith('text/')) {
+        const textDecoder = new TextDecoder('utf-8');
+        const originalText = textDecoder.decode(buffer);
+        const clean = cleanTextClient(originalText);
+        const encoded = new TextEncoder().encode(clean.text);
+        result = {
+          bytes: encoded,
+          stripped: clean.count > 0 ? [`${clean.count} sensitive item(s) redacted`] : []
+        };
+        mimeType = 'text/plain;charset=utf-8';
       } else {
-        result = { bytes: new Uint8Array(buffer), stripped: ['Metadata sanitized'] };
+        result = { bytes: new Uint8Array(buffer), stripped: ['Unrecognized format: passed through'] };
       }
 
-      cleanMediaBlob = new Blob([result.bytes], { type: file.type || 'application/octet-stream' });
+      cleanMediaBlob = new Blob([result.bytes], { type: mimeType });
       cleanMediaFilename = 'clean_' + file.name;
 
       sfx.success();
@@ -1069,24 +1283,16 @@
 
     // Text Sanitizer
     function sanitizeTextInput() {
-      let t = document.getElementById('log-input').value;
-      if (!t.trim()) return;
+      const input = document.getElementById('log-input').value;
+      if (!input.trim()) return;
       sfx.purge();
-      let count = 0;
-
-      t = t.replace(/(Authorization:\s*(?:Bearer|Basic)?\s*)([^\r\n]+)/gi, () => { count++; return 'Authorization: <AUTH_REDACTED>'; });
-      t = t.replace(/\b(?:sk-(?:proj-|live-)?[A-Za-z0-9_\-]{20,})\b/g, () => { count++; return '<API_KEY_REDACTED>'; });
-      t = t.replace(/\b(?:gh[pousr]_[A-Za-z0-9_]{36,})\b/g, () => { count++; return '<GITHUB_TOKEN_REDACTED>'; });
-      t = t.replace(/\b(AKIA[0-9A-Z]{16})\b/g, () => { count++; return '<AWS_KEY_REDACTED>'; });
-      t = t.replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, () => { count++; return '<JWT_REDACTED>'; });
-      t = t.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, () => { count++; return '<EMAIL_REDACTED>'; });
-      t = t.replace(/\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b/g, () => { count++; return '<IP_REDACTED>'; });
-      t = t.replace(/(C:\\Users\\)[a-zA-Z0-9_. -]+/gi, '$1<USER>');
+      
+      const { text, count } = cleanTextClient(input);
 
       sfx.success();
       document.getElementById('text-result').classList.add('visible');
-      document.getElementById('log-output').value = t;
-      document.getElementById('text-metric').textContent = `${count} redactions`;
+      document.getElementById('log-output').value = text;
+      document.getElementById('text-metric').textContent = `${count} redaction(s)`;
     }
 
     function copyCleanText() {
@@ -1095,20 +1301,38 @@
       showToast('Clean text copied to clipboard');
     }
 
-    // URL Sanitizer
+    // Comprehensive URL Sanitizer
     function sanitizeUrlInput() {
       const raw = document.getElementById('url-input').value.trim();
       if (!raw) return;
       sfx.purge();
       try {
-        const u = new URL(raw.startsWith('http') ? raw : 'https://' + raw);
+        let u = new URL(raw.startsWith('http') ? raw : 'https://' + raw);
+
+        // Unwrap redirect gateways
+        if (u.hostname.includes('google.') && u.pathname === '/url') {
+          const target = u.searchParams.get('q') || u.searchParams.get('url');
+          if (target) { try { u = new URL(target); } catch {} }
+        } else if (u.hostname.includes('facebook.com') && u.pathname.includes('l.php')) {
+          const target = u.searchParams.get('u');
+          if (target) { try { u = new URL(target); } catch {} }
+        }
+
         const removed = [];
         const keep = [];
-        const stripList = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid', 'si', 'feature', 'tag', 'ref', 'ref_'];
+        const stripPrefixes = ['utm_', 'aff_', 'affiliate_', 'partner_', 'trk_', 'tracking_'];
+        const stripList = new Set([
+          'gclid', 'gclsrc', 'dclid', 'gad_source', 'gbraid', 'wbraid', '_ga', '_gl',
+          'fbclid', 'fbadid', 'msclkid', 'cvid', 'twclid', 'ref_src', 'ref_url',
+          'ttclid', 'sc_clid', 'si', 'feature', 'pp', 'igshid', 'mid', 'rdt_cid',
+          'mc_cid', 'mc_eid', '_hsenc', '_hsmi', 'hsCtaTracking', 'vero_id', 'vero_conv',
+          'wickedid', 'yclid', 'tag', 'ref', 'ref_', 'camp', 'creative', 'creativeASIN',
+          'linkCode', 'linkId', 'ascsubtag', 'spm', 'scm'
+        ]);
 
         for (const [k, v] of u.searchParams.entries()) {
           const lk = k.toLowerCase();
-          if (stripList.includes(lk) || lk.startsWith('utm_') || lk.startsWith('aff_')) {
+          if (stripList.has(lk) || stripPrefixes.some(p => lk.startsWith(p))) {
             removed.push(k);
           } else {
             keep.push([k, v]);
@@ -1120,16 +1344,20 @@
         sfx.success();
         document.getElementById('url-result').classList.add('visible');
         document.getElementById('url-output').value = u.toString();
-        document.getElementById('url-metric').textContent = `${removed.length} trackers removed`;
+        document.getElementById('url-metric').textContent = `${removed.length} tracker(s) removed`;
 
         const cloud = document.getElementById('url-tags');
         cloud.innerHTML = '';
-        removed.forEach(r => {
-          const sp = document.createElement('span');
-          sp.className = 'tag';
-          sp.textContent = '?' + r;
-          cloud.appendChild(sp);
-        });
+        if (removed.length === 0) {
+          cloud.innerHTML = '<span class="tag clean">Clean link (0 trackers)</span>';
+        } else {
+          removed.forEach(r => {
+            const sp = document.createElement('span');
+            sp.className = 'tag';
+            sp.textContent = '?' + r;
+            cloud.appendChild(sp);
+          });
+        }
       } catch (err) {
         showToast('Invalid URL provided');
       }

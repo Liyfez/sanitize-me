@@ -71,6 +71,19 @@ describe('Text & Log Sanitizer', () => {
     assert.ok(res.text.includes('C:\\Users\\<USER>\\repo\\main.js'));
     assert.ok(res.text.includes('/home/<USER>/secret.env'));
   });
+
+  test('preserves JSON structure when redacting auth headers and credentials', () => {
+    const jsonStr = JSON.stringify({
+      auth: 'Authorization: Bearer my-secret-jwt-token-999',
+      user: 'dev@company.kz',
+      ip: '10.0.0.1'
+    });
+    const res = sanitizeText(jsonStr);
+    const parsed = JSON.parse(res.text);
+    assert.strictEqual(parsed.auth, 'Authorization: Bearer <AUTH_REDACTED>');
+    assert.strictEqual(parsed.user, '<EMAIL_REDACTED>');
+    assert.strictEqual(parsed.ip, '<IP_REDACTED>');
+  });
 });
 
 describe('URL Sanitizer', () => {
@@ -244,6 +257,22 @@ describe('Offline Web Server API', () => {
       const dataUrl = await resUrl.json();
       assert.strictEqual(dataUrl.cleanUrl, 'https://example.com/item?keep=1');
       assert.deepStrictEqual(dataUrl.removedParams, ['utm_source']);
+
+      // 4. Test POST /api/sanitize-file (binary upload)
+      const fakePdf = Buffer.from('%PDF-1.4\n/Author (Top Secret)\n%%EOF');
+      const resFile = await fetch(`${url}/api/sanitize-file?filename=report.pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/octet-stream' },
+        body: fakePdf
+      });
+      assert.strictEqual(resFile.status, 200);
+      assert.strictEqual(resFile.headers.get('content-disposition'), 'attachment; filename="clean_report.pdf"');
+      const strippedHeader = resFile.headers.get('x-stripped-tags');
+      assert.ok(strippedHeader);
+      const fileData = await resFile.arrayBuffer();
+      const cleanPdfStr = Buffer.from(fileData).toString('utf8');
+      assert.ok(!cleanPdfStr.includes('Top Secret'));
+      assert.strictEqual(cleanPdfStr.length, fakePdf.length);
     } finally {
       server.close();
     }
