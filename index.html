@@ -11,11 +11,11 @@
   <link rel="canonical" href="https://liyfez.github.io/sanitize-me/">
   <link rel="icon" type="image/png" href="./assets/sanitize_me_logo.png">
 
-  <!-- Open Graph / Social Media -->
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://liyfez.github.io/sanitize-me/">
   <meta property="og:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta property="og:description" content="Instant zero-install CLI & browser airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
+  <meta property="og:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
   <meta property="og:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
   <meta property="og:site_name" content="sanitize-me">
 
@@ -23,53 +23,41 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://liyfez.github.io/sanitize-me/">
   <meta name="twitter:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta name="twitter:description" content="Instant zero-install CLI & browser airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
+  <meta name="twitter:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
 
-  <!-- JSON-LD Structured Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "sanitize-me",
-    "alternateName": "sanitize-me privacy airlock",
     "operatingSystem": "Windows, macOS, Linux",
     "applicationCategory": "SecurityApplication",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "description": "Local-first document, media, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, and confidential credentials before sharing.",
     "url": "https://liyfez.github.io/sanitize-me/",
     "codeRepository": "https://github.com/Liyfez/sanitize-me",
-    "author": {
-      "@type": "Person",
-      "name": "Liyfez",
-      "url": "https://github.com/Liyfez"
-    }
+    "author": { "@type": "Person", "name": "Liyfez", "url": "https://github.com/Liyfez" }
   }
   </script>
 
   <style>
     :root {
-      --bg: #050811;
-      --card-bg: #0b1120;
-      --card-inner: #070c18;
-      --card-border: #162238;
-      --card-hover: #1e3050;
+      --bg: #07090e;
+      --surface: #0e131f;
+      --surface-subtle: #131b2e;
+      --border: #1e293b;
+      --border-focus: #39ff14;
       --lime: #39ff14;
-      --lime-dim: #1f8f0c;
-      --lime-glow: rgba(57, 255, 20, 0.28);
-      --lime-subtle: rgba(57, 255, 20, 0.08);
-      --cyan: #00f0ff;
-      --cyan-glow: rgba(0, 240, 255, 0.2);
+      --lime-muted: #22c55e;
+      --lime-soft: rgba(57, 255, 20, 0.08);
       --text: #f8fafc;
-      --text-muted: #8494ab;
-      --text-dark: #475569;
-      --danger: #ff4757;
-      --danger-subtle: rgba(255, 71, 87, 0.12);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "JetBrains Mono", monospace;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.1);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
     }
 
     * {
@@ -81,610 +69,483 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-sans);
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
       min-height: 100vh;
-      background-image: 
-        radial-gradient(ellipse at 50% 0%, rgba(57, 255, 20, 0.1) 0%, transparent 60%),
-        radial-gradient(ellipse at 85% 25%, rgba(0, 240, 255, 0.04) 0%, transparent 40%);
-      background-attachment: fixed;
     }
 
-    /* Ambient CRT scanline texture */
-    .scanlines {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-      background-size: 100% 4px;
+    /* Subtle background depth without hazy neon slop */
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 520px;
+      background: radial-gradient(circle at 50% 10%, rgba(57, 255, 20, 0.05) 0%, transparent 70%);
       pointer-events: none;
-      z-index: 999;
-      opacity: 0.35;
+      z-index: 0;
     }
 
     /* Navigation */
     nav {
-      max-width: 1180px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 1.25rem 1.5rem;
+      padding: 1.5rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: relative;
-      z-index: 20;
+      z-index: 10;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
       text-decoration: none;
     }
 
     .brand img {
-      height: 32px;
+      height: 26px;
       width: auto;
-      filter: drop-shadow(0 0 8px var(--lime-glow));
     }
 
-    .nav-actions {
+    .nav-right {
       display: flex;
       align-items: center;
       gap: 1rem;
     }
 
-    /* Tactile Audio Toggle Button */
-    .btn-audio {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
+    /* Clean audio toggle */
+    .audio-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 0.45rem 0.85rem;
-      border-radius: 9999px;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      font-weight: 600;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      user-select: none;
+      transition: all 0.15s ease;
     }
-    .btn-audio:hover {
-      border-color: var(--lime);
+    .audio-btn:hover {
+      border-color: var(--text-dim);
       color: var(--text);
-      box-shadow: 0 0 12px var(--lime-glow);
     }
-    .btn-audio.active {
-      border-color: var(--lime);
+    .audio-btn.active {
+      border-color: rgba(57, 255, 20, 0.4);
       color: var(--lime);
-      background: var(--lime-subtle);
-    }
-    .audio-waves {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      height: 12px;
-    }
-    .wave-bar {
-      width: 2px;
-      background: var(--lime);
-      border-radius: 1px;
-      height: 4px;
-      transition: height 0.15s ease;
-    }
-    .btn-audio.active .wave-bar:nth-child(1) { animation: wave 0.8s infinite 0.1s; }
-    .btn-audio.active .wave-bar:nth-child(2) { animation: wave 0.8s infinite 0.3s; }
-    .btn-audio.active .wave-bar:nth-child(3) { animation: wave 0.8s infinite 0.2s; }
-
-    @keyframes wave {
-      0%, 100% { height: 4px; }
-      50% { height: 12px; }
+      background: var(--lime-soft);
     }
 
-    .btn-nav-gh {
-      background: var(--lime-subtle);
-      border: 1px solid var(--lime);
-      color: var(--lime);
-      padding: 0.45rem 1rem;
-      border-radius: 0.5rem;
-      font-family: var(--mono);
+    .github-link {
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
       font-size: 0.82rem;
-      font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
     }
-    .btn-nav-gh:hover {
-      background: var(--lime);
-      color: #000;
-      box-shadow: 0 0 20px var(--lime-glow);
-      transform: translateY(-1px);
+    .github-link:hover {
+      border-color: var(--lime);
+      color: var(--lime);
     }
 
-    /* Hero Section */
+    /* Hero */
     .hero {
-      max-width: 980px;
-      margin: 2rem auto 2.5rem auto;
+      max-width: 860px;
+      margin: 2.5rem auto 3rem auto;
       text-align: center;
       padding: 0 1.5rem;
       position: relative;
-      z-index: 10;
+      z-index: 1;
     }
 
-    .airlock-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.35rem 1.1rem;
+    .hero-tagline {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      letter-spacing: 0.02em;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.75rem;
       border-radius: 9999px;
-      background: var(--lime-subtle);
-      border: 1px solid rgba(57, 255, 20, 0.3);
-      color: var(--lime);
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      box-shadow: 0 0 20px rgba(57, 255, 20, 0.12);
-      margin-bottom: 1.5rem;
-    }
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--lime);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--lime);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(57, 255, 20, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+      background: var(--surface);
     }
 
-    .hero-banner-wrap {
-      margin: 0.5rem auto 1.5rem auto;
-      max-width: 740px;
-    }
-    .hero-banner-wrap img {
+    .hero-banner {
       width: 100%;
+      max-width: 680px;
       height: auto;
       display: block;
-      filter: drop-shadow(0 0 25px rgba(57, 255, 20, 0.25));
+      margin: 0 auto 1.5rem auto;
     }
 
-    .hero-sub {
+    .hero-desc {
       color: var(--text-muted);
-      font-size: 1.12rem;
-      max-width: 680px;
+      font-size: 1.1rem;
+      max-width: 640px;
       margin: 0 auto 2rem auto;
       line-height: 1.6;
     }
-    .hero-sub strong {
-      color: #fff;
-    }
-
-    /* Terminal Quickstart Bar */
-    .quickstart-bar {
-      display: inline-flex;
-      align-items: center;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
-      padding: 0.4rem 0.5rem 0.4rem 1.25rem;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
-      transition: border-color 0.2s;
-    }
-    .quickstart-bar:hover {
-      border-color: var(--lime);
-      box-shadow: 0 0 25px rgba(57, 255, 20, 0.15);
-    }
-    .qs-prompt {
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      margin-right: 0.75rem;
-    }
-    .qs-cmd {
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      color: #fff;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-    .btn-copy-qs {
-      background: var(--lime);
-      color: #031505;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      font-weight: 800;
-      cursor: pointer;
-      margin-left: 1.5rem;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .btn-copy-qs:hover {
-      background: #4efd2b;
-      transform: scale(1.03);
-      box-shadow: 0 0 15px var(--lime-glow);
-    }
-    .btn-copy-qs:active {
-      transform: scale(0.97);
-    }
-
-    /* Main Interactive Airlock Container */
-    .airlock-box {
-      max-width: 960px;
-      margin: 3rem auto 5rem auto;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 1.25rem;
-      padding: 2rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(57, 255, 20, 0.08);
-      position: relative;
-      z-index: 10;
-    }
-
-    /* Tabs Header */
-    .airlock-tabs {
-      display: flex;
-      gap: 0.6rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .tab-trigger {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      padding: 0.65rem 1.25rem;
-      border-radius: 0.6rem;
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      transition: all 0.2s ease;
-    }
-    .tab-trigger:hover {
+    .hero-desc strong {
       color: var(--text);
-      background: rgba(255, 255, 255, 0.03);
-    }
-    .tab-trigger.active {
-      background: var(--lime-subtle);
-      border-color: rgba(57, 255, 20, 0.35);
-      color: var(--lime);
-      box-shadow: 0 0 15px rgba(57, 255, 20, 0.12);
+      font-weight: 600;
     }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* Dropzone */
-    .airlock-dropzone {
-      border: 2px dashed rgba(57, 255, 20, 0.25);
-      background: var(--card-inner);
-      border-radius: 1rem;
-      padding: 3.5rem 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    .airlock-dropzone:hover, .airlock-dropzone.dragover {
-      border-color: var(--lime);
-      background: rgba(57, 255, 20, 0.04);
-      box-shadow: 0 0 35px rgba(57, 255, 20, 0.15);
-      transform: translateY(-2px);
-    }
-    .dz-icon {
-      width: 52px;
-      height: 52px;
-      stroke: var(--lime);
-      fill: none;
-      margin-bottom: 1rem;
-      filter: drop-shadow(0 0 10px var(--lime-glow));
-      transition: transform 0.2s;
-    }
-    .airlock-dropzone:hover .dz-icon {
-      transform: scale(1.1);
-    }
-    .dz-title {
-      font-size: 1.18rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 0.4rem;
-    }
-    .dz-desc {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    /* Fast Action Chips */
-    .sample-chips {
-      display: flex;
+    /* Terminal Quickstart */
+    .quickstart {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      margin-top: 1.25rem;
-      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem 0.5rem 0.4rem 1rem;
+      transition: border-color 0.15s;
     }
-    .sample-chip {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
+    .quickstart:hover {
+      border-color: var(--border-focus);
+    }
+    .quickstart-prefix {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin-right: 0.6rem;
+      user-select: none;
+    }
+    .quickstart-code {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .quickstart-copy {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
-      font-family: var(--mono);
+      border-radius: 5px;
+      padding: 0.35rem 0.75rem;
+      font-family: var(--font-mono);
       font-size: 0.75rem;
+      margin-left: 1.25rem;
       cursor: pointer;
       transition: all 0.15s;
     }
-    .sample-chip:hover {
+    .quickstart-copy:hover {
+      color: var(--text);
+      border-color: var(--text-dim);
+    }
+    .quickstart-copy.copied {
+      background: var(--lime-soft);
       border-color: var(--lime);
       color: var(--lime);
-      background: var(--lime-subtle);
     }
 
-    /* Result Card */
-    .airlock-result {
-      background: var(--card-inner);
-      border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 1.75rem;
-      margin-top: 1.75rem;
+    /* Main Airlock Box */
+    .airlock-box {
+      max-width: 900px;
+      margin: 0 auto 5rem auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Tab switcher */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+    }
+    .tab-btn.active {
+      background: var(--surface-subtle);
+      border-color: var(--border);
+      color: var(--lime);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Dropzone */
+    .dropzone {
+      border: 1px dashed var(--border);
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--lime);
+      background: rgba(57, 255, 20, 0.02);
+    }
+    .dropzone-icon {
+      width: 40px;
+      height: 40px;
+      stroke: var(--text-dim);
+      fill: none;
+      margin-bottom: 0.75rem;
+      transition: stroke 0.15s;
+    }
+    .dropzone:hover .dropzone-icon {
+      stroke: var(--lime);
+    }
+    .dropzone-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .dropzone-desc {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    /* Result Panel */
+    .result-panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
       display: none;
-      animation: slideUp 0.3s ease;
     }
-    .airlock-result.visible { display: block; }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .result-panel.visible { display: block; }
 
-    .result-head {
+    .result-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
-    .result-title-badge {
+    .result-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
-    .result-title-badge h4 {
-      color: #fff;
-      font-size: 1.05rem;
-    }
-    .metric-badge {
-      font-family: var(--mono);
+    .result-metric {
+      font-family: var(--font-mono);
       font-size: 0.8rem;
       color: var(--lime);
-      background: var(--lime-subtle);
-      border: 1px solid rgba(57, 255, 20, 0.3);
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
     }
 
-    .tags-cloud {
+    .tag-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
     }
-    .tag-item {
-      font-family: var(--mono);
-      font-size: 0.76rem;
-      padding: 0.25rem 0.65rem;
-      border-radius: 0.35rem;
-      background: var(--danger-subtle);
-      color: #ff6b81;
-      border: 1px solid rgba(255, 71, 87, 0.3);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      background: var(--danger-soft);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
     }
-    .tag-item.clean {
-      background: var(--lime-subtle);
+    .tag.clean {
+      background: var(--lime-soft);
       color: var(--lime);
-      border-color: rgba(57, 255, 20, 0.3);
+      border-color: rgba(57, 255, 20, 0.2);
     }
 
-    /* Inputs & Textareas */
+    /* Form controls */
     textarea, input[type="text"] {
       width: 100%;
-      background: var(--card-inner);
-      border: 1px solid var(--card-border);
-      border-radius: 0.75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       color: var(--text);
-      font-family: var(--mono);
+      font-family: var(--font-mono);
       font-size: 0.88rem;
-      padding: 1rem 1.25rem;
+      padding: 0.9rem 1rem;
       outline: none;
-      transition: all 0.2s;
+      transition: border-color 0.15s;
     }
     textarea:focus, input[type="text"]:focus {
-      border-color: var(--lime);
-      box-shadow: 0 0 20px var(--lime-glow);
+      border-color: var(--border-focus);
     }
     textarea {
-      min-height: 160px;
+      min-height: 150px;
       resize: vertical;
       line-height: 1.5;
     }
 
-    .btn-action {
+    .btn-primary {
       background: var(--lime);
-      color: #021605;
-      font-family: var(--mono);
-      font-size: 0.88rem;
-      font-weight: 800;
-      border: none;
-      padding: 0.85rem 1.6rem;
-      border-radius: 0.6rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      margin-top: 1rem;
-    }
-    .btn-action:hover {
-      background: #4efd2b;
-      box-shadow: 0 0 25px var(--lime-glow);
-      transform: translateY(-2px);
-    }
-    .btn-action:active {
-      transform: translateY(0);
-    }
-
-    .btn-secondary {
-      background: var(--card-inner);
-      border: 1px solid var(--card-border);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 0.88rem;
+      color: #031505;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
       font-weight: 700;
-      padding: 0.85rem 1.4rem;
-      border-radius: 0.6rem;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
       transition: all 0.15s;
-      margin-top: 1rem;
+      margin-top: 0.75rem;
     }
-    .btn-secondary:hover {
-      border-color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.05);
+    .btn-primary:hover {
+      background: #4efd2b;
     }
 
-    /* Technical Matrix Grid */
-    .tech-grid {
-      max-width: 1000px;
+    /* Feature Grid */
+    .feature-grid {
+      max-width: 900px;
       margin: 0 auto 5rem auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
       padding: 0 1.5rem;
     }
-    .tech-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 2rem;
-      transition: all 0.2s;
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
     }
-    .tech-card:hover {
-      border-color: rgba(57, 255, 20, 0.35);
-      box-shadow: 0 0 25px rgba(57, 255, 20, 0.08);
-      transform: translateY(-2px);
+    .feature-card h3 {
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .tech-icon {
-      font-size: 1.75rem;
-      margin-bottom: 1rem;
-      display: block;
-    }
-    .tech-card h3 {
-      font-size: 1.15rem;
-      color: #fff;
-      margin-bottom: 0.6rem;
-    }
-    .tech-card p {
+    .feature-card p {
       color: var(--text-muted);
-      font-size: 0.9rem;
-      line-height: 1.6;
+      font-size: 0.88rem;
+      line-height: 1.5;
     }
 
-    /* Distribution Matrix Table */
-    .dist-container {
-      max-width: 1000px;
+    /* Distribution Table */
+    .dist-box {
+      max-width: 900px;
       margin: 0 auto 5rem auto;
       padding: 0 1.5rem;
     }
-    .dist-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 1.25rem;
+    .dist-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
       overflow: hidden;
     }
     .dist-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
     .dist-table th {
-      background: var(--card-inner);
-      padding: 1.1rem 1.5rem;
+      background: var(--bg);
+      padding: 0.9rem 1.25rem;
       text-align: left;
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--card-border);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
     .dist-table td {
-      padding: 1.2rem 1.5rem;
-      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
       color: var(--text);
     }
-    .dist-table tr:last-child td {
-      border-bottom: none;
-    }
+    .dist-table tr:last-child td { border-bottom: none; }
     .dist-cmd {
-      font-family: var(--mono);
+      font-family: var(--font-mono);
       color: var(--lime);
-      background: var(--card-inner);
-      padding: 0.35rem 0.75rem;
-      border-radius: 0.35rem;
-      border: 1px solid rgba(57, 255, 20, 0.2);
-      font-size: 0.82rem;
-      display: inline-block;
+      background: var(--bg);
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
     }
 
-    /* Footer */
+    /* Micro toast notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-focus);
+      color: var(--text);
+      padding: 0.65rem 1.1rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.2s ease;
+      z-index: 1000;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     footer {
-      border-top: 1px solid var(--card-border);
-      padding: 3.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+      padding: 3rem 1.5rem;
       text-align: center;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      position: relative;
-      z-index: 10;
+      color: var(--text-dim);
+      font-size: 0.85rem;
     }
     footer a {
-      color: var(--lime);
+      color: var(--text-muted);
       text-decoration: none;
       transition: color 0.15s;
     }
     footer a:hover {
-      text-decoration: underline;
+      color: var(--lime);
     }
 
     .hidden { display: none; }
   </style>
 </head>
 <body>
-  <div class="scanlines"></div>
+  <div class="bg-grid"></div>
 
   <!-- Navigation -->
   <nav>
@@ -692,18 +553,13 @@
       <img src="./assets/sanitize_me_logo.png" alt="sanitize-me">
     </a>
 
-    <div class="nav-actions">
-      <!-- Satisfying Tactile Audio Synthesizer Toggle -->
-      <button id="audio-toggle-btn" class="btn-audio active" onclick="toggleAudio()" title="Toggle Satisfying UI Sound Effects">
-        <div class="audio-waves">
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-        </div>
-        <span>AUDIO: ON</span>
+    <div class="nav-right">
+      <button id="audio-btn" class="audio-btn active" onclick="toggleAudio()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+        <span id="audio-label">Sound on</span>
       </button>
 
-      <a href="https://github.com/Liyfez/sanitize-me" target="_blank" class="btn-nav-gh">
+      <a href="https://github.com/Liyfez/sanitize-me" target="_blank" class="github-link">
         <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         GitHub
       </a>
@@ -712,187 +568,125 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <div class="airlock-pill">
-      <span class="pulse-dot"></span>
-      100% Offline Airlock • Zero Cloud Telemetry
-    </div>
+    <span class="hero-tagline">Local-first privacy airlock</span>
 
-    <!-- Official High-Res Transparent Lime Banner -->
-    <div class="hero-banner-wrap">
-      <img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME Official Banner">
-    </div>
+    <!-- Crisp No-Glow Official Logo Banner -->
+    <img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME" class="hero-banner">
 
-    <p class="hero-sub">
-      Losslessly strip <strong>camera EXIF GPS coordinates</strong>, tracking query tags, and <strong>confidential API credentials</strong> before sharing or feeding data to AI models.
+    <p class="hero-desc">
+      Losslessly strip <strong>camera EXIF GPS locations</strong>, tracking links, and <strong>confidential API credentials</strong> before sharing or feeding files to AI models.
     </p>
 
-    <!-- Interactive Terminal Quickstart -->
-    <div class="quickstart-bar">
-      <span class="qs-prompt">$</span>
-      <span class="qs-cmd">npx sanitize-me photo.jpg</span>
-      <button class="btn-copy-qs" onclick="copyQuickstart('npx sanitize-me photo.jpg')">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-        COPY NPX
-      </button>
+    <div class="quickstart">
+      <span class="quickstart-prefix">$</span>
+      <span class="quickstart-code">npx sanitize-me photo.jpg</span>
+      <button class="quickstart-copy" onclick="copyQuickstart('npx sanitize-me photo.jpg')">Copy</button>
     </div>
   </section>
 
-  <!-- Interactive Live Privacy Airlock Sandbox -->
+  <!-- Interactive Airlock Card -->
   <section class="airlock-box">
-    <div class="airlock-tabs">
-      <button class="tab-trigger active" onclick="switchAirlockTab('tab-media')">
-        <span>📷</span> [1] Lossless Media Stripper
-      </button>
-      <button class="tab-trigger" onclick="switchAirlockTab('tab-text')">
-        <span>🤖</span> [2] AI Log & PII Scrubber
-      </button>
-      <button class="tab-trigger" onclick="switchAirlockTab('tab-url')">
-        <span>🔗</span> [3] Clean URL Decoupler
-      </button>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-media')">Files & media</button>
+      <button class="tab-btn" onclick="switchTab('tab-text')">Logs & text</button>
+      <button class="tab-btn" onclick="switchTab('tab-url')">Clean URLs</button>
     </div>
 
-    <!-- Tab 1: Lossless Media & Document Airlock -->
-    <div id="tab-media" class="tab-panel active">
-      <div class="airlock-dropzone" id="media-dropzone" onclick="triggerFileInput()">
-        <svg class="dz-icon" viewBox="0 0 24 24">
+    <!-- Tab 1: Files & Media -->
+    <div id="tab-media" class="tab-content active">
+      <div class="dropzone" id="media-dropzone" onclick="document.getElementById('file-input').click()">
+        <svg class="dropzone-icon" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
         </svg>
-        <h3 class="dz-title">Drop your Image, PDF, or Log file here</h3>
-        <p class="dz-desc">Supports JPEG, PNG, WebP, PDF. 100% executed in your local RAM via client-side ArrayBuffer parsing. Zero bytes touch a remote server.</p>
-        <input type="file" id="media-file-input" class="hidden" onchange="handleMediaFile(this.files[0])">
+        <h4 class="dropzone-title">Drop image, PDF, or log file to clean</h4>
+        <p class="dropzone-desc">JPEG, PNG, WebP, PDF. Processed in local browser memory with zero network uploads.</p>
+        <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(this.files[0])">
       </div>
 
-      <div class="sample-chips">
-        <span style="font-family:var(--mono); font-size:0.75rem; color:var(--text-dark);">Demo Presets:</span>
-        <button class="sample-chip" onclick="loadSyntheticMedia('gps-camera')">📸 Load Sample iPhone JPEG (GPS + Serial)</button>
-        <button class="sample-chip" onclick="loadSyntheticMedia('photoshop-png')">🎨 Load Sample PNG (Author / tEXt Chunks)</button>
-      </div>
-
-      <div id="media-result" class="airlock-result">
-        <div class="result-head">
-          <div class="result-title-badge">
-            <svg width="18" height="18" fill="none" stroke="var(--lime)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <h4 id="res-file-name">clean_photo.jpg</h4>
+      <div id="media-result" class="result-panel">
+        <div class="result-header">
+          <div class="result-title">
+            <svg width="16" height="16" fill="none" stroke="var(--lime)" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            <span id="res-filename">clean_file.jpg</span>
           </div>
-          <span id="res-file-diff" class="metric-badge">0.0 KB Saved</span>
+          <span id="res-diff" class="result-metric">0.0 KB stripped</span>
         </div>
-        <div id="res-tags-cloud" class="tags-cloud"></div>
-        <div style="display:flex; gap:0.75rem; align-items:center;">
-          <button class="btn-action" onclick="downloadSanitizedFile()">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            Download Clean File
-          </button>
-          <span style="font-family:var(--mono); font-size:0.78rem; color:var(--text-muted);">0% Pixel Compression Loss</span>
-        </div>
+        <div id="res-tags" class="tag-container"></div>
+        <button class="btn-primary" onclick="downloadCleanFile()">Download sanitized file</button>
       </div>
     </div>
 
-    <!-- Tab 2: Text / Log Scrubber -->
-    <div id="tab-text" class="tab-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-        <label style="font-family:var(--mono); font-size:0.8rem; color:var(--text-muted);">Input Text or Error Stack Trace:</label>
-        <div class="sample-chips" style="margin-top:0;">
-          <button class="sample-chip" onclick="loadSampleLog('ai')">🤖 Load Leaked OpenAI & GitHub Log</button>
-          <button class="sample-chip" onclick="loadSampleLog('aws')">☁️ Load Leaked AWS & DB Config</button>
-        </div>
-      </div>
-      <textarea id="log-input" placeholder="Paste server logs containing sk-proj-..., ghp_..., 192.168.1.1, passwords, or customer emails..."></textarea>
+    <!-- Tab 2: Logs & Text -->
+    <div id="tab-text" class="tab-content">
+      <textarea id="log-input" placeholder="Paste server logs or configuration dumps containing emails, sk-..., ghp_..., 192.168.1.1, passwords..."></textarea>
       
-      <div style="display:flex; gap:0.75rem;">
-        <button class="btn-action" onclick="runTextSanitizer()">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          Sanitize Payload
-        </button>
-      </div>
+      <button class="btn-primary" onclick="sanitizeTextInput()">Sanitize payload</button>
 
-      <div id="text-result" class="airlock-result">
-        <div class="result-head">
-          <div class="result-title-badge">
-            <h4 style="color:var(--lime);">Redacted Output</h4>
-          </div>
-          <span id="text-redact-stats" class="metric-badge">0 Redactions</span>
+      <div id="text-result" class="result-panel">
+        <div class="result-header">
+          <span class="result-title">Sanitized output</span>
+          <span id="text-metric" class="result-metric">0 redactions</span>
         </div>
-        <textarea id="log-output" readonly style="margin-bottom:1rem;"></textarea>
-        <button class="btn-action" onclick="copyCleanText()">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          Copy Clean Text
-        </button>
+        <textarea id="log-output" readonly style="margin-bottom:0.75rem;"></textarea>
+        <button class="btn-primary" onclick="copyCleanText()">Copy sanitized text</button>
       </div>
     </div>
 
-    <!-- Tab 3: URL Decoupler -->
-    <div id="tab-url" class="tab-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-        <label style="font-family:var(--mono); font-size:0.8rem; color:var(--text-muted);">Target URL with tracking queries:</label>
-        <div class="sample-chips" style="margin-top:0;">
-          <button class="sample-chip" onclick="loadSampleUrl('amazon')">🛒 Amazon Affiliate Link</button>
-          <button class="sample-chip" onclick="loadSampleUrl('yt')">▶️ YouTube Share Link</button>
-        </div>
-      </div>
-      <input type="text" id="url-input" placeholder="https://www.amazon.com/dp/B00000?utm_source=twitter&tag=affiliate-20&ref_=as_li">
+    <!-- Tab 3: Clean URLs -->
+    <div id="tab-url" class="tab-content">
+      <input type="text" id="url-input" placeholder="Paste link with UTM / tracking queries: https://amazon.com/dp/B000?utm_source=tw&tag=affiliate-20">
+      
+      <button class="btn-primary" onclick="sanitizeUrlInput()">Clean URL</button>
 
-      <button class="btn-action" onclick="runUrlSanitizer()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-        Strip Tracking Parameters
-      </button>
-
-      <div id="url-result" class="airlock-result">
-        <div class="result-head">
-          <div class="result-title-badge">
-            <h4 style="color:var(--lime);">Clean Canonical URL</h4>
-          </div>
-          <span id="url-stat-badge" class="metric-badge">0 Trackers Stripped</span>
+      <div id="url-result" class="result-panel">
+        <div class="result-header">
+          <span class="result-title">Canonical clean link</span>
+          <span id="url-metric" class="result-metric">0 trackers removed</span>
         </div>
-        <input type="text" id="url-output" readonly style="margin-bottom:1rem;">
-        <div id="url-tags-cloud" class="tags-cloud"></div>
-        <button class="btn-action" onclick="copyCleanUrl()">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          Copy Clean URL
-        </button>
+        <input type="text" id="url-output" readonly style="margin-bottom:0.75rem;">
+        <div id="url-tags" class="tag-container"></div>
+        <button class="btn-primary" onclick="copyCleanUrl()">Copy clean URL</button>
       </div>
     </div>
   </section>
 
-  <!-- Technical Spec Grid -->
-  <section class="tech-grid">
-    <div class="tech-card">
-      <span class="tech-icon">🔬</span>
-      <h3>Pure Binary Byte Stripping</h3>
-      <p>Operates directly on binary streams (JPEG APP1, PNG ancillary chunks, WebP RIFF) without recompressing DCT coefficients. Guarantees 0% image quality loss.</p>
+  <!-- Technical Features -->
+  <section class="feature-grid">
+    <div class="feature-card">
+      <h3>Lossless binary stripping</h3>
+      <p>Direct binary byte manipulation on JPEG APP1/EXIF, PNG ancillary chunks, and WebP RIFF containers. Preserves 100% original pixel data without re-encoding.</p>
     </div>
-    <div class="tech-card">
-      <span class="tech-icon">🧠</span>
-      <h3>AI Pre-Flight Privacy Guard</h3>
-      <p>Scrub error logs and config traces before uploading to ChatGPT or Claude. Redacts API tokens, private keys, JWTs, IPs, and Luhn-verified cards.</p>
+    <div class="feature-card">
+      <h3>AI pre-flight scrubbing</h3>
+      <p>Scrub error logs and config dumps before sharing with ChatGPT or Claude. Redacts API tokens, private keys, JWTs, IPs, and Luhn-validated card numbers.</p>
     </div>
-    <div class="tech-card">
-      <span class="tech-icon">⚡</span>
-      <h3>Zero NPM Dependencies</h3>
-      <p>Engineered entirely with native Node.js and browser Web API primitives. Zero supply-chain vulnerabilities, zero bloated C-bindings, instant cold-start.</p>
+    <div class="feature-card">
+      <h3>Zero runtime dependencies</h3>
+      <p>Built using pure Node.js and browser Web API standard libraries. Zero third-party npm supply-chain risk and instant execution.</p>
     </div>
   </section>
 
-  <!-- Distribution Channels Matrix -->
-  <section class="dist-container">
-    <div class="dist-card">
+  <!-- Distribution Channels -->
+  <section class="dist-box">
+    <div class="dist-table-wrap">
       <table class="dist-table">
         <thead>
           <tr>
             <th>Channel</th>
-            <th>Command / Asset</th>
-            <th>Execution Context</th>
+            <th>Command / Source</th>
+            <th>Usage</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>NPX Airlock</strong></td>
+            <td><strong>NPX</strong></td>
             <td><span class="dist-cmd">npx sanitize-me [targets]</span></td>
-            <td>Zero-install direct terminal execution</td>
+            <td>Instant execution with no local footprint</td>
           </tr>
           <tr>
             <td><strong>Global CLI</strong></td>
             <td><span class="dist-cmd">npm install -g sanitize-me</span></td>
-            <td>Persistent system binary across all shells</td>
+            <td>Standalone system binary across shells</td>
           </tr>
           <tr>
             <td><strong>GitHub Packages</strong></td>
@@ -900,9 +694,9 @@
             <td>GitHub Package registry distribution</td>
           </tr>
           <tr>
-            <td><strong>Release Tarballs</strong></td>
-            <td><a href="https://github.com/Liyfez/sanitize-me/releases" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--mono);">v1.0.0 Assets (.tgz)</a></td>
-            <td>Checksummed standalone release builds</td>
+            <td><strong>Releases</strong></td>
+            <td><a href="https://github.com/Liyfez/sanitize-me/releases" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono);">v1.0.1 Assets (.tgz)</a></td>
+            <td>Pre-packaged tarball builds</td>
           </tr>
         </tbody>
       </table>
@@ -912,19 +706,20 @@
   <!-- Footer -->
   <footer>
     <p>
-      <strong>sanitize-me</strong> &bull; Crafted by <a href="https://github.com/Liyfez" target="_blank">Liyfez</a> &bull;
-      <a href="https://github.com/Liyfez/sanitize-me" target="_blank">GitHub Repository</a> &bull;
+      <a href="https://github.com/Liyfez/sanitize-me" target="_blank">sanitize-me</a> by <a href="https://github.com/Liyfez" target="_blank">Liyfez</a> &bull;
       <a href="https://github.com/Liyfez/sanitize-me/releases" target="_blank">Releases</a> &bull;
       <a href="https://github.com/Liyfez/sanitize-me/blob/main/LICENSE" target="_blank">License</a>
     </p>
-    <p style="margin-top:0.5rem; font-size:0.8rem; color:var(--text-dark);">
+    <p style="margin-top:0.4rem; color:var(--text-dim);">
       All rights reserved. Free to run and use. Zero cloud telemetry.
     </p>
   </footer>
 
-  <!-- Web Audio Synthesizer & Client-Side Engine -->
+  <!-- Micro toast element -->
+  <div id="toast" class="toast">Copied to clipboard</div>
+
+  <!-- Audio Synthesizer & Client-Side Engine -->
   <script>
-    /* Tactile Cyberpunk Audio Synthesizer (Zero External Assets) */
     class TactileAudioEngine {
       constructor() {
         this.ctx = null;
@@ -950,14 +745,14 @@
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(820, t);
-        osc.frequency.exponentialRampToValueAtTime(140, t + 0.025);
-        gain.gain.setValueAtTime(0.18, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+        osc.frequency.setValueAtTime(780, t);
+        osc.frequency.exponentialRampToValueAtTime(120, t + 0.02);
+        gain.gain.setValueAtTime(0.14, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(t);
-        osc.stop(t + 0.028);
+        osc.stop(t + 0.022);
       }
       tab() {
         if (this.muted) return;
@@ -966,20 +761,20 @@
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(420, t);
-        osc.frequency.exponentialRampToValueAtTime(940, t + 0.04);
-        gain.gain.setValueAtTime(0.16, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+        osc.frequency.setValueAtTime(440, t);
+        osc.frequency.exponentialRampToValueAtTime(880, t + 0.035);
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(t);
-        osc.stop(t + 0.045);
+        osc.stop(t + 0.04);
       }
       purge() {
         if (this.muted) return;
         this.init();
         const t = this.ctx.currentTime;
-        const bufferSize = Math.floor(this.ctx.sampleRate * 0.16);
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.14);
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
@@ -987,33 +782,33 @@
         noise.buffer = buffer;
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(3600, t);
-        filter.frequency.exponentialRampToValueAtTime(240, t + 0.15);
+        filter.frequency.setValueAtTime(3200, t);
+        filter.frequency.exponentialRampToValueAtTime(200, t + 0.13);
         const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.28, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
         noise.connect(filter);
         filter.connect(gain);
         gain.connect(this.ctx.destination);
         noise.start(t);
-        noise.stop(t + 0.16);
+        noise.stop(t + 0.14);
       }
       success() {
         if (this.muted) return;
         this.init();
         const t = this.ctx.currentTime;
         [523.25, 783.99].forEach((freq, idx) => {
-          const start = t + idx * 0.055;
+          const start = t + idx * 0.05;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, start);
-          gain.gain.setValueAtTime(0.18, start);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.17);
+          gain.gain.setValueAtTime(0.15, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(start);
-          osc.stop(start + 0.18);
+          osc.stop(start + 0.16);
         });
       }
     }
@@ -1022,22 +817,29 @@
 
     function toggleAudio() {
       const active = sfx.toggle();
-      const btn = document.getElementById('audio-toggle-btn');
+      const btn = document.getElementById('audio-btn');
+      const label = document.getElementById('audio-label');
       if (active) {
         btn.classList.add('active');
-        btn.querySelector('span').textContent = 'AUDIO: ON';
+        label.textContent = 'Sound on';
         sfx.click();
       } else {
         btn.classList.remove('active');
-        btn.querySelector('span').textContent = 'AUDIO: MUTED';
+        label.textContent = 'Muted';
       }
     }
 
-    // Tab Switcher
-    function switchAirlockTab(tabId) {
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 2000);
+    }
+
+    function switchTab(tabId) {
       sfx.tab();
-      document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
       event.currentTarget.classList.add('active');
       document.getElementById(tabId).classList.add('active');
     }
@@ -1045,22 +847,20 @@
     function copyQuickstart(cmd) {
       sfx.success();
       navigator.clipboard.writeText(cmd);
-      const btn = document.querySelector('.btn-copy-qs');
-      const original = btn.innerHTML;
-      btn.innerHTML = '✔ COPIED!';
-      setTimeout(() => { btn.innerHTML = original; }, 1800);
+      const btn = document.querySelector('.quickstart-copy');
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      showToast('Command copied to clipboard');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 1800);
     }
 
-    // Media Sanitizer Logic
+    // Media Sanitizer
     let cleanMediaBlob = null;
-    let cleanMediaFilename = 'sanitized_file';
+    let cleanMediaFilename = 'clean_file';
 
-    function triggerFileInput() {
-      sfx.click();
-      document.getElementById('media-file-input').click();
-    }
-
-    // Setup Drag and Drop
     const dropzone = document.getElementById('media-dropzone');
     ['dragenter', 'dragover'].forEach(evt => {
       dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('dragover'); });
@@ -1069,7 +869,7 @@
       dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('dragover'); });
     });
     dropzone.addEventListener('drop', e => {
-      if (e.dataTransfer.files.length) handleMediaFile(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files.length) handleFileSelect(e.dataTransfer.files[0]);
     });
 
     function cleanJpegClient(arrayBuffer) {
@@ -1112,7 +912,7 @@
       return { bytes: cleanBytes, stripped };
     }
 
-    async function handleMediaFile(file) {
+    async function handleFileSelect(file) {
       if (!file) return;
       sfx.purge();
 
@@ -1123,7 +923,7 @@
       if (['jpg', 'jpeg'].includes(ext)) {
         result = cleanJpegClient(buffer);
       } else {
-        result = { bytes: new Uint8Array(buffer), stripped: ['Metadata Cleaned (EXIF/Header Tags)'] };
+        result = { bytes: new Uint8Array(buffer), stripped: ['Metadata sanitized'] };
       }
 
       cleanMediaBlob = new Blob([result.bytes], { type: file.type || 'application/octet-stream' });
@@ -1131,66 +931,41 @@
 
       sfx.success();
       document.getElementById('media-result').classList.add('visible');
-      document.getElementById('res-file-name').textContent = cleanMediaFilename;
+      document.getElementById('res-filename').textContent = cleanMediaFilename;
       const bytesSaved = Math.max(0, file.size - cleanMediaBlob.size);
-      document.getElementById('res-file-diff').textContent = `${(file.size / 1024).toFixed(1)} KB → ${(cleanMediaBlob.size / 1024).toFixed(1)} KB (${(bytesSaved / 1024).toFixed(1)} KB purged)`;
+      document.getElementById('res-diff').textContent = `${(file.size / 1024).toFixed(1)} KB → ${(cleanMediaBlob.size / 1024).toFixed(1)} KB (${(bytesSaved / 1024).toFixed(1)} KB stripped)`;
 
-      const cloud = document.getElementById('res-tags-cloud');
+      const cloud = document.getElementById('res-tags');
       cloud.innerHTML = '';
       if (result.stripped.length === 0) {
-        cloud.innerHTML = '<span class="tag-item clean">✔ No Tracking Metadata Found</span>';
+        cloud.innerHTML = '<span class="tag clean">No sensitive metadata detected</span>';
       } else {
         result.stripped.forEach(t => {
           const sp = document.createElement('span');
-          sp.className = 'tag-item';
-          sp.innerHTML = `<span>✖ Stripped:</span> ${t}`;
+          sp.className = 'tag';
+          sp.textContent = 'Stripped: ' + t;
           cloud.appendChild(sp);
         });
       }
     }
 
-    function downloadSanitizedFile() {
+    function downloadCleanFile() {
       if (!cleanMediaBlob) return;
       sfx.click();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(cleanMediaBlob);
       a.download = cleanMediaFilename;
       a.click();
+      showToast('Downloaded sanitized file');
     }
 
-    function loadSyntheticMedia(type) {
-      sfx.click();
-      // Generate synthetic dummy JPEG in memory with fake EXIF marker
-      const exifMarker = new Uint8Array([0xff, 0xd8, 0xff, 0xe1, 0x00, 0x0e, 0x45, 0x78, 0x69, 0x66, 0x00, 0x00, 0x47, 0x50, 0x53, 0x01, 0xff, 0xda, 0x00, 0x04, 0x00, 0x00, 0xff, 0xd9]);
-      const file = new File([exifMarker], type === 'gps-camera' ? 'iphone_15_pro_gps.jpg' : 'adobe_photoshop_meta.jpg', { type: 'image/jpeg' });
-      handleMediaFile(file);
-    }
-
-    // Text Sanitizer Logic
-    function loadSampleLog(type) {
-      sfx.click();
-      if (type === 'ai') {
-        document.getElementById('log-input').value = `[FATAL] Request failed to https://api.openai.com/v1/chat/completions
-Authorization: Bearer sk-proj-1234567890abcdef1234567890abcdef
-Origin IP: 192.168.1.104, User: alice@megacorp.internal
-GitHub Token: ghp_1234567890abcdef1234567890abcdef1234
-Path: C:\\Users\\alice\\AppData\\Local\\Temp\\error.dmp`;
-      } else {
-        document.getElementById('log-input').value = `[CONFIG] AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-DB_HOST=10.0.0.45
-JWT_SESSION=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYm9iIn0.abcdef1234567890`;
-      }
-      runTextSanitizer();
-    }
-
-    function runTextSanitizer() {
+    // Text Sanitizer
+    function sanitizeTextInput() {
       let t = document.getElementById('log-input').value;
       if (!t.trim()) return;
       sfx.purge();
       let count = 0;
 
-      // Scrub
       t = t.replace(/(Authorization:\s*(?:Bearer|Basic)?\s*)([^\r\n]+)/gi, () => { count++; return 'Authorization: <AUTH_REDACTED>'; });
       t = t.replace(/\b(?:sk-(?:proj-|live-)?[A-Za-z0-9_\-]{20,})\b/g, () => { count++; return '<API_KEY_REDACTED>'; });
       t = t.replace(/\b(?:gh[pousr]_[A-Za-z0-9_]{36,})\b/g, () => { count++; return '<GITHUB_TOKEN_REDACTED>'; });
@@ -1203,27 +978,17 @@ JWT_SESSION=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYm9iIn0.abcdef12345
       sfx.success();
       document.getElementById('text-result').classList.add('visible');
       document.getElementById('log-output').value = t;
-      document.getElementById('text-redact-stats').textContent = `${count} Entities Redacted`;
+      document.getElementById('text-metric').textContent = `${count} redactions`;
     }
 
     function copyCleanText() {
       sfx.success();
       navigator.clipboard.writeText(document.getElementById('log-output').value);
-      alert('Sanitized text copied to clipboard!');
+      showToast('Clean text copied to clipboard');
     }
 
-    // URL Sanitizer Logic
-    function loadSampleUrl(type) {
-      sfx.click();
-      if (type === 'amazon') {
-        document.getElementById('url-input').value = 'https://www.amazon.com/dp/B00000?utm_source=tw&utm_medium=cpc&tag=affiliate-20&ref_=as_li_ss_tl&keep=target';
-      } else {
-        document.getElementById('url-input').value = 'https://youtu.be/dQw4w9WgXcQ?si=trackingSessionId12345&feature=share&fbclid=IwAR0987';
-      }
-      runUrlSanitizer();
-    }
-
-    function runUrlSanitizer() {
+    // URL Sanitizer
+    function sanitizeUrlInput() {
       const raw = document.getElementById('url-input').value.trim();
       if (!raw) return;
       sfx.purge();
@@ -1247,25 +1012,25 @@ JWT_SESSION=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYm9iIn0.abcdef12345
         sfx.success();
         document.getElementById('url-result').classList.add('visible');
         document.getElementById('url-output').value = u.toString();
-        document.getElementById('url-stat-badge').textContent = `${removed.length} Trackers Purged`;
+        document.getElementById('url-metric').textContent = `${removed.length} trackers removed`;
 
-        const cloud = document.getElementById('url-tags-cloud');
+        const cloud = document.getElementById('url-tags');
         cloud.innerHTML = '';
         removed.forEach(r => {
           const sp = document.createElement('span');
-          sp.className = 'tag-item';
+          sp.className = 'tag';
           sp.textContent = '?' + r;
           cloud.appendChild(sp);
         });
       } catch (err) {
-        alert('Invalid URL');
+        showToast('Invalid URL provided');
       }
     }
 
     function copyCleanUrl() {
       sfx.success();
       navigator.clipboard.writeText(document.getElementById('url-output').value);
-      alert('Clean canonical URL copied!');
+      showToast('Clean URL copied to clipboard');
     }
   </script>
 </body>

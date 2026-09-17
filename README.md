@@ -1,9 +1,9 @@
 <div align="center">
 
-<img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME Logo Banner" width="720" />
+<img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME Logo Banner" width="700" />
 
 <p>
-  <strong>⚡ Local-First Document, Media & Data Privacy Airlock</strong>
+  <strong>Local-first document, media & data privacy airlock</strong>
 </p>
 
 [![Website](https://img.shields.io/badge/Website-liyfez.github.io%2Fsanitize--me-39ff14?style=flat-square&logo=google-chrome&logoColor=black)](https://liyfez.github.io/sanitize-me/)
@@ -16,13 +16,13 @@
 
 *Instantly strip hidden tracking parameters, camera EXIF GPS locations, and confidential credentials before sharing or feeding files to AI models.*
 
-🌐 **[Live Website & In-Browser Airlock Demo](https://liyfez.github.io/sanitize-me/)**
+[**Live Website & In-Browser Airlock**](https://liyfez.github.io/sanitize-me/)
 
 </div>
 
 ---
 
-## ⚡ Instant Execution (No Install Required)
+## Instant Execution
 
 Run directly from any terminal or workflow via `npx`:
 
@@ -48,22 +48,22 @@ npm install -g sanitize-me
 
 ---
 
-## 📦 Releases & Packages
+## Releases & Packages
 
 `sanitize-me` is available through multiple distribution channels:
 
 | Channel | Install / Download Command | Notes |
 | :--- | :--- | :--- |
-| **NPX (Zero Install)** | `npx sanitize-me [targets...]` | Direct ephemeral execution, no global footprint |
+| **NPX** | `npx sanitize-me [targets...]` | Direct ephemeral execution, zero local footprint |
 | **NPM Global** | `npm install -g sanitize-me` | Global CLI binary available as `sanitize-me` |
 | **GitHub Packages** | `npm install @liyfez/sanitize-me` | Distributed via GitHub Packages registry |
 | **GitHub Releases** | [**Download Assets (`.tgz`)**](https://github.com/Liyfez/sanitize-me/releases) | Pre-packaged tarballs with signed release checksums |
 
 ---
 
-## 🛡️ Core Sanitization Engines
+## Core Sanitization Engines
 
-### 1. 📷 Image & Media Mode (Lossless Binary Stripper)
+### 1. Image & Media Mode (Lossless Binary Stripper)
 Operates directly on binary byte streams without re-compressing or degrading pixel data (0% quality loss):
 - **JPEG**: Strips `APP1` (EXIF, GPS, XMP, MakerNotes), `APP13` (Photoshop IPTC), and `COM` comments while keeping JFIF headers, color profiles, and DCT entropy data intact.
 - **PNG**: Strips ancillary chunks (`eXIf`, `tEXt`, `zTXt`, `iTXt`, `tIME`, `dSIG`) without altering image pixels.
@@ -82,7 +82,7 @@ sanitize-me -i profile.jpg
 
 ---
 
-### 2. 📝 Text, Log & Clipboard Mode (AI Privacy Pre-Flight)
+### 2. Text, Log & Clipboard Mode (AI Privacy Pre-Flight)
 Scans for regex patterns of sensitive tokens, secrets, and PII, replacing them with generic tags:
 - **API Keys & Tokens**: OpenAI (`sk-...`), GitHub (`ghp_...`), AWS (`AKIA...`), Google (`AIza...`), Slack (`xox...`), Stripe (`sk_...`)
 - **JWTs**: Decoupled JSON Web Tokens (`eyJ...`) -> `<JWT_REDACTED>`
@@ -104,7 +104,7 @@ xclip -o | sanitize-me | xclip -sel clip
 
 ---
 
-### 3. 🔗 Clean URL Mode
+### 3. Clean URL Mode
 Unwraps search redirect wrappers (Google `/url?q=...`, Facebook `l.php?u=...`) and strips over 30 marketing/affiliate tracking parameters:
 
 ```bash
@@ -117,13 +117,13 @@ sanitize-me "https://youtu.be/dQw4w9WgXcQ?si=tracking123&feature=share"
 
 ---
 
-### 4. 📄 PDF Metadata Neutralizer
+### 4. PDF Metadata Neutralizer
 Safely blanks `/Info` dictionary entries (`/Author`, `/Creator`, `/Producer`, `/CreationDate`, `/ModDate`) and `/Metadata` XMP streams while **strictly preserving byte offsets** to guarantee PDF cross-reference (`xref`) tables never corrupt.
 
 ---
 
-### 5. 🖥️ Non-Dev Local Web GUI Mode
-Running `sanitize-me` with no arguments opens an instant local web airlock in your default browser:
+### 5. Local Offline Web GUI Mode
+Running `sanitize-me` with no arguments opens a local web airlock in your default browser:
 
 ```bash
 sanitize-me
@@ -136,16 +136,16 @@ sanitize-me
 
 ---
 
-## 🖥️ Terminal Preview
+## Terminal Preview
 
 ```text
-  ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗    ███╗   ███╗███████╗
-  ██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝    ████╗ ████║██╔════╝
-  ███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗      ██╔████╔██║█████╗  
-  ╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝      ██║╚██╔╝██║██╔══╝  
-  ███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗██╗ ██║ ╚═╝ ██║███████╗
-  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝╚═╝ ╚═╝     ╚═╝╚══════╝
-  ⚡ Local-First Document, Media & Data Privacy Airlock v1.0.0
+  ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗       ███╗   ███╗███████╗
+  ██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝       ████╗ ████║██╔════╝
+  ███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗  █████╗ ██╔████╔██║█████╗  
+  ╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝  ╚════╝ ██║╚██╔╝██║██╔══╝  
+  ███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗       ██║ ╚═╝ ██║███████╗
+  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝       ╚═╝     ╚═╝╚══════╝
+  ⚡ Local-First Document, Media & Data Privacy Airlock v1.0.1
 
 USAGE:
   # Stdin pipe (Logs & clipboard data)
@@ -166,7 +166,7 @@ USAGE:
 
 ---
 
-## 💻 Programmatic Node.js API
+## Programmatic Node.js API
 
 ```javascript
 import {
@@ -192,7 +192,7 @@ console.log(stripped); // ['APP1 (EXIF / GPS / XMP)']
 
 ---
 
-## 🔒 Privacy & Architecture Guarantees
+## Privacy & Architecture Guarantees
 
 - **Zero Cloud Uploads**: Works completely offline on air-gapped machines.
 - **Zero Runtime Dependencies**: Built entirely with native Node.js primitives (`Buffer`, `node:http`, `node:crypto`, `node:fs`). Zero third-party supply chain risk.
@@ -200,7 +200,7 @@ console.log(stripped); // ['APP1 (EXIF / GPS / XMP)']
 
 ---
 
-## 📄 License
+## License
 
 Copyright (c) 2026 Liyfez. All Rights Reserved.  
 Free for personal, educational, and internal organizational execution. Unauthorized source reproduction, redistribution, public mirroring, or commercial re-branding is strictly prohibited. See [LICENSE](LICENSE) for terms.

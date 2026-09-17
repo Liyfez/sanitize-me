@@ -34,10 +34,9 @@ const LOGO_HTML = `<!DOCTYPE html>
     font-weight: 900;
     letter-spacing: 0px;
     white-space: pre;
-    background: linear-gradient(135deg, #00FF66 0%, #39FF14 25%, #70FF00 50%, #A3E635 75%, #E2FCD6 100%);
+    background: linear-gradient(135deg, #00FF66 0%, #39FF14 25%, #70FF00 50%, #A3E635 75%, #D4FCC3 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 14px rgba(57, 255, 20, 0.6)) drop-shadow(0 0 30px rgba(0, 255, 102, 0.35));
   }
 </style>
 </head>
