@@ -1,0 +1,20 @@
+# sanitize-me
+
+> Local-first document, media, and data privacy airlock CLI and web app. Strips camera EXIF GPS locations, tracking links, and confidential API keys/PII before sharing or feeding to AI models.
+
+## CLI Quickstart
+- Run via npx: `npx sanitize-me <file>`
+- Pipe logs: `cat server.log | npx sanitize-me`
+- Clean URLs: `npx sanitize-me "https://amazon.com/dp/1234?utm_source=fb&tag=affiliate"`
+- Offline Web UI: `npx sanitize-me`
+
+## Features
+- Lossless JPEG (APP1/EXIF/XMP/IPTC/COM), PNG (eXIf, tEXt, zTXt, iTXt, tIME), WebP, PDF metadata stripping
+- Regex PII & Secret scrubber: OpenAI keys, GitHub tokens, AWS keys, Stripe keys, JWTs, IPs, emails, Luhn-validated credit cards
+- Zero runtime dependencies (Node.js stdlib only)
+- 100% offline, zero cloud uploads
+
+## Links
+- Website: https://liyfez.github.io/sanitize-me/
+- GitHub: https://github.com/Liyfez/sanitize-me
+- Releases: https://github.com/Liyfez/sanitize-me/releases

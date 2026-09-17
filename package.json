@@ -21,6 +21,10 @@
     "type": "git",
     "url": "https://github.com/Liyfez/sanitize-me.git"
   },
+  "homepage": "https://liyfez.github.io/sanitize-me/",
+  "bugs": {
+    "url": "https://github.com/Liyfez/sanitize-me/issues"
+  },
   "keywords": [
     "privacy",
     "sanitizer",

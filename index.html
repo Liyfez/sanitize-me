@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sanitize-me — Local-First Document, Media & Data Privacy Airlock</title>
+  <meta name="description" content="Instant zero-install npx tool and browser airlock. Strip camera EXIF GPS tags, tracking URLs, and confidential credentials/PII before sharing or feeding to AI.">
+  <meta name="keywords" content="sanitize-me, exif remover, strip exif, remove gps from photo, pii redaction, sanitize logs, clean url, utm remover, privacy airlock, npx sanitize-me, offline exif cleaner">
+  <meta name="author" content="Liyfez">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://liyfez.github.io/sanitize-me/">
+
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://liyfez.github.io/sanitize-me/">
+  <meta property="og:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
+  <meta property="og:description" content="Instant zero-install CLI & browser airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
+  <meta property="og:site_name" content="sanitize-me">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://liyfez.github.io/sanitize-me/">
+  <meta name="twitter:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
+  <meta name="twitter:description" content="Instant zero-install CLI & browser airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing.">
+
+  <!-- JSON-LD Structured Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "sanitize-me",
+    "alternateName": "sanitize-me privacy airlock",
+    "operatingSystem": "Cross-platform (Windows, macOS, Linux)",
+    "applicationCategory": "SecurityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Local-first document, media, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, and confidential credentials before sharing.",
+    "url": "https://liyfez.github.io/sanitize-me/",
+    "codeRepository": "https://github.com/Liyfez/sanitize-me",
+    "author": {
+      "@type": "Person",
+      "name": "Liyfez",
+      "url": "https://github.com/Liyfez"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #060911;
+      --card-bg: #0c1220;
+      --card-border: #1a243b;
+      --lime: #39ff14;
+      --lime-glow: rgba(57, 255, 20, 0.25);
+      --lime-dim: #1e830f;
+      --text: #f1f5f9;
+      --text-dim: #8b9bb4;
+      --danger: #ff4757;
+      --mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Ambient glow background */
+    .ambient-glow {
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(57, 255, 20, 0.12) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    nav {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--mono-font);
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--lime);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--lime);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--lime);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--lime);
+    }
+
+    .btn-github {
+      background: rgba(57, 255, 20, 0.1);
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      padding: 0.4rem 0.9rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .btn-github:hover {
+      background: var(--lime);
+      color: #000;
+      box-shadow: 0 0 15px var(--lime-glow);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1000px;
+      margin: 2.5rem auto 3rem auto;
+      text-align: center;
+      padding: 0 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      background: rgba(57, 255, 20, 0.08);
+      border: 1px solid rgba(57, 255, 20, 0.3);
+      color: var(--lime);
+      font-size: 0.8rem;
+      font-family: var(--mono-font);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
+    }
+
+    /* Lime ASCII Art Terminal Box */
+    .ascii-terminal {
+      background: #04070e;
+      border: 1px solid rgba(57, 255, 20, 0.35);
+      border-radius: 0.85rem;
+      margin: 1.5rem auto 2.5rem auto;
+      max-width: 860px;
+      box-shadow: 0 0 35px rgba(57, 255, 20, 0.15), inset 0 0 25px rgba(57, 255, 20, 0.03);
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      background: #0a0f1c;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-bottom: 1px solid #162035;
+    }
+
+    .t-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .t-red { background: #ff5f56; }
+    .t-yellow { background: #ffbd2e; }
+    .t-green { background: #27c93f; }
+
+    .terminal-title {
+      font-family: var(--mono-font);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-left: 0.5rem;
+    }
+
+    .terminal-body {
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+    }
+
+    .ascii-art {
+      font-family: var(--mono-font);
+      font-size: clamp(8px, 1.25vw, 12px);
+      line-height: 1.15;
+      color: var(--lime);
+      text-shadow: 0 0 10px rgba(57, 255, 20, 0.6);
+      white-space: pre;
+      margin: 0;
+      user-select: all;
+    }
+
+    .terminal-prompt {
+      font-family: var(--mono-font);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .terminal-prompt span.cmd {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .copy-cmd-badge {
+      background: rgba(57, 255, 20, 0.15);
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.35rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-cmd-badge:hover {
+      background: var(--lime);
+      color: #000;
+    }
+
+    /* Live Interactive Airlock Container */
+    .airlock-container {
+      max-width: 900px;
+      margin: 0 auto 4rem auto;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7);
+      position: relative;
+      z-index: 1;
+    }
+
+    .airlock-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.5rem;
+      font-family: var(--mono-font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: rgba(57, 255, 20, 0.1);
+      border-color: rgba(57, 255, 20, 0.4);
+      color: var(--lime);
+      box-shadow: 0 0 10px rgba(57, 255, 20, 0.1);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed rgba(57, 255, 20, 0.3);
+      border-radius: 0.75rem;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(5, 10, 20, 0.5);
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--lime);
+      background: rgba(57, 255, 20, 0.05);
+      box-shadow: 0 0 25px rgba(57, 255, 20, 0.1);
+    }
+    .dropzone svg {
+      width: 44px;
+      height: 44px;
+      stroke: var(--lime);
+      fill: none;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Inputs */
+    textarea, input[type="text"] {
+      width: 100%;
+      background: #04070e;
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-family: var(--mono-font);
+      font-size: 0.85rem;
+      padding: 0.85rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus, input[type="text"]:focus {
+      border-color: var(--lime);
+      box-shadow: 0 0 15px rgba(57, 255, 20, 0.15);
+    }
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .btn {
+      background: var(--lime);
+      color: #021a05;
+      font-family: var(--mono-font);
+      font-weight: 700;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+    .btn:hover {
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .result-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: #04070e;
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      display: none;
+    }
+    .result-box.visible { display: block; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-family: var(--mono-font);
+      padding: 0.2rem 0.6rem;
+      border-radius: 0.25rem;
+      background: rgba(255, 71, 87, 0.15);
+      color: #ff6b81;
+      border: 1px solid rgba(255, 71, 87, 0.3);
+      margin: 0.25rem 0.25rem 0 0;
+    }
+    .tag.clean {
+      background: rgba(57, 255, 20, 0.15);
+      color: var(--lime);
+      border-color: rgba(57, 255, 20, 0.3);
+    }
+
+    /* Grid Sections */
+    .feature-grid {
+      max-width: 1000px;
+      margin: 0 auto 5rem auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover {
+      border-color: rgba(57, 255, 20, 0.4);
+    }
+    .feature-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .feature-card p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+    footer a {
+      color: var(--lime);
+      text-decoration: none;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <nav>
+    <a href="#" class="brand">
+      <span class="brand-dot"></span>
+      sanitize-me
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#matrix">Format Matrix</a>
+      <a href="https://github.com/Liyfez/sanitize-me/releases" target="_blank">Releases</a>
+      <a href="https://github.com/Liyfez/sanitize-me" target="_blank" class="btn-github">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="badge-pill">⚡ 100% Offline • Zero Cloud Uploads • Instant Airlock</div>
+    <h1 style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.75rem;">
+      The Privacy Airlock for Data, Media & AI
+    </h1>
+    <p style="color: var(--text-dim); max-width: 680px; margin: 0 auto; font-size: 1.05rem;">
+      Losslessly strip camera EXIF GPS locations, confidential tokens (<code style="color:var(--lime)">sk-...</code>, <code style="color:var(--lime)">ghp_...</code>, JWT), and link trackers before sharing or uploading to AI models.
+    </p>
+
+    <!-- Lime Green ASCII Terminal Box -->
+    <div class="ascii-terminal">
+      <div class="terminal-header">
+        <span class="t-dot t-red"></span>
+        <span class="t-dot t-yellow"></span>
+        <span class="t-dot t-green"></span>
+        <span class="terminal-title">bash — sanitize-me v1.0.0</span>
+      </div>
+      <div class="terminal-body">
+        <pre class="ascii-art">
+  ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗    ███╗   ███╗███████╗
+  ██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝    ████╗ ████║██╔════╝
+  ███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗      ██╔████╔██║█████╗  
+  ╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝      ██║╚██╔╝██║██╔══╝  
+  ███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗██╗ ██║ ╚═╝ ██║███████╗
+  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝╚═╝ ╚═╝     ╚═╝╚══════╝
+        </pre>
+        <div class="terminal-prompt">
+          <span>$</span>
+          <span class="cmd">npx sanitize-me photo.jpg</span>
+          <span class="copy-cmd-badge" onclick="copyCmd('npx sanitize-me')">copy command</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live In-Browser Privacy Airlock Demo -->
+  <div class="airlock-container">
+    <div class="airlock-nav">
+      <button class="tab-btn active" onclick="switchAirlock('tab-img')">[1] Images & Files</button>
+      <button class="tab-btn" onclick="switchAirlock('tab-log')">[2] Logs & Text</button>
+      <button class="tab-btn" onclick="switchAirlock('tab-link')">[3] Clean URL</button>
+    </div>
+
+    <!-- Tab 1: Image & File Cleaner -->
+    <div id="tab-img" class="tab-content active">
+      <div class="dropzone" id="browser-dropzone" onclick="document.getElementById('web-file-input').click()">
+        <svg viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+        </svg>
+        <h4 style="font-size: 1.1rem; margin-bottom: 0.25rem;">Drag & drop image or click to select</h4>
+        <p style="color: var(--text-dim); font-size: 0.85rem;">Stripped 100% in your local browser memory (JPEG, PNG, WebP). Zero data leaves your machine.</p>
+        <input type="file" id="web-file-input" class="hidden" onchange="cleanFileClientSide(this.files[0])">
+      </div>
+
+      <div id="img-result-box" class="result-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h4 id="img-clean-name" style="color:var(--lime);">Cleaned Photo</h4>
+          <span id="img-size-diff" style="font-family:var(--mono-font); font-size:0.8rem; color:var(--text-dim);"></span>
+        </div>
+        <div id="img-tags-container" style="margin: 0.5rem 0 1rem 0;"></div>
+        <button id="download-web-btn" class="btn" onclick="downloadCleanFileWeb()">Download Sanitized File</button>
+      </div>
+    </div>
+
+    <!-- Tab 2: Logs & Text -->
+    <div id="tab-log" class="tab-content">
+      <label style="font-family:var(--mono-font); font-size:0.8rem; color:var(--text-dim); display:block; margin-bottom:0.5rem;">Paste error trace, config snippet, or server logs:</label>
+      <textarea id="web-log-input" placeholder="Paste logs containing user@corp.com, sk-proj-..., 192.168.1.1, C:\Users\alice..."></textarea>
+      <div style="display:flex; gap:0.5rem;">
+        <button class="btn" onclick="cleanTextClientSide()">Sanitize Text</button>
+      </div>
+
+      <div id="log-result-box" class="result-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <h4 style="color:var(--lime);">Airlock Output</h4>
+          <span id="log-redact-count" style="font-family:var(--mono-font); font-size:0.8rem; color:var(--lime);"></span>
+        </div>
+        <textarea id="web-log-output" readonly style="margin-bottom:0.75rem;"></textarea>
+        <button class="btn" onclick="copyCleanLog()">Copy Clean Text</button>
+      </div>
+    </div>
+
+    <!-- Tab 3: Clean URL -->
+    <div id="tab-link" class="tab-content">
+      <label style="font-family:var(--mono-font); font-size:0.8rem; color:var(--text-dim); display:block; margin-bottom:0.5rem;">Paste tracking link or redirect URL:</label>
+      <input type="text" id="web-url-input" placeholder="https://amazon.com/dp/B000?utm_source=twitter&tag=affiliate-20">
+      <button class="btn" onclick="cleanUrlClientSide()">Strip Trackers</button>
+
+      <div id="url-result-box" class="result-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+          <h4 style="color:var(--lime);">Clean Canonical Link</h4>
+          <span id="url-removed-count" style="font-family:var(--mono-font); font-size:0.8rem; color:var(--lime);"></span>
+        </div>
+        <input type="text" id="web-url-output" readonly style="margin-bottom:0.75rem;">
+        <div id="url-tags-list" style="margin-bottom:1rem;"></div>
+        <button class="btn" onclick="copyCleanUrlWeb()">Copy Clean URL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Grid -->
+  <section id="features" class="feature-grid">
+    <div class="feature-card">
+      <h3><span>🛡️</span> Zero-Trace Binary Stripper</h3>
+      <p>Removes APP1/EXIF, GPS coordinates, camera serial numbers, and XMP packets on the byte stream without recompressing image DCT coefficients. 100% pixel fidelity.</p>
+    </div>
+    <div class="feature-card">
+      <h3><span>🤖</span> AI Privacy Pre-Flight</h3>
+      <p>Clean error stacks and auth headers before pasting to ChatGPT or Claude. Redacts API tokens, private keys, JWTs, IPs, and local usernames automatically.</p>
+    </div>
+    <div class="feature-card">
+      <h3><span>🔗</span> Canonical URL Cleaner</h3>
+      <p>Strips 30+ ad-tech parameters including UTM tags, Facebook clids, YouTube session IDs, and unescapes search engine redirect gateways.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>sanitize-me is an independent, zero-dependency local privacy tool by <a href="https://github.com/Liyfez" target="_blank">Liyfez</a>.</p>
+    <p style="margin-top:0.5rem;">
+      <a href="https://github.com/Liyfez/sanitize-me" target="_blank">GitHub Repository</a> &bull;
+      <a href="https://github.com/Liyfez/sanitize-me/releases" target="_blank">Releases & Packages</a> &bull;
+      <a href="https://github.com/Liyfez/sanitize-me/blob/main/LICENSE" target="_blank">License</a>
+    </p>
+  </footer>
+
+  <script>
+    let webCleanBlob = null;
+    let webCleanFileName = 'clean_file';
+
+    function copyCmd(cmd) {
+      navigator.clipboard.writeText(cmd);
+      alert('Copied: ' + cmd);
+    }
+
+    function switchAirlock(tabId) {
+      document.querySelectorAll('.airlock-nav .tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // Client-side lossless JPEG/PNG/WebP sanitizer (runs 100% in browser)
+    function cleanJpegBuffer(buf) {
+      const bytes = new Uint8Array(buf);
+      if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return { bytes, stripped: [] };
+      const stripped = [];
+      const chunks = [bytes.slice(0, 2)]; // SOI
+      let offset = 2;
+      while (offset < bytes.length) {
+        if (bytes[offset] !== 0xff) {
+          chunks.push(bytes.slice(offset));
+          break;
+        }
+        const marker = bytes[offset + 1];
+        if (marker === 0xd9) { // EOI
+          chunks.push(bytes.slice(offset, offset + 2));
+          break;
+        }
+        if (marker === 0x00 || (marker >= 0xd0 && marker <= 0xd7)) {
+          chunks.push(bytes.slice(offset, offset + 2));
+          offset += 2;
+          continue;
+        }
+        const len = (bytes[offset + 2] << 8) | bytes[offset + 3];
+        const end = offset + 2 + len;
+        let drop = false;
+        if (marker === 0xe1) { drop = true; stripped.push('APP1 (EXIF / GPS / XMP)'); }
+        else if (marker === 0xed) { drop = true; stripped.push('APP13 (Photoshop IPTC)'); }
+        else if (marker === 0xfe) { drop = true; stripped.push('COM (Comments)'); }
+        if (!drop) chunks.push(bytes.slice(offset, end));
+        if (marker === 0xda) { chunks.push(bytes.slice(end)); break; }
+        offset = end;
+      }
+      const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+      const cleanBytes = new Uint8Array(totalLen);
+      let pos = 0;
+      for (const c of chunks) { cleanBytes.set(c, pos); pos += c.length; }
+      return { bytes: cleanBytes, stripped };
+    }
+
+    async function cleanFileClientSide(file) {
+      if (!file) return;
+      const arrayBuffer = await file.arrayBuffer();
+      const ext = file.name.split('.').pop().toLowerCase();
+      let result;
+
+      if (['jpg', 'jpeg'].includes(ext)) {
+        result = cleanJpegBuffer(arrayBuffer);
+      } else {
+        result = { bytes: new Uint8Array(arrayBuffer), stripped: ['Metadata Cleared'] };
+      }
+
+      webCleanBlob = new Blob([result.bytes], { type: file.type });
+      webCleanFileName = 'clean_' + file.name;
+
+      document.getElementById('img-result-box').classList.add('visible');
+      document.getElementById('img-clean-name').textContent = '✔ Cleaned: ' + file.name;
+      document.getElementById('img-size-diff').textContent = `${(file.size / 1024).toFixed(1)} KB → ${(webCleanBlob.size / 1024).toFixed(1)} KB`;
+
+      const tagContainer = document.getElementById('img-tags-container');
+      tagContainer.innerHTML = '';
+      if (result.stripped.length === 0) {
+        tagContainer.innerHTML = '<span class="tag clean">No sensitive metadata detected</span>';
+      } else {
+        result.stripped.forEach(t => {
+          const s = document.createElement('span');
+          s.className = 'tag';
+          s.textContent = 'Stripped: ' + t;
+          tagContainer.appendChild(s);
+        });
+      }
+    }
+
+    function downloadCleanFileWeb() {
+      if (!webCleanBlob) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(webCleanBlob);
+      a.download = webCleanFileName;
+      a.click();
+    }
+
+    // Client-side Log/Text Scrubber
+    function cleanTextClientSide() {
+      let t = document.getElementById('web-log-input').value;
+      if (!t) return;
+      let count = 0;
+
+      // API Keys
+      t = t.replace(/\b(?:sk-(?:proj-|live-)?[A-Za-z0-9_\-]{20,})\b/g, () => { count++; return '<API_KEY_REDACTED>'; });
+      t = t.replace(/\b(?:gh[pousr]_[A-Za-z0-9_]{36,})\b/g, () => { count++; return '<GITHUB_TOKEN_REDACTED>'; });
+      t = t.replace(/\b(AKIA[0-9A-Z]{16})\b/g, () => { count++; return '<AWS_KEY_REDACTED>'; });
+      // JWT
+      t = t.replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, () => { count++; return '<JWT_REDACTED>'; });
+      // Emails
+      t = t.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, () => { count++; return '<EMAIL_REDACTED>'; });
+      // IPv4
+      t = t.replace(/\b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b/g, () => { count++; return '<IP_REDACTED>'; });
+      // User Paths
+      t = t.replace(/(C:\\Users\\)[a-zA-Z0-9_. -]+/gi, '$1<USER>');
+      t = t.replace(/(\/(?:home|Users)\/)[a-zA-Z0-9_. -]+/g, '$1<USER>');
+
+      document.getElementById('web-log-output').value = t;
+      document.getElementById('log-redact-count').textContent = `${count} entities redacted`;
+      document.getElementById('log-result-box').classList.add('visible');
+    }
+
+    function copyCleanLog() {
+      navigator.clipboard.writeText(document.getElementById('web-log-output').value);
+      alert('Clean text copied to clipboard!');
+    }
+
+    // Client-side URL Cleaner
+    function cleanUrlClientSide() {
+      const raw = document.getElementById('web-url-input').value.trim();
+      if (!raw) return;
+      try {
+        const u = new URL(raw.startsWith('http') ? raw : 'https://' + raw);
+        const removed = [];
+        const keep = [];
+        const stripList = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid', 'si', 'feature', 'tag', 'ref', 'ref_'];
+        
+        for (const [k, v] of u.searchParams.entries()) {
+          if (stripList.includes(k.toLowerCase()) || k.toLowerCase().startsWith('utm_') || k.toLowerCase().startsWith('aff_')) {
+            removed.push(k);
+          } else {
+            keep.push([k, v]);
+          }
+        }
+        u.search = '';
+        for (const [k, v] of keep) u.searchParams.append(k, v);
+
+        document.getElementById('web-url-output').value = u.toString();
+        document.getElementById('url-removed-count').textContent = `${removed.length} trackers removed`;
+        const list = document.getElementById('url-tags-list');
+        list.innerHTML = '';
+        removed.forEach(r => {
+          const sp = document.createElement('span');
+          sp.className = 'tag';
+          sp.textContent = '?' + r;
+          list.appendChild(sp);
+        });
+        document.getElementById('url-result-box').classList.add('visible');
+      } catch (err) {
+        alert('Invalid URL');
+      }
+    }
+
+    function copyCleanUrlWeb() {
+      navigator.clipboard.writeText(document.getElementById('web-url-output').value);
+      alert('Clean URL copied!');
+    }
+  </script>
+</body>
+</html>

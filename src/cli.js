@@ -7,11 +7,23 @@ import { startServer } from './ui/server.js';
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
-function printHelp() {
-  console.log(`
-sanitize-me v${pkg.version}
-Local-first document, media, and data privacy airlock.
+const LIME = '\x1b[38;2;57;255;20m';
+const DIM = '\x1b[90m';
+const RESET = '\x1b[0m';
+const CYAN = '\x1b[36m';
 
+const BANNER = `${LIME}
+  ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗    ███╗   ███╗███████╗
+  ██╔════╝██╔══██╗████╗  ██║██║╚══██╔══╝██║╚══███╔╝██╔════╝    ████╗ ████║██╔════╝
+  ███████╗███████║██╔██╗ ██║██║   ██║   ██║  ███╔╝ █████╗      ██╔████╔██║█████╗  
+  ╚════██║██╔══██║██║╚██╗██║██║   ██║   ██║ ███╔╝  ██╔══╝      ██║╚██╔╝██║██╔══╝  
+  ███████║██║  ██║██║ ╚████║██║   ██║   ██║███████╗███████╗██╗ ██║ ╚═╝ ██║███████╗
+  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚══════╝╚══════╝╚═╝ ╚═╝     ╚═╝╚══════╝
+${RESET}  ${LIME}⚡ Local-First Document, Media & Data Privacy Airlock${RESET} ${DIM}v${pkg.version}${RESET}\n`;
+
+function printHelp() {
+  console.log(BANNER);
+  console.log(`
 USAGE:
   # Stdin pipe (Logs & clipboard data)
   cat logs.txt | npx sanitize-me
@@ -105,10 +117,11 @@ export async function runCli(argv = process.argv.slice(2)) {
 
   // 2. Explicit GUI flag or no args provided in terminal -> launch offline Web GUI
   if (flags.gui || targets.length === 0) {
-    console.log(`\x1b[32m[sanitize-me]\x1b[0m Starting local-first privacy airlock UI...`);
+    console.log(BANNER);
+    console.log(`${LIME}[sanitize-me]${RESET} Starting local-first privacy airlock UI...`);
     const { url } = await startServer({ open: true });
-    console.log(`\x1b[36m✔ Web GUI running at:\x1b[0m ${url}`);
-    console.log(`\x1b[90m(100% offline, zero cloud connections. Press Ctrl+C to terminate)\x1b[0m\n`);
+    console.log(`${CYAN}✔ Web GUI running at:${RESET} ${url}`);
+    console.log(`${DIM}(100% offline, zero cloud connections. Press Ctrl+C to terminate)${RESET}\n`);
     return;
   }
 

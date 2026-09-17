@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://liyfez.github.io/sanitize-me/sitemap.xml
