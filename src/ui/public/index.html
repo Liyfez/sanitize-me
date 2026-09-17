@@ -723,7 +723,8 @@
     class TactileAudioEngine {
       constructor() {
         this.ctx = null;
-        this.muted = false;
+        this.muted = localStorage.getItem('sm_audio_muted') === 'true';
+        this.lastKeystrokeTime = 0;
       }
       init() {
         if (!this.ctx) {
@@ -736,45 +737,83 @@
       }
       toggle() {
         this.muted = !this.muted;
+        localStorage.setItem('sm_audio_muted', this.muted);
         return !this.muted;
       }
-      click() {
+      // 1. Creamy mechanical keyboard keystroke with randomized pitch variation
+      keystroke() {
         if (this.muted) return;
+        const now = performance.now();
+        if (now - this.lastKeystrokeTime < 38) return; // Prevent machine-gun stacking
+        this.lastKeystrokeTime = now;
         this.init();
+
         const t = this.ctx.currentTime;
+        
+        // Soft bottom-out thud (240Hz - 290Hz)
+        const baseFreq = 265 + (Math.random() - 0.5) * 45;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(780, t);
-        osc.frequency.exponentialRampToValueAtTime(120, t + 0.02);
-        gain.gain.setValueAtTime(0.14, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+        osc.frequency.setValueAtTime(baseFreq, t);
+        osc.frequency.exponentialRampToValueAtTime(70, t + 0.022);
+        gain.gain.setValueAtTime(0.04, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.022);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(t);
-        osc.stop(t + 0.022);
+        osc.stop(t + 0.025);
+
+        // Subtle tactile stem contact click
+        const clickOsc = this.ctx.createOscillator();
+        const clickGain = this.ctx.createGain();
+        clickOsc.type = 'sine';
+        clickOsc.frequency.setValueAtTime(1350 + (Math.random() - 0.5) * 200, t);
+        clickGain.gain.setValueAtTime(0.012, t);
+        clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
+        clickOsc.connect(clickGain);
+        clickGain.connect(this.ctx.destination);
+        clickOsc.start(t);
+        clickOsc.stop(t + 0.01);
       }
-      tab() {
+      // 2. Physical File Drop & Bay Latch
+      fileDrop() {
         if (this.muted) return;
         this.init();
         const t = this.ctx.currentTime;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, t);
-        osc.frequency.exponentialRampToValueAtTime(880, t + 0.035);
-        gain.gain.setValueAtTime(0.12, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(t);
-        osc.stop(t + 0.04);
+
+        // Stage 1: Soft landing thud
+        const bass = this.ctx.createOscillator();
+        const bassGain = this.ctx.createGain();
+        bass.type = 'sine';
+        bass.frequency.setValueAtTime(120, t);
+        bass.frequency.exponentialRampToValueAtTime(45, t + 0.045);
+        bassGain.gain.setValueAtTime(0.045, t);
+        bassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+        bass.connect(bassGain);
+        bassGain.connect(this.ctx.destination);
+        bass.start(t);
+        bass.stop(t + 0.05);
+
+        // Stage 2: Mechanical latch snick
+        const latch = this.ctx.createOscillator();
+        const latchGain = this.ctx.createGain();
+        latch.type = 'triangle';
+        latch.frequency.setValueAtTime(740, t + 0.032);
+        latch.frequency.exponentialRampToValueAtTime(220, t + 0.055);
+        latchGain.gain.setValueAtTime(0.03, t + 0.032);
+        latchGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
+        latch.connect(latchGain);
+        latchGain.connect(this.ctx.destination);
+        latch.start(t + 0.032);
+        latch.stop(t + 0.06);
       }
+      // 3. Purge / Sanitization sweep (Soft velvety pneumatic airlock)
       purge() {
         if (this.muted) return;
         this.init();
         const t = this.ctx.currentTime;
-        const bufferSize = Math.floor(this.ctx.sampleRate * 0.14);
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.15);
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
@@ -782,38 +821,83 @@
         noise.buffer = buffer;
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(3200, t);
-        filter.frequency.exponentialRampToValueAtTime(200, t + 0.13);
+        filter.frequency.setValueAtTime(1600, t);
+        filter.frequency.exponentialRampToValueAtTime(160, t + 0.14);
         const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(0.2, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        gain.gain.setValueAtTime(0.04, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
         noise.connect(filter);
         filter.connect(gain);
         gain.connect(this.ctx.destination);
         noise.start(t);
-        noise.stop(t + 0.14);
+        noise.stop(t + 0.15);
       }
+      // 4. Harmonic Success Chime (Warm Rhodes / Marimba interval)
       success() {
         if (this.muted) return;
         this.init();
         const t = this.ctx.currentTime;
-        [523.25, 783.99].forEach((freq, idx) => {
-          const start = t + idx * 0.05;
+        [369.99, 554.37].forEach((freq, idx) => {
+          const start = t + idx * 0.035;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, start);
-          gain.gain.setValueAtTime(0.15, start);
-          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+          gain.gain.setValueAtTime(0.038, start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.2);
           osc.connect(gain);
           gain.connect(this.ctx.destination);
           osc.start(start);
-          osc.stop(start + 0.16);
+          osc.stop(start + 0.22);
         });
+      }
+      // 5. Tactile Micro-Click
+      click() {
+        if (this.muted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(580, t);
+        osc.frequency.exponentialRampToValueAtTime(160, t + 0.016);
+        gain.gain.setValueAtTime(0.032, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.016);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.018);
+      }
+      // 6. Smooth Tab Switch
+      tab() {
+        if (this.muted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, t);
+        osc.frequency.exponentialRampToValueAtTime(580, t + 0.028);
+        gain.gain.setValueAtTime(0.028, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.028);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.032);
       }
     }
 
     const sfx = new TactileAudioEngine();
+
+    // Initialize UI audio state based on saved preference
+    if (sfx.muted) {
+      const btn = document.getElementById('audio-btn');
+      const label = document.getElementById('audio-label');
+      if (btn && label) {
+        btn.classList.remove('active');
+        label.textContent = 'Muted';
+      }
+    }
 
     function toggleAudio() {
       const active = sfx.toggle();
@@ -869,8 +953,19 @@
       dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('dragover'); });
     });
     dropzone.addEventListener('drop', e => {
+      sfx.fileDrop();
       if (e.dataTransfer.files.length) handleFileSelect(e.dataTransfer.files[0]);
     });
+
+    // Keystroke typing acoustics
+    const onKeydownSound = (e) => {
+      if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab', 'Escape'].includes(e.key)) return;
+      sfx.keystroke();
+    };
+    const logInputEl = document.getElementById('log-input');
+    const urlInputEl = document.getElementById('url-input');
+    if (logInputEl) logInputEl.addEventListener('keydown', onKeydownSound);
+    if (urlInputEl) urlInputEl.addEventListener('keydown', onKeydownSound);
 
     function cleanJpegClient(arrayBuffer) {
       const bytes = new Uint8Array(arrayBuffer);
@@ -914,7 +1009,8 @@
 
     async function handleFileSelect(file) {
       if (!file) return;
-      sfx.purge();
+      sfx.fileDrop();
+      setTimeout(() => sfx.purge(), 75);
 
       const buffer = await file.arrayBuffer();
       const ext = file.name.split('.').pop().toLowerCase();
