@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, extname } from 'node:path';
+import { dirname, join, extname, basename } from 'node:path';
 import { exec } from 'node:child_process';
 import { sanitizeText } from '../sanitizers/text.js';
 import { sanitizeUrl } from '../sanitizers/url.js';
@@ -52,6 +52,20 @@ export function startServer(options = {}) {
       if (req.method === 'GET' && (parsedUrl.pathname === '/' || parsedUrl.pathname === '/index.html')) {
         res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
         return res.end(HTML_CONTENT);
+      }
+
+      // Static assets (/assets/...)
+      if (req.method === 'GET' && parsedUrl.pathname.startsWith('/assets/')) {
+        try {
+          const assetName = basename(parsedUrl.pathname);
+          const assetPath = join(__dirname, '..', '..', 'assets', assetName);
+          const assetData = readFileSync(assetPath);
+          res.writeHead(200, { 'Content-Type': 'image/png' });
+          return res.end(assetData);
+        } catch {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          return res.end('Not Found');
+        }
       }
 
       // API: Text Sanitization
