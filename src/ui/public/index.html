@@ -144,19 +144,38 @@
 
   <style>
     :root {
-      --bg: #07090e;
-      --surface: #0e131f;
-      --surface-subtle: #131b2e;
-      --border: #1e293b;
-      --border-focus: #39ff14;
-      --lime: #39ff14;
-      --lime-muted: #22c55e;
-      --lime-soft: rgba(57, 255, 20, 0.08);
+      --bg: #060913;
+      --bg-alt: #0a0f1d;
+      --surface: #0c1222;
+      --surface-card: #0d1325;
+      --surface-subtle: #121a30;
+      --border: rgba(148, 163, 184, 0.14);
+      --border-focus: #00f0ff;
+      --border-glow: rgba(0, 240, 255, 0.28);
+      
+      /* Cyber-Prism Palette */
+      --cyan: #00f0ff;
+      --cyan-soft: rgba(0, 240, 255, 0.08);
+      --cyan-glow: rgba(0, 240, 255, 0.25);
+      --emerald: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.08);
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --violet: #a855f7;
+      --violet-soft: rgba(168, 85, 247, 0.08);
+
+      --lime: #00f0ff; /* Compatibility alias for existing accents */
+      --lime-muted: #10b981;
+      --lime-soft: rgba(0, 240, 255, 0.08);
+
+      --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #10b981 100%);
+      --accent-gradient-hover: linear-gradient(135deg, #38f4ff 0%, #34d399 100%);
+      --accent-gradient-subtle: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(16, 185, 129, 0.08) 100%);
+
       --text: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
-      --danger: #ef4444;
-      --danger-soft: rgba(239, 68, 68, 0.1);
+      --danger: #f43f5e;
+      --danger-soft: rgba(244, 63, 94, 0.12);
       --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
     }
@@ -195,8 +214,8 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 520px;
-      background: radial-gradient(circle at 50% 10%, rgba(57, 255, 20, 0.05) 0%, transparent 70%);
+      height: 600px;
+      background: radial-gradient(circle at 50% 10%, rgba(0, 240, 255, 0.07) 0%, rgba(168, 85, 247, 0.03) 45%, transparent 75%);
       pointer-events: none;
       z-index: 0;
     }
@@ -230,29 +249,84 @@
       gap: 1rem;
     }
 
-    /* Clean audio toggle */
-    .audio-btn {
+    /* Audio volume & acoustics controller */
+    .audio-widget {
+      display: inline-flex;
+      align-items: center;
       background: var(--surface);
       border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.2rem 0.45rem;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+    .audio-widget:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+    }
+    .audio-btn {
+      background: transparent;
+      border: none;
       color: var(--text-muted);
-      padding: 0.4rem 0.85rem;
+      padding: 0.35rem 0.5rem;
       border-radius: 6px;
       font-family: var(--font-mono);
       font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
       transition: all 0.15s ease;
     }
     .audio-btn:hover {
-      border-color: var(--text-dim);
-      color: var(--text);
+      color: var(--cyan);
     }
     .audio-btn.active {
-      border-color: rgba(57, 255, 20, 0.4);
-      color: var(--lime);
-      background: var(--lime-soft);
+      color: var(--cyan);
+    }
+    .audio-btn.muted {
+      color: var(--text-dim);
+    }
+    .vol-slider-wrap {
+      display: flex;
+      align-items: center;
+      padding-right: 0.25rem;
+    }
+    .vol-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 74px;
+      height: 4px;
+      background: var(--surface-subtle);
+      border-radius: 9999px;
+      outline: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.15s;
+    }
+    .vol-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    }
+    .vol-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+      border: none;
+      cursor: pointer;
     }
 
     .npm-link {
@@ -331,8 +405,8 @@
       font-family: var(--font-mono);
       font-size: 0.78rem;
       color: var(--lime);
-      background: rgba(57, 255, 20, 0.08);
-      border: 1px solid rgba(57, 255, 20, 0.25);
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       font-weight: 600;
@@ -460,7 +534,7 @@
     .airlock-box {
       max-width: 1360px;
       margin: 0 auto 5rem auto;
-      background: linear-gradient(180deg, #0e131f 0%, #090d16 100%);
+      background: linear-gradient(180deg, rgba(12, 18, 35, 0.92) 0%, rgba(8, 12, 24, 0.96) 100%);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 2.25rem 2.5rem;
@@ -514,7 +588,7 @@
     }
     .dropzone:hover, .dropzone.dragover {
       border-color: var(--lime);
-      background: rgba(57, 255, 20, 0.02);
+      background: rgba(0, 240, 255, 0.02);
     }
     .dropzone-icon {
       width: 40px;
@@ -587,7 +661,7 @@
     .tag.clean {
       background: var(--lime-soft);
       color: var(--lime);
-      border-color: rgba(57, 255, 20, 0.2);
+      border-color: rgba(0, 240, 255, 0.2);
     }
 
     /* Form controls */
@@ -613,8 +687,8 @@
     }
 
     .btn-primary {
-      background: var(--lime);
-      color: #031505;
+      background: var(--accent-gradient);
+      color: #04121d;
       font-family: var(--font-mono);
       font-size: 0.85rem;
       font-weight: 700;
@@ -625,11 +699,14 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      transition: all 0.15s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       margin-top: 0.75rem;
+      box-shadow: 0 4px 14px rgba(0, 240, 255, 0.2);
     }
     .btn-primary:hover {
-      background: #4efd2b;
+      background: var(--accent-gradient-hover);
+      box-shadow: 0 6px 22px rgba(0, 240, 255, 0.38);
+      transform: translateY(-1px);
     }
 
     /* Feature Grid */
@@ -643,14 +720,14 @@
     }
 
     .feature-card {
-      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      background: linear-gradient(180deg, rgba(13, 19, 37, 0.8) 0%, rgba(9, 13, 26, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.75rem;
       transition: all 0.2s ease;
     }
     .feature-card:hover {
-      border-color: rgba(57, 255, 20, 0.35);
+      border-color: rgba(0, 240, 255, 0.35);
       transform: translateY(-2px);
     }
     .feature-card h3 {
@@ -702,7 +779,7 @@
       background: var(--surface-subtle);
       border-color: var(--lime);
       color: var(--lime);
-      box-shadow: 0 0 12px rgba(57, 255, 20, 0.12);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.12);
     }
     .guides-grid {
       display: grid;
@@ -710,7 +787,7 @@
       gap: 1.5rem;
     }
     .guide-card {
-      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      background: linear-gradient(180deg, rgba(13, 19, 37, 0.8) 0%, rgba(9, 13, 26, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.75rem;
@@ -721,9 +798,9 @@
       box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
     }
     .guide-card:hover {
-      border-color: rgba(57, 255, 20, 0.4);
+      border-color: rgba(0, 240, 255, 0.4);
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px -4px rgba(57, 255, 20, 0.08);
+      box-shadow: 0 8px 30px -4px rgba(0, 240, 255, 0.08);
     }
     .guide-card-top {
       display: flex;
@@ -738,8 +815,8 @@
       font-size: 0.72rem;
       font-weight: 600;
       color: var(--lime);
-      background: rgba(57, 255, 20, 0.06);
-      border: 1px solid rgba(57, 255, 20, 0.2);
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.2);
       padding: 0.25rem 0.65rem;
       border-radius: 6px;
       text-transform: uppercase;
@@ -768,7 +845,7 @@
       margin-bottom: 1rem;
     }
     .guide-cmd-box {
-      background: #04070d;
+      background: #070b16;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
       padding: 0.75rem 0.85rem;
@@ -779,7 +856,7 @@
       transition: border-color 0.15s ease;
     }
     .guide-cmd-box:hover {
-      border-color: rgba(57, 255, 20, 0.3);
+      border-color: rgba(0, 240, 255, 0.3);
     }
     .guide-prompt {
       font-family: var(--font-mono);
@@ -850,7 +927,7 @@
       padding: 0 2rem;
     }
     .dist-table-wrap {
-      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      background: linear-gradient(180deg, rgba(13, 19, 37, 0.8) 0%, rgba(9, 13, 26, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow-x: auto;
@@ -862,7 +939,7 @@
       font-size: 0.88rem;
     }
     .dist-table th {
-      background: #04070d;
+      background: #070b16;
       padding: 1rem 1.4rem;
       text-align: left;
       font-family: var(--font-mono);
@@ -886,7 +963,7 @@
     .dist-cmd {
       font-family: var(--font-mono);
       color: var(--lime);
-      background: #04070d;
+      background: #070b16;
       padding: 0.25rem 0.6rem;
       border-radius: 4px;
       border: 1px solid var(--border);
@@ -910,8 +987,8 @@
       font-size: 0.75rem;
       font-weight: 600;
       color: var(--lime);
-      background: rgba(57, 255, 20, 0.08);
-      border: 1px solid rgba(57, 255, 20, 0.25);
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       text-transform: uppercase;
@@ -936,22 +1013,22 @@
       gap: 1.5rem;
     }
     .manifesto-card {
-      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      background: linear-gradient(180deg, rgba(13, 19, 37, 0.8) 0%, rgba(9, 13, 26, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.75rem;
       transition: all 0.2s ease;
     }
     .manifesto-card:hover {
-      border-color: rgba(57, 255, 20, 0.35);
+      border-color: rgba(0, 240, 255, 0.35);
       transform: translateY(-2px);
     }
     .manifesto-icon-wrap {
       width: 44px;
       height: 44px;
       border-radius: 10px;
-      background: rgba(57, 255, 20, 0.06);
-      border: 1px solid rgba(57, 255, 20, 0.15);
+      background: rgba(0, 240, 255, 0.06);
+      border: 1px solid rgba(0, 240, 255, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -976,7 +1053,7 @@
       padding: 0 2rem;
     }
     .compare-table-wrap {
-      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      background: linear-gradient(180deg, rgba(13, 19, 37, 0.8) 0%, rgba(9, 13, 26, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow-x: auto;
@@ -988,7 +1065,7 @@
       font-size: 0.88rem;
     }
     .compare-table th {
-      background: #04070d;
+      background: #070b16;
       padding: 1rem 1.4rem;
       text-align: left;
       font-family: var(--font-mono);
@@ -1012,8 +1089,8 @@
       font-family: var(--font-mono);
       font-size: 0.78rem;
       color: var(--lime);
-      background: rgba(57, 255, 20, 0.08);
-      border: 1px solid rgba(57, 255, 20, 0.25);
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
       padding: 0.2rem 0.6rem;
       border-radius: 4px;
       font-weight: 600;
@@ -1075,14 +1152,14 @@
       margin-top: 1.5rem;
     }
     .faq-item {
-      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      background: linear-gradient(180deg, rgba(13, 19, 37, 0.8) 0%, rgba(9, 13, 26, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
       transition: border-color 0.15s ease;
     }
     .faq-item:hover {
-      border-color: rgba(57, 255, 20, 0.3);
+      border-color: rgba(0, 240, 255, 0.3);
     }
     .faq-item h4 {
       font-size: 0.98rem;
@@ -1124,10 +1201,351 @@
       .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
 
+    
+    /* Sentinel Gamification HUD */
+    .sentinel-hud {
+      max-width: 1360px;
+      margin: 0 auto 2.5rem auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 2;
+    }
+    .hud-container {
+      background: linear-gradient(135deg, rgba(13, 19, 37, 0.85) 0%, rgba(8, 12, 24, 0.95) 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.15rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hud-container:hover {
+      border-color: rgba(0, 240, 255, 0.3);
+      box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.06);
+    }
+    .hud-profile {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex: 1;
+      max-width: 620px;
+    }
+    .rank-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
+    }
+    .rank-level {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: var(--cyan);
+      letter-spacing: 0.05em;
+    }
+    .rank-details {
+      flex: 1;
+      min-width: 0;
+    }
+    .rank-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.35rem;
+    }
+    .rank-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .rank-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+      display: inline-block;
+      animation: pulseDot 2.2s infinite ease-in-out;
+    }
+    @keyframes pulseDot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
+    }
+    .xp-bar-track {
+      width: 100%;
+      height: 7px;
+      background: var(--surface-subtle);
+      border-radius: 9999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .xp-bar-fill {
+      height: 100%;
+      background: var(--accent-gradient);
+      border-radius: 9999px;
+      transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    }
+    .xp-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+    .hud-stats {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .hud-stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .hud-stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .hud-stat-lbl {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .hud-stat-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border);
+    }
+    .trophy-btn {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    .trophy-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.2);
+    }
+    .trophy-count {
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--cyan);
+      font-size: 0.72rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* Trophy Case Modal */
+    .trophy-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 15, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .trophy-modal-backdrop.open {
+      display: flex;
+      opacity: 1;
+    }
+    .trophy-modal-card {
+      background: #0b101e;
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 16px;
+      max-width: 640px;
+      width: 100%;
+      padding: 1.75rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 240, 255, 0.15);
+      transform: scale(0.96);
+      transition: transform 0.2s ease;
+    }
+    .trophy-modal-backdrop.open .trophy-modal-card {
+      transform: scale(1);
+    }
+    .trophy-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    .trophy-modal-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .trophy-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .trophy-close-btn:hover { color: var(--text); }
+    .trophy-modal-desc {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+    .trophy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+    .trophy-card {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    .trophy-card.unlocked {
+      background: rgba(0, 240, 255, 0.05);
+      border-color: rgba(0, 240, 255, 0.35);
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.08);
+    }
+    .trophy-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .trophy-card.unlocked .trophy-icon-wrap {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+      border-color: rgba(0, 240, 255, 0.4);
+      color: var(--cyan);
+    }
+    .trophy-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .trophy-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.2rem;
+    }
+    .trophy-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .trophy-status {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .trophy-card.unlocked .trophy-status {
+      color: var(--emerald);
+      font-weight: 700;
+    }
+    .trophy-card.locked .trophy-status {
+      color: var(--text-dim);
+    }
+    .trophy-card.locked {
+      opacity: 0.6;
+    }
+    .trophy-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .trophy-modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    .trophy-reset-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: color 0.15s;
+    }
+    .trophy-reset-btn:hover { color: var(--danger); }
+
+    /* Floating XP Notification */
+    .xp-float {
+      position: fixed;
+      pointer-events: none;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+      z-index: 10000;
+      animation: floatUpFade 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes floatUpFade {
+      0% { opacity: 0; transform: translateY(0) scale(0.8); }
+      20% { opacity: 1; transform: translateY(-10px) scale(1.15); }
+      100% { opacity: 0; transform: translateY(-40px) scale(1); }
+    }
+
     .hidden { display: none; }
   </style>
 </head>
 <body>
+  <canvas id="fx-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;"></canvas>
   <div class="bg-grid"></div>
 
   <!-- Navigation -->
@@ -1137,10 +1555,15 @@
     </a>
 
     <div class="nav-right">
-      <button id="audio-btn" class="audio-btn active" onclick="toggleAudio()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
-        <span id="audio-label">Sound on</span>
-      </button>
+      <div class="audio-widget" id="audio-widget">
+        <button id="audio-btn" class="audio-btn active" onclick="toggleAudio()" title="Toggle Sound / Mute (M)">
+          <svg id="audio-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          <span id="audio-label">70%</span>
+        </button>
+        <div class="vol-slider-wrap">
+          <input type="range" id="vol-slider" class="vol-slider" min="0" max="100" value="70" step="1" oninput="setVolumeSlider(this.value)" aria-label="Acoustic volume">
+        </div>
+      </div>
 
       <a href="https://www.npmjs.com/package/sanitize-me" target="_blank" class="npm-link" title="sanitize-me on npm">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 0v24h24V0H0zm19.5 19.5h-4.5V9h-3v10.5H4.5V4.5h15v15z"/></svg>
@@ -1189,6 +1612,50 @@
     <p class="hero-guarantee">
       🛡️ <strong>100% Client-Side</strong>: Process files directly in local browser memory. Zero files or bytes are ever uploaded to any server.
     </p>
+  </section>
+
+  <!-- Sentinel Privacy Agent HUD (Gamified Security Level & XP) -->
+  <section class="sentinel-hud" id="sentinel-hud">
+    <div class="hud-container">
+      <div class="hud-profile">
+        <div class="rank-badge" id="hud-rank-badge">
+          <span class="rank-level" id="hud-level-num">LVL 1</span>
+        </div>
+        <div class="rank-details">
+          <div class="rank-title-row">
+            <h3 class="rank-title" id="hud-rank-title">Novice Sentinel</h3>
+            <span class="rank-status-dot" title="Air-Gap Active"></span>
+          </div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" id="hud-xp-fill" style="width: 0%;"></div>
+          </div>
+          <div class="xp-meta">
+            <span id="hud-xp-text">0 / 100 XP</span>
+            <span id="hud-xp-pct">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-stats">
+        <div class="hud-stat-item">
+          <span class="hud-stat-val" id="stat-threats">0</span>
+          <span class="hud-stat-lbl">Threats Scrubbed</span>
+        </div>
+        <div class="hud-stat-divider"></div>
+        <div class="hud-stat-item">
+          <span class="hud-stat-val" id="stat-bytes">0.0 KB</span>
+          <span class="hud-stat-lbl">Data Purged</span>
+        </div>
+        <div class="hud-stat-divider"></div>
+        <button class="trophy-btn" id="trophy-case-btn" onclick="openTrophyModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M4 5h16v4a6 6 0 0 1-12 0V5zM12 15v5M8 20h8"/>
+          </svg>
+          <span>Trophies</span>
+          <span class="trophy-count" id="stat-trophies">0/6</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- Interactive Airlock Card -->
@@ -1801,6 +2268,25 @@
     </div>
   </section>
 
+  <!-- Trophy Case Modal -->
+  <div class="trophy-modal-backdrop" id="trophy-modal" onclick="closeTrophyModal(event)">
+    <div class="trophy-modal-card" onclick="event.stopPropagation()">
+      <div class="trophy-modal-header">
+        <div class="trophy-modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M4 5h16v4a6 6 0 0 1-12 0V5zM12 15v5M8 20h8"/></svg>
+          <h3>Security Agent Trophies</h3>
+        </div>
+        <button class="trophy-close-btn" onclick="closeTrophyModal(null)">&times;</button>
+      </div>
+      <p class="trophy-modal-desc">Sanitize confidential data locally in browser memory to level up your Agent Rank and unlock achievements. 100% offline.</p>
+      <div class="trophy-grid" id="trophy-grid"></div>
+      <div class="trophy-modal-footer">
+        <button class="trophy-reset-btn" onclick="gamify.reset()">Reset Agent Progress</button>
+        <button class="btn-primary" style="padding:0.45rem 1.1rem;font-size:0.8rem;" onclick="closeTrophyModal(null)">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <p>
@@ -1821,34 +2307,50 @@
     class TactileAudioEngine {
       constructor() {
         this.ctx = null;
+        this.masterGain = null;
         this.muted = localStorage.getItem('sm_audio_muted') === 'true';
+        const v = localStorage.getItem('sm_audio_vol');
+        this.volume = v !== null ? Math.max(0, Math.min(1, parseFloat(v))) : 0.7;
         this.lastKeystrokeTime = 0;
       }
       init() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           this.ctx = new AudioContext();
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.setValueAtTime(this.muted ? 0 : this.volume, this.ctx.currentTime);
+          this.masterGain.connect(this.ctx.destination);
         }
         if (this.ctx.state === 'suspended') {
           this.ctx.resume();
         }
       }
-      toggle() {
-        this.muted = !this.muted;
+      setVolume(val) {
+        this.init();
+        this.volume = Math.max(0, Math.min(1, val));
+        localStorage.setItem('sm_audio_vol', this.volume);
+        if (!this.muted && this.masterGain) {
+          this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
+        }
+      }
+      toggle(forceState) {
+        this.init();
+        this.muted = typeof forceState === 'boolean' ? forceState : !this.muted;
         localStorage.setItem('sm_audio_muted', this.muted);
+        if (this.masterGain) {
+          this.masterGain.gain.setValueAtTime(this.muted ? 0 : this.volume, this.ctx.currentTime);
+        }
         return !this.muted;
       }
-      // 1. Creamy mechanical keyboard keystroke with randomized pitch variation
+      // 1. Creamy mechanical keyboard keystroke
       keystroke() {
         if (this.muted) return;
         const now = performance.now();
-        if (now - this.lastKeystrokeTime < 38) return; // Prevent machine-gun stacking
+        if (now - this.lastKeystrokeTime < 38) return;
         this.lastKeystrokeTime = now;
         this.init();
 
         const t = this.ctx.currentTime;
-        
-        // Soft bottom-out thud (240Hz - 290Hz)
         const baseFreq = 265 + (Math.random() - 0.5) * 45;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -1858,11 +2360,10 @@
         gain.gain.setValueAtTime(0.04, t);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.022);
         osc.connect(gain);
-        gain.connect(this.ctx.destination);
+        gain.connect(this.masterGain);
         osc.start(t);
         osc.stop(t + 0.025);
 
-        // Subtle tactile stem contact click
         const clickOsc = this.ctx.createOscillator();
         const clickGain = this.ctx.createGain();
         clickOsc.type = 'sine';
@@ -1870,7 +2371,7 @@
         clickGain.gain.setValueAtTime(0.012, t);
         clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
         clickOsc.connect(clickGain);
-        clickGain.connect(this.ctx.destination);
+        clickGain.connect(this.masterGain);
         clickOsc.start(t);
         clickOsc.stop(t + 0.01);
       }
@@ -1880,7 +2381,6 @@
         this.init();
         const t = this.ctx.currentTime;
 
-        // Stage 1: Soft landing thud
         const bass = this.ctx.createOscillator();
         const bassGain = this.ctx.createGain();
         bass.type = 'sine';
@@ -1889,11 +2389,10 @@
         bassGain.gain.setValueAtTime(0.045, t);
         bassGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
         bass.connect(bassGain);
-        bassGain.connect(this.ctx.destination);
+        bassGain.connect(this.masterGain);
         bass.start(t);
         bass.stop(t + 0.05);
 
-        // Stage 2: Mechanical latch snick
         const latch = this.ctx.createOscillator();
         const latchGain = this.ctx.createGain();
         latch.type = 'triangle';
@@ -1902,11 +2401,11 @@
         latchGain.gain.setValueAtTime(0.03, t + 0.032);
         latchGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.055);
         latch.connect(latchGain);
-        latchGain.connect(this.ctx.destination);
+        latchGain.connect(this.masterGain);
         latch.start(t + 0.032);
         latch.stop(t + 0.06);
       }
-      // 3. Purge / Sanitization sweep (Soft velvety pneumatic airlock)
+      // 3. Purge / Sanitization sweep
       purge() {
         if (this.muted) return;
         this.init();
@@ -1926,11 +2425,11 @@
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
         noise.connect(filter);
         filter.connect(gain);
-        gain.connect(this.ctx.destination);
+        gain.connect(this.masterGain);
         noise.start(t);
         noise.stop(t + 0.15);
       }
-      // 4. Harmonic Success Chime (Warm Rhodes / Marimba interval)
+      // 4. Harmonic Success Chime
       success() {
         if (this.muted) return;
         this.init();
@@ -1944,7 +2443,7 @@
           gain.gain.setValueAtTime(0.038, start);
           gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.2);
           osc.connect(gain);
-          gain.connect(this.ctx.destination);
+          gain.connect(this.masterGain);
           osc.start(start);
           osc.stop(start + 0.22);
         });
@@ -1962,7 +2461,7 @@
         gain.gain.setValueAtTime(0.032, t);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.016);
         osc.connect(gain);
-        gain.connect(this.ctx.destination);
+        gain.connect(this.masterGain);
         osc.start(t);
         osc.stop(t + 0.018);
       }
@@ -1979,43 +2478,109 @@
         gain.gain.setValueAtTime(0.028, t);
         gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.028);
         osc.connect(gain);
-        gain.connect(this.ctx.destination);
+        gain.connect(this.masterGain);
         osc.start(t);
         osc.stop(t + 0.032);
+      }
+      // 7. Action Micro-Burst (Particle launch)
+      burst() {
+        if (this.muted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, t);
+        osc.frequency.exponentialRampToValueAtTime(1760, t + 0.08);
+        gain.gain.setValueAtTime(0.035, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.09);
+      }
+      // 8. Triumphant Level-Up / Trophy Fanfare
+      levelUp() {
+        if (this.muted) return;
+        this.init();
+        const t = this.ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const start = t + idx * 0.065;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.048, start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.32);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(start);
+          osc.stop(start + 0.35);
+        });
       }
     }
 
     const sfx = new TactileAudioEngine();
 
-    // Initialize UI audio state based on saved preference
-    if (sfx.muted) {
+    // Volume & Sound Manager
+    function updateAudioUi() {
       const btn = document.getElementById('audio-btn');
       const label = document.getElementById('audio-label');
-      if (btn && label) {
-        btn.classList.remove('active');
-        label.textContent = 'Muted';
+      const slider = document.getElementById('vol-slider');
+      const icon = document.getElementById('audio-icon');
+      const volPct = Math.round(sfx.volume * 100);
+
+      if (slider) slider.value = volPct;
+
+      if (sfx.muted || volPct === 0) {
+        if (btn) btn.classList.remove('active');
+        if (label) label.textContent = 'Muted';
+        if (icon) {
+          icon.innerHTML = '<path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>';
+        }
+      } else {
+        if (btn) btn.classList.add('active');
+        if (label) label.textContent = `${volPct}%`;
+        if (icon) {
+          if (volPct < 40) {
+            icon.innerHTML = '<path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07"/>';
+          } else {
+            icon.innerHTML = '<path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>';
+          }
+        }
       }
+    }
+
+    function setVolumeSlider(val) {
+      const num = parseInt(val, 10);
+      sfx.setVolume(num / 100);
+      if (num === 0) {
+        sfx.toggle(true); // force mute
+      } else if (sfx.muted) {
+        sfx.toggle(false); // force unmute
+      }
+      updateAudioUi();
+      sfx.click();
+      if (window.gamify) gamify.unlock('sound_master', window.innerWidth - 140, 40);
     }
 
     function toggleAudio() {
       const active = sfx.toggle();
-      const btn = document.getElementById('audio-btn');
-      const label = document.getElementById('audio-label');
-      if (active) {
-        btn.classList.add('active');
-        label.textContent = 'Sound on';
-        sfx.click();
-      } else {
-        btn.classList.remove('active');
-        label.textContent = 'Muted';
-      }
+      updateAudioUi();
+      if (active) sfx.click();
+      if (window.gamify) gamify.unlock('sound_master', window.innerWidth - 140, 40);
     }
 
+    // Initialize UI audio state
+    updateAudioUi();
+
+    // Micro Toast Feedback
     function showToast(msg) {
       const toast = document.getElementById('toast');
+      if (!toast) return;
       toast.textContent = msg;
       toast.classList.add('show');
-      setTimeout(() => { toast.classList.remove('show'); }, 2000);
+      setTimeout(() => { toast.classList.remove('show'); }, 2200);
     }
 
     function switchTab(tabId, el) {
@@ -2031,13 +2596,19 @@
       sfx.success();
       navigator.clipboard.writeText(cmd);
       const btn = document.querySelector('.quickstart-copy');
-      btn.textContent = 'Copied';
-      btn.classList.add('copied');
+      if (btn) {
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 1800);
+      }
       showToast('Command copied to clipboard');
-      setTimeout(() => {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 1800);
+      if (window.gamify) {
+        const rect = btn.getBoundingClientRect();
+        burstParticles(rect.left + rect.width / 2, rect.top);
+      }
     }
 
     function copyGuideCmd(btn, cmd) {
@@ -2051,6 +2622,10 @@
         btn.textContent = orig;
         btn.classList.remove('copied');
       }, 1800);
+      if (window.gamify) {
+        const rect = btn.getBoundingClientRect();
+        burstParticles(rect.left + rect.width / 2, rect.top);
+      }
     }
 
     function filterGuides(category, btn) {
@@ -2065,6 +2640,270 @@
           card.style.display = 'none';
         }
       });
+    }
+
+    // Canvas Particle Micro-Engine (Zero dependencies)
+    const fxCanvas = document.getElementById('fx-canvas');
+    let fxCtx = fxCanvas ? fxCanvas.getContext('2d') : null;
+    let particles = [];
+    let animId = null;
+
+    function resizeCanvas() {
+      if (!fxCanvas) return;
+      fxCanvas.width = window.innerWidth;
+      fxCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function burstParticles(x, y, count = 26) {
+      if (!fxCanvas || !fxCtx) return;
+      sfx.burst();
+      const colors = ['#00f0ff', '#10b981', '#38bdf8', '#a855f7', '#f8fafc'];
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 5.5;
+        particles.push({
+          x: x || window.innerWidth / 2,
+          y: y || window.innerHeight / 2,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1.2,
+          radius: 1.5 + Math.random() * 2.5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          decay: 0.022 + Math.random() * 0.024
+        });
+      }
+      if (!animId) loopParticles();
+    }
+
+    function loopParticles() {
+      if (!fxCtx || !fxCanvas) return;
+      fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.14; // gravity
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        fxCtx.save();
+        fxCtx.globalAlpha = p.alpha;
+        fxCtx.fillStyle = p.color;
+        fxCtx.shadowBlur = 8;
+        fxCtx.shadowColor = p.color;
+        fxCtx.beginPath();
+        fxCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        fxCtx.fill();
+        fxCtx.restore();
+      }
+      if (particles.length > 0) {
+        animId = requestAnimationFrame(loopParticles);
+      } else {
+        animId = null;
+        fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+      }
+    }
+
+    function spawnXpFloat(text, x, y) {
+      const el = document.createElement('div');
+      el.className = 'xp-float';
+      el.textContent = text;
+      el.style.left = `${Math.min(window.innerWidth - 90, Math.max(20, x - 25))}px`;
+      el.style.top = `${Math.max(10, y - 15)}px`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1100);
+    }
+
+    // Gamification System & Achievements
+    const ACHIEVEMENTS = [
+      { id: 'first_clean', name: 'First Airlock', desc: 'Sanitize your first file, log, or query in local browser memory', icon: '🛡️', xp: 50 },
+      { id: 'exif_purged', name: 'GPS Blanker', desc: 'Losslessly strip camera EXIF and geolocation metadata from an image or PDF', icon: '📷', xp: 50 },
+      { id: 'secrets_scrubbed', name: 'Secret Redactor', desc: 'Redact API tokens, JWTs, or passwords from logs or config dumps', icon: '🔑', xp: 50 },
+      { id: 'xss_deflected', name: 'XSS Deflector', desc: 'Neutralize an inline script or unclosed XSS injection vector', icon: '⚡', xp: 50 },
+      { id: 'nosql_shielded', name: 'NoSQL Warden', desc: 'Neutralize MongoDB operator injection from a query payload', icon: '🔒', xp: 50 },
+      { id: 'sound_master', name: 'Acoustic Operator', desc: 'Adjust tactical audio volume or customize sound feedback', icon: '🔊', xp: 30 }
+    ];
+
+    const RANKS = [
+      { lvl: 1, title: 'Novice Sentinel', minXp: 0, maxXp: 100 },
+      { lvl: 2, title: 'Byte Purger', minXp: 100, maxXp: 250 },
+      { lvl: 3, title: 'Cipher Knight', minXp: 250, maxXp: 500 },
+      { lvl: 4, title: 'Data Phantom', minXp: 500, maxXp: 1000 },
+      { lvl: 5, title: 'Ghost Operative', minXp: 1000, maxXp: 999999 }
+    ];
+
+    class GamificationEngine {
+      constructor() {
+        this.load();
+        this.updateHud();
+      }
+      load() {
+        try {
+          const raw = localStorage.getItem('sm_gamify_state');
+          const data = raw ? JSON.parse(raw) : {};
+          this.xp = typeof data.xp === 'number' ? data.xp : 0;
+          this.threats = typeof data.threats === 'number' ? data.threats : 0;
+          this.bytes = typeof data.bytes === 'number' ? data.bytes : 0;
+          this.achievements = Array.isArray(data.achievements) ? data.achievements : [];
+        } catch {
+          this.xp = 0;
+          this.threats = 0;
+          this.bytes = 0;
+          this.achievements = [];
+        }
+      }
+      save() {
+        try {
+          localStorage.setItem('sm_gamify_state', JSON.stringify({
+            xp: this.xp,
+            threats: this.threats,
+            bytes: this.bytes,
+            achievements: this.achievements
+          }));
+        } catch {}
+      }
+      getRank() {
+        for (let i = RANKS.length - 1; i >= 0; i--) {
+          if (this.xp >= RANKS[i].minXp) return RANKS[i];
+        }
+        return RANKS[0];
+      }
+      addThreats(count) {
+        if (count > 0) {
+          this.threats += count;
+          this.save();
+          this.updateHud();
+        }
+      }
+      addBytes(bytes) {
+        if (bytes > 0) {
+          this.bytes += bytes;
+          this.save();
+          this.updateHud();
+        }
+      }
+      addXp(amount, x, y) {
+        const oldRank = this.getRank();
+        this.xp += amount;
+        this.save();
+        this.updateHud();
+        if (x !== undefined && y !== undefined) {
+          spawnXpFloat(`+${amount} XP`, x, y);
+        }
+        const newRank = this.getRank();
+        if (newRank.lvl > oldRank.lvl) {
+          sfx.levelUp();
+          burstParticles(window.innerWidth / 2, 220);
+          showToast(`LEVEL UP: Promoted to ${newRank.title}!`);
+        }
+      }
+      unlock(achId, x, y) {
+        if (this.achievements.includes(achId)) return;
+        const ach = ACHIEVEMENTS.find(a => a.id === achId);
+        if (!ach) return;
+        this.achievements.push(achId);
+        this.save();
+        this.updateHud();
+        sfx.levelUp();
+        if (x !== undefined && y !== undefined) {
+          burstParticles(x, y);
+        }
+        showToast(`🏆 Trophy Unlocked: ${ach.name}! (+${ach.xp} XP)`);
+        this.addXp(ach.xp, x, y);
+      }
+      reset() {
+        this.xp = 0;
+        this.threats = 0;
+        this.bytes = 0;
+        this.achievements = [];
+        this.save();
+        this.updateHud();
+        showToast('Agent security progress reset');
+      }
+      updateHud() {
+        const rank = this.getRank();
+        const lvlNum = document.getElementById('hud-level-num');
+        const rankTitle = document.getElementById('hud-rank-title');
+        const xpFill = document.getElementById('hud-xp-fill');
+        const xpText = document.getElementById('hud-xp-text');
+        const xpPct = document.getElementById('hud-xp-pct');
+        const statThreats = document.getElementById('stat-threats');
+        const statBytes = document.getElementById('stat-bytes');
+        const statTrophies = document.getElementById('stat-trophies');
+
+        if (lvlNum) lvlNum.textContent = `LVL ${rank.lvl}`;
+        if (rankTitle) rankTitle.textContent = rank.title;
+
+        if (xpFill && xpText && xpPct) {
+          if (rank.lvl === 5) {
+            xpFill.style.width = '100%';
+            xpText.textContent = `${this.xp} XP (MAX)`;
+            xpPct.textContent = '100%';
+          } else {
+            const range = rank.maxXp - rank.minXp;
+            const currentInRank = this.xp - rank.minXp;
+            const pct = Math.min(100, Math.max(0, Math.round((currentInRank / range) * 100)));
+            xpFill.style.width = `${pct}%`;
+            xpText.textContent = `${this.xp} / ${rank.maxXp} XP`;
+            xpPct.textContent = `${pct}%`;
+          }
+        }
+
+        if (statThreats) statThreats.textContent = this.threats.toLocaleString();
+        if (statBytes) {
+          if (this.bytes >= 1048576) statBytes.textContent = `${(this.bytes / 1048576).toFixed(1)} MB`;
+          else statBytes.textContent = `${(this.bytes / 1024).toFixed(1)} KB`;
+        }
+        if (statTrophies) statTrophies.textContent = `${this.achievements.length}/${ACHIEVEMENTS.length}`;
+
+        renderTrophies(this.achievements);
+      }
+    }
+
+    const gamify = new GamificationEngine();
+    window.gamify = gamify;
+    gamify.updateHud();
+
+    function renderTrophies(unlockedList) {
+      const grid = document.getElementById('trophy-grid');
+      if (!grid) return;
+      const list = unlockedList || (window.gamify ? window.gamify.achievements : []);
+      const unlockedSet = new Set(list);
+      grid.innerHTML = '';
+      ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = unlockedSet.has(ach.id);
+        const card = document.createElement('div');
+        card.className = `trophy-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+        card.innerHTML = `
+          <div class="trophy-icon-wrap">${ach.icon}</div>
+          <div class="trophy-info">
+            <div class="trophy-name-row">
+              <span class="trophy-name">${ach.name}</span>
+              <span class="trophy-status">${isUnlocked ? 'UNLOCKED' : '+ ' + ach.xp + ' XP'}</span>
+            </div>
+            <p class="trophy-desc">${ach.desc}</p>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openTrophyModal() {
+      sfx.click();
+      renderTrophies();
+      const modal = document.getElementById('trophy-modal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeTrophyModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      sfx.click();
+      const modal = document.getElementById('trophy-modal');
+      if (modal) modal.classList.remove('open');
     }
 
     // Media & Document Sanitizers (Client-Side Lossless ArrayBuffer)
@@ -2290,7 +3129,7 @@
 
       // 1. Private Keys
       t = t.replace(/-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g, () => { count++; return '<PRIVATE_KEY_REDACTED>'; });
-      // 2. Auth Headers (safe boundary delimiter)
+      // 2. Auth Headers
       t = t.replace(/(Authorization:\s*(?:Bearer|Basic)?\s*)([^\r\n"';,]+)/gi, (m, p1) => { count++; return `${p1}<AUTH_REDACTED>`; });
       t = t.replace(/(Set-Cookie:\s*)([^\r\n"';]+)/gi, (m, p1) => { count++; return `${p1}<COOKIE_REDACTED>`; });
       t = t.replace(/(Cookie:\s*)([^\r\n"';]+)/gi, (m, p1) => { count++; return `${p1}<COOKIE_REDACTED>`; });
@@ -2327,7 +3166,6 @@
     async function handleFileSelect(file) {
       if (!file) return;
 
-      // Reset file input so selecting same file twice works reliably
       const fileInput = document.getElementById('file-input');
       if (fileInput) fileInput.value = '';
 
@@ -2386,6 +3224,22 @@
           cloud.appendChild(sp);
         });
       }
+
+      // Gamification progression
+      const dz = document.getElementById('media-dropzone');
+      const dzRect = dz ? dz.getBoundingClientRect() : { left: window.innerWidth / 2, top: 400, width: 0 };
+      const actionX = dzRect.left + dzRect.width / 2;
+      const actionY = dzRect.top + 60;
+
+      const threatCount = result.stripped.length;
+      gamify.addBytes(bytesSaved);
+      gamify.addThreats(threatCount);
+      gamify.addXp(35 + threatCount * 5, actionX, actionY);
+      burstParticles(actionX, actionY);
+      gamify.unlock('first_clean', actionX, actionY);
+      if (['jpg', 'jpeg', 'png', 'webp', 'pdf'].includes(ext)) {
+        gamify.unlock('exif_purged', actionX, actionY);
+      }
     }
 
     function downloadCleanFile() {
@@ -2410,6 +3264,19 @@
       document.getElementById('text-result').classList.add('visible');
       document.getElementById('log-output').value = text;
       document.getElementById('text-metric').textContent = `${count} redaction(s)`;
+
+      const btn = event ? event.currentTarget : document.querySelector('#tab-text .btn-primary');
+      const rect = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: 500, width: 0 };
+      const actionX = rect.left + rect.width / 2;
+      const actionY = rect.top;
+
+      gamify.addThreats(count);
+      gamify.addXp(20 + count * 5, actionX, actionY);
+      burstParticles(actionX, actionY);
+      gamify.unlock('first_clean', actionX, actionY);
+      if (count > 0) {
+        gamify.unlock('secrets_scrubbed', actionX, actionY);
+      }
     }
 
     function copyCleanText() {
@@ -2475,6 +3342,16 @@
             cloud.appendChild(sp);
           });
         }
+
+        const btn = event ? event.currentTarget : document.querySelector('#tab-url .btn-primary');
+        const rect = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: 500, width: 0 };
+        const actionX = rect.left + rect.width / 2;
+        const actionY = rect.top;
+
+        gamify.addThreats(removed.length);
+        gamify.addXp(15 + removed.length * 5, actionX, actionY);
+        burstParticles(actionX, actionY);
+        gamify.unlock('first_clean', actionX, actionY);
       } catch (err) {
         showToast('Invalid URL provided');
       }
@@ -2510,7 +3387,7 @@
         return clean.replace(/<[^>]+>/g, '').trim();
       }
 
-      // 4. Neutralize inline event handlers (onload, onerror, onclick, etc.)
+      // 4. Neutralize inline event handlers
       clean = clean.replace(/\s+on[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
 
       // 5. Neutralize dangerous pseudo-protocols in href and src
@@ -2532,7 +3409,7 @@
         'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'span', 'img'
       ]);
 
-      clean = clean.replace(/<\s*(\/?)\s*([a-zA-Z0-9_-]+)([^>]*)>/g, (match, slash, tagName, attrs) => {
+      clean = clean.replace(/<\s*(\/)?\s*([a-zA-Z0-9_-]+)([^>]*)>/g, (match, slash, tagName, attrs) => {
         const lower = tagName.toLowerCase();
         if (!allowed.has(lower)) {
           return '';
@@ -2569,9 +3446,21 @@
         iframe.style.width = '100%';
         iframe.style.border = 'none';
         iframe.style.height = '70px';
-        iframe.srcdoc = `<!DOCTYPE html><html><head><style>body{color:#f8fafc;font-family:sans-serif;margin:0;padding:4px;font-size:14px;}a{color:#39ff14;}</style></head><body>${clean}</body></html>`;
+        iframe.srcdoc = `<!DOCTYPE html><html><head><style>body{color:#f8fafc;font-family:sans-serif;margin:0;padding:4px;font-size:14px;}a{color:#00f0ff;}</style></head><body>${clean}</body></html>`;
         preview.appendChild(iframe);
       }
+
+      const btn = event ? event.currentTarget : document.querySelector('#tab-html .btn-primary');
+      const rect = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: 500, width: 0 };
+      const actionX = rect.left + rect.width / 2;
+      const actionY = rect.top;
+
+      const threatCount = (input.match(/<script|onload|onerror|onclick|javascript:|vbscript:/gi) || []).length;
+      gamify.addThreats(threatCount > 0 ? threatCount : 1);
+      gamify.addXp(25 + threatCount * 5, actionX, actionY);
+      burstParticles(actionX, actionY);
+      gamify.unlock('first_clean', actionX, actionY);
+      gamify.unlock('xss_deflected', actionX, actionY);
     }
 
     function copyCleanHtml() {
@@ -2619,6 +3508,18 @@
       document.getElementById('query-result').classList.add('visible');
       document.getElementById('query-output').value = clean;
       document.getElementById('query-metric').textContent = 'Safe Query';
+
+      const btn = event ? event.currentTarget : document.querySelector('#tab-query .btn-primary');
+      const rect = btn ? btn.getBoundingClientRect() : { left: window.innerWidth / 2, top: 500, width: 0 };
+      const actionX = rect.left + rect.width / 2;
+      const actionY = rect.top;
+
+      const opCount = (input.match(/\$[a-zA-Z0-9_]+/g) || []).length;
+      gamify.addThreats(opCount > 0 ? opCount : 1);
+      gamify.addXp(25 + opCount * 5, actionX, actionY);
+      burstParticles(actionX, actionY);
+      gamify.unlock('first_clean', actionX, actionY);
+      gamify.unlock('nosql_shielded', actionX, actionY);
     }
 
     function copyCleanQuery() {
