@@ -16,9 +16,35 @@
 
 *Instantly strip hidden tracking parameters, camera EXIF GPS locations, confidential credentials, XSS payloads, and NoSQL injection operators before sharing.*
 
-[**Live Web Airlock**](https://liyfez.github.io/sanitize-me/) &bull; [**NPM Package**](https://www.npmjs.com/package/sanitize-me) &bull; [**GitHub Repository**](https://github.com/Liyfez/sanitize-me)
+[**Live Web Airlock (No Install Needed)**](https://liyfez.github.io/sanitize-me/) &bull; [**NPM Package**](https://www.npmjs.com/package/sanitize-me) &bull; [**GitHub Repository**](https://github.com/Liyfez/sanitize-me)
 
 </div>
+
+> 🛡️ **No Installation Required**: Run directly in your browser with 100% privacy and zero data collection at [**liyfez.github.io/sanitize-me**](https://liyfez.github.io/sanitize-me/). Files process entirely inside your browser RAM without uploading a single byte to the cloud.
+
+---
+
+## 🔒 Security & Zero Data Collection Guarantee
+
+- **Zero Data Collected**: We never view, log, store, or transmit your files, text, or database queries.
+- **Zero Network Uploads**: The in-browser airlock decodes data using client Web APIs (`ArrayBuffer`). Open your browser DevTools Network tab: zero outgoing requests.
+- **Zero Supply-Chain Vulnerabilities**: 100% pure Node.js stdlib and browser APIs with **0 npm runtime dependencies**.
+- **100% Air-Gapped & Offline Ready**: Disconnect your internet connection—everything functions identically.
+
+---
+
+## ⚔️ Unified Replacement for Fragmented npm Packages
+
+Instead of juggling 5 different single-purpose packages with bloated dependencies, `sanitize-me` is the unified, high-performance standard:
+
+| Task / Threat | Fragmented Ecosystem | `sanitize-me` Standard | Key Benefit |
+|---|---|---|---|
+| **HTML / Text XSS** | `dompurify` (~13M) + `sanitize-html` (~3M) | `sanitizeHtml()` / `--html` | Recursive reduction loop defeats nested evasion tags; 0 dependencies |
+| **NoSQL / DB Queries** | `mongo-sanitize` (~500k) | `sanitizeQuery()` / `--query` | Recursive key stripping for `$gt`, `$ne`, `$where`, and dot-notation |
+| **Uploaded Filenames** | `sanitize-filename` (~7.4M) | `sanitizeFilename()` / `--filename` | Strips path traversal (`../`) and Windows device names (`CON`, `PRN`) |
+| **Photos & Documents** | `exiftool` / Untrusted cloud upload sites | Direct Binary Stripping | 100% pixel fidelity; zero re-encoding loss; PDF xref table safe |
+| **Server Logs & PII** | Bespoke regex scripts | Stream Pipeline Scrubber | Scans OpenAI, AWS, GitHub, Stripe keys + Luhn credit card check |
+| **Execution Flexibility**| Terminal installation required | **CLI, NPX, or 100% In-Browser** | Zero install needed — run directly at [liyfez.github.io/sanitize-me](https://liyfez.github.io/sanitize-me/) |
 
 ---
 

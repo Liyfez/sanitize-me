@@ -1,7 +1,14 @@
 User-agent: *
 Allow: /
 
-# Search crawlers and indexing bots
+# Search engine and crawler indexing
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# AI crawlers and indexing bots
 User-agent: GPTBot
 Allow: /
 

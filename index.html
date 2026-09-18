@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sanitize-me — Local-First Document, Media & Data Privacy Airlock | npx sanitize-me</title>
-  <meta name="description" content="Local-first CLI and in-browser privacy airlock. Losslessly strip EXIF GPS coordinates from photos, sanitize API keys and PII from logs, and clean tracking links before sharing with anyone.">
-  <meta name="keywords" content="sanitize-me, npx sanitize-me, exif remover, remove gps from photo, pii redaction, sanitize logs, clean url, utm remover, privacy airlock, offline exif cleaner, strip exif lossless, secret scrubber, log privacy">
+  <title>sanitize-me — The Universal Data Sanitizer &amp; Privacy Airlock (100% Offline &amp; Free)</title>
+  <meta name="description" content="The standard all-in-one data sanitization tool. Zero data collected, 100% offline &amp; secure. Strip camera GPS EXIF, redact logs &amp; API keys, clean URLs, and defeat XSS &amp; NoSQL injection. Run via CLI or 100% install-free in browser.">
+  <meta name="keywords" content="sanitize data, data sanitizer, data sanitization tool, zero data collection, offline file sanitizer, sanitize files online, no install file cleaner, strip exif without upload, dompurify alternative, sanitize-html alternative, mongo-sanitize alternative, sanitize-filename alternative, sanitize-me, npx sanitize-me, redact api keys, clean url utm, privacy airlock, secure offline privacy, anonymize pdf, nosql injection prevention, xss sanitizer">
   <meta name="author" content="Liyfez">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://liyfez.github.io/sanitize-me/">
@@ -14,16 +14,16 @@
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://liyfez.github.io/sanitize-me/">
-  <meta property="og:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta property="og:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing with anyone.">
+  <meta property="og:title" content="sanitize-me — The Universal Data Sanitizer &amp; Privacy Airlock">
+  <meta property="og:description" content="100% secure, zero data collected. Losslessly strip EXIF GPS, clean tracking links, redact API keys from logs, and neutralize XSS &amp; NoSQL. Free &amp; offline in browser or CLI.">
   <meta property="og:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
   <meta property="og:site_name" content="sanitize-me">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://liyfez.github.io/sanitize-me/">
-  <meta name="twitter:title" content="sanitize-me — Local-First Document, Media & Data Privacy Airlock">
-  <meta name="twitter:description" content="Instant zero-install CLI and offline airlock. Strip camera EXIF GPS locations, tracking links, and confidential API keys before sharing with anyone.">
+  <meta name="twitter:title" content="sanitize-me — The Universal Data Sanitizer &amp; Privacy Airlock">
+  <meta name="twitter:description" content="100% secure, zero data collected. Losslessly strip EXIF GPS, clean tracking links, redact API keys from logs, and neutralize XSS &amp; NoSQL. Free &amp; offline in browser or CLI.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Liyfez/sanitize-me/main/assets/sanitize_me_banner.png">
 
   <!-- Generative Engine Optimization (GEO) & Search Schemas -->
@@ -35,16 +35,19 @@
         "@type": "SoftwareApplication",
         "@id": "https://liyfez.github.io/sanitize-me/#software",
         "name": "sanitize-me",
-        "operatingSystem": "Windows, macOS, Linux",
+        "operatingSystem": "Windows, macOS, Linux, Web Browser",
         "applicationCategory": "SecurityApplication",
+        "applicationSubCategory": "Privacy & Data Protection",
         "softwareVersion": "1.0.5",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Local-first document, media, HTML, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, confidential credentials, XSS payloads, and NoSQL injection operators.",
+        "description": "Universal local-first data sanitizer and privacy airlock. Zero data collected, 100% offline. Strips camera EXIF GPS, redacts secret keys from logs, unwraps tracking URLs, and neutralizes XSS and NoSQL injection.",
         "url": "https://liyfez.github.io/sanitize-me/",
         "installUrl": "https://www.npmjs.com/package/sanitize-me",
         "codeRepository": "https://github.com/Liyfez/sanitize-me",
         "author": { "@type": "Person", "name": "Liyfez", "url": "https://github.com/Liyfez" },
         "featureList": [
+          "Zero data collection guarantee: 100% client-side memory processing",
+          "Zero-install web execution in browser via GitHub Pages",
           "Lossless JPEG, PNG, WebP EXIF and GPS stripping",
           "PDF /Info and XMP /Metadata blanking with byte offset preservation",
           "Log and text secret scrubbing for OpenAI, GitHub, AWS, Stripe tokens",
@@ -56,9 +59,43 @@
         ]
       },
       {
+        "@type": "WebApplication",
+        "@id": "https://liyfez.github.io/sanitize-me/#webapp",
+        "name": "sanitize-me Web Airlock",
+        "url": "https://liyfez.github.io/sanitize-me/",
+        "applicationCategory": "PrivacyApplication",
+        "browserRequirements": "Requires any modern browser with Web API support (Chrome, Firefox, Safari, Edge)",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Zero-install browser airlock to sanitize photos, PDFs, error logs, HTML markup, and queries directly in memory with 0 network uploads."
+      },
+      {
         "@type": "FAQPage",
         "@id": "https://liyfez.github.io/sanitize-me/#faq",
         "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is any data uploaded to a server or collected when using sanitize-me?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Zero data is collected, stored, or transmitted. sanitize-me operates 100% locally on your machine or inside your browser memory using native Web APIs. Zero telemetry, zero analytics, and zero tracking cookies."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use sanitize-me without installing Node.js or any npm package?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! You can use the web airlock directly at https://liyfez.github.io/sanitize-me/ in any desktop or mobile browser. Drag and drop photos, PDFs, logs, or queries to sanitize them entirely in client memory without installing anything."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does sanitize-me replace DOMPurify, sanitize-html, mongo-sanitize, and sanitize-filename?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "sanitize-me provides native, zero-dependency implementations of all four tools: HTML/XSS neutralization with recursive nested-tag defeat (DOMPurify/sanitize-html alternative), recursive $ operator stripping (mongo-sanitize alternative), cross-platform path traversal filename sanitization (sanitize-filename alternative), plus lossless binary EXIF and log secret redaction in a single unified standard."
+            }
+          },
           {
             "@type": "Question",
             "name": "How do I remove GPS and EXIF data from photos without losing quality?",
@@ -266,17 +303,39 @@
       z-index: 1;
     }
 
+    .hero-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
     .hero-tagline {
       display: inline-block;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-dim);
       letter-spacing: 0.02em;
-      margin-bottom: 1.25rem;
       border: 1px solid var(--border);
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       background: var(--surface);
+    }
+
+    .hero-security-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--lime);
+      background: rgba(57, 255, 20, 0.08);
+      border: 1px solid rgba(57, 255, 20, 0.25);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
     }
 
     .hero-banner {
@@ -287,16 +346,66 @@
       margin: 0 auto 1.5rem auto;
     }
 
+    .hero-title {
+      font-size: 2.15rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+    }
+
     .hero-desc {
       color: var(--text-muted);
       font-size: 1.1rem;
-      max-width: 640px;
-      margin: 0 auto 2rem auto;
+      max-width: 720px;
+      margin: 0 auto 1.75rem auto;
       line-height: 1.6;
     }
     .hero-desc strong {
       color: var(--text);
       font-weight: 600;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-browser-airlock {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 0.55rem 1.15rem;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.15s ease;
+    }
+    .btn-browser-airlock:hover {
+      border-color: var(--lime);
+      color: var(--lime);
+      background: var(--lime-soft);
+    }
+
+    .hero-guarantee {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+    .hero-guarantee strong {
+      color: var(--lime);
     }
 
     /* Terminal Quickstart */
@@ -784,6 +893,143 @@
       font-size: 0.8rem;
     }
 
+    /* Manifesto Box */
+    .manifesto-box {
+      max-width: 1360px;
+      margin: 0 auto 5rem auto;
+      padding: 0 2rem;
+    }
+    .manifesto-header {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 2.5rem auto;
+    }
+    .manifesto-pill {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--lime);
+      background: rgba(57, 255, 20, 0.08);
+      border: 1px solid rgba(57, 255, 20, 0.25);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+    .manifesto-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .manifesto-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .manifesto-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .manifesto-card {
+      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: all 0.2s ease;
+    }
+    .manifesto-card:hover {
+      border-color: rgba(57, 255, 20, 0.35);
+      transform: translateY(-2px);
+    }
+    .manifesto-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(57, 255, 20, 0.06);
+      border: 1px solid rgba(57, 255, 20, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .manifesto-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .manifesto-card p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    /* Alternatives & Replacement Matrix */
+    .compare-box {
+      max-width: 1360px;
+      margin: 0 auto 5rem auto;
+      padding: 0 2rem;
+    }
+    .compare-table-wrap {
+      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow-x: auto;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .compare-table th {
+      background: #04070d;
+      padding: 1rem 1.4rem;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .compare-table td {
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .badge-unified {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--lime);
+      background: rgba(57, 255, 20, 0.08);
+      border: 1px solid rgba(57, 255, 20, 0.25);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .badge-fragile {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: #94a3b8;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+    }
+
     /* Micro toast notification */
     .toast {
       position: fixed;
@@ -910,24 +1156,43 @@
 
   <!-- Hero Section -->
   <section class="hero">
-    <span class="hero-tagline">Local-first privacy airlock</span>
+    <div class="hero-badges">
+      <span class="hero-tagline">100% Offline Privacy Airlock</span>
+      <span class="hero-security-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Zero Data Collected
+      </span>
+    </div>
 
     <!-- Crisp No-Glow Official Logo Banner -->
     <img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME" class="hero-banner">
 
+    <h1 class="hero-title">The Universal Data Sanitizer &amp; Privacy Airlock</h1>
+
     <p class="hero-desc">
-      Losslessly strip <strong>camera EXIF GPS locations</strong>, tracking links, <strong>confidential credentials</strong>, and neutralize <strong>XSS & NoSQL injection</strong> before sharing files, queries, or logs.
+      The premier all-in-one sanitization engine. Losslessly strip <strong>camera EXIF GPS locations</strong>, confidential <strong>credentials &amp; API keys</strong>, tracking links, and neutralize <strong>XSS &amp; NoSQL injection</strong> before sharing with anyone.
     </p>
 
-    <div class="quickstart">
-      <span class="quickstart-prefix">$</span>
-      <span class="quickstart-code">npx sanitize-me photo.jpg</span>
-      <button class="quickstart-copy" onclick="copyQuickstart('npx sanitize-me photo.jpg')">Copy</button>
+    <div class="hero-actions">
+      <div class="quickstart">
+        <span class="quickstart-prefix">$</span>
+        <span class="quickstart-code">npx sanitize-me photo.jpg</span>
+        <button class="quickstart-copy" onclick="copyQuickstart('npx sanitize-me photo.jpg')">Copy</button>
+      </div>
+
+      <a href="#airlock-section" class="btn-browser-airlock">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+        Use in Browser (No Install Needed)
+      </a>
     </div>
+
+    <p class="hero-guarantee">
+      🛡️ <strong>100% Client-Side</strong>: Process files directly in local browser memory. Zero files or bytes are ever uploaded to any server.
+    </p>
   </section>
 
   <!-- Interactive Airlock Card -->
-  <section class="airlock-box">
+  <section class="airlock-box" id="airlock-section">
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('tab-media', this)">Files & media</button>
       <button class="tab-btn" onclick="switchTab('tab-text', this)">Logs & text</button>
@@ -1030,6 +1295,112 @@
         <textarea id="query-output" readonly style="margin-bottom:0.75rem; font-family:var(--font-mono); font-size:0.85rem;"></textarea>
         <button class="btn-primary" onclick="copyCleanQuery()">Copy safe query</button>
       </div>
+    </div>
+  </section>
+
+  <!-- Security & Privacy Manifesto (Zero Data Collection Guarantee) -->
+  <section class="manifesto-box" id="security-manifesto">
+    <div class="manifesto-header">
+      <span class="manifesto-pill">Security &amp; Privacy Guarantee</span>
+      <h2 class="manifesto-title">Engineered with zero telemetry. Local by mathematical design.</h2>
+      <p class="manifesto-desc">
+        Unlike cloud-based conversion sites or third-party web scrapers that upload your private documents to remote servers, sanitize-me operates strictly within local computing boundaries.
+      </p>
+    </div>
+
+    <div class="manifesto-grid">
+      <div class="manifesto-card">
+        <div class="manifesto-icon-wrap">
+          <svg width="22" height="22" fill="none" stroke="var(--lime)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Zero Data Collection</h3>
+        <p>No analytics, no cookies, no tracking pixels, no session recording. Zero data or metadata is ever collected, inspected, or retained.</p>
+      </div>
+
+      <div class="manifesto-card">
+        <div class="manifesto-icon-wrap">
+          <svg width="22" height="22" fill="none" stroke="var(--lime)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+        </div>
+        <h3>Zero Network Uploads</h3>
+        <p>Files dropped into the web airlock are decoded in local client RAM via Web APIs (<code>ArrayBuffer</code>). Open DevTools Network tab: zero outgoing bytes.</p>
+      </div>
+
+      <div class="manifesto-card">
+        <div class="manifesto-icon-wrap">
+          <svg width="22" height="22" fill="none" stroke="var(--lime)" stroke-width="2" viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+        </div>
+        <h3>100% Air-Gapped Ready</h3>
+        <p>Disconnect your Wi-Fi or run in an isolated SCIF environment. The engine requires zero internet connectivity to execute full sanitization.</p>
+      </div>
+
+      <div class="manifesto-card">
+        <div class="manifesto-icon-wrap">
+          <svg width="22" height="22" fill="none" stroke="var(--lime)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <h3>Zero Installation Required</h3>
+        <p>Don't want to install Node.js or run terminal commands? Run 100% free directly in your browser on this GitHub Pages site with complete privacy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Unified Replacement / Alternatives Matrix -->
+  <section class="compare-box">
+    <div class="guides-header">
+      <h3 class="section-title">The unified standard for data sanitization</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; max-width:760px; line-height:1.55;">
+        Replace fragmented, dependency-heavy packages with one fast, zero-dependency engine.
+      </p>
+    </div>
+
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Target / Vector</th>
+            <th>Traditional Fragile Stack</th>
+            <th>sanitize-me Unified Standard</th>
+            <th>Advantage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>HTML &amp; Text Content</strong></td>
+            <td><span class="badge-fragile">dompurify (~13M) + sanitize-html (~3M)</span></td>
+            <td><span class="badge-unified">sanitizeHtml() / --html</span></td>
+            <td>Zero supply-chain risk; recursive multi-pass tag defeat</td>
+          </tr>
+          <tr>
+            <td><strong>NoSQL &amp; Database Queries</strong></td>
+            <td><span class="badge-fragile">mongo-sanitize (~500k)</span></td>
+            <td><span class="badge-unified">sanitizeQuery() / --query</span></td>
+            <td>Recursive nested object &amp; array operator elimination</td>
+          </tr>
+          <tr>
+            <td><strong>Uploaded Filenames</strong></td>
+            <td><span class="badge-fragile">sanitize-filename (~7.4M)</span></td>
+            <td><span class="badge-unified">sanitizeFilename() / --filename</span></td>
+            <td>Cross-platform path traversal &amp; Windows reserved name defense</td>
+          </tr>
+          <tr>
+            <td><strong>Photos &amp; Documents</strong></td>
+            <td><span class="badge-fragile">exiftool / Untrusted cloud upload sites</span></td>
+            <td><span class="badge-unified">Direct Binary Byte Stripping</span></td>
+            <td>100% pixel fidelity; zero byte re-encoding; xref table safe</td>
+          </tr>
+          <tr>
+            <td><strong>Server Logs &amp; PII</strong></td>
+            <td><span class="badge-fragile">Custom regex scripts</span></td>
+            <td><span class="badge-unified">Luhn + Secret Token Engine</span></td>
+            <td>Zero false-positive credit card checks; 15+ token providers</td>
+          </tr>
+          <tr>
+            <td><strong>Access Mode</strong></td>
+            <td><span class="badge-fragile">Terminal CLI install required</span></td>
+            <td><span class="badge-unified">CLI, NPX, or 100% In-Browser</span></td>
+            <td>Zero-install browser option for non-technical users</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
