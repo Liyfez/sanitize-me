@@ -14,7 +14,7 @@
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg?style=flat-square)](#)
 [![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg?style=flat-square)](LICENSE)
 
-*Instantly strip hidden tracking parameters, camera EXIF GPS locations, and confidential credentials before sharing files, sending to clients, or posting online.*
+*Instantly strip hidden tracking parameters, camera EXIF GPS locations, confidential credentials, XSS payloads, and NoSQL injection operators before sharing.*
 
 [**Live Web Airlock**](https://liyfez.github.io/sanitize-me/) &bull; [**NPM Package**](https://www.npmjs.com/package/sanitize-me) &bull; [**GitHub Repository**](https://github.com/Liyfez/sanitize-me)
 
@@ -39,10 +39,19 @@ npx sanitize-me "https://amazon.com/dp/B00000?utm_source=twitter&tag=affiliate-2
 # 4. Redact logs, auth headers, and API keys before sharing or sending
 cat debug.log | npx sanitize-me
 
-# 5. Show detailed command guide and cheatsheet
+# 5. Neutralize XSS and sanitize HTML markup
+npx sanitize-me --html "<script>alert(1)</script><b>Clean</b>"
+
+# 6. Sanitize NoSQL / MongoDB queries against operator injection
+npx sanitize-me --query '{"username":"admin","$gt":""}'
+
+# 7. Sanitize filenames and strip directory traversal
+npx sanitize-me --filename "../../bad:name?.txt"
+
+# 8. Show detailed command guide and cheatsheet
 npx sanitize-me /help
 
-# 6. Launch interactive terminal menu (or browser GUI with --gui)
+# 9. Launch interactive terminal menu (or browser GUI with --gui)
 npx sanitize-me
 ```
 
@@ -63,7 +72,7 @@ npm install -g sanitize-me
 | **NPX** | `npx sanitize-me [targets...]` | [Instant execution on npm](https://www.npmjs.com/package/sanitize-me), zero local footprint |
 | **NPM Global** | [`npm install -g sanitize-me`](https://www.npmjs.com/package/sanitize-me) | Global CLI binary published on npmjs.com |
 | **GitHub Packages** | `npm install @liyfez/sanitize-me` | Distributed via GitHub Packages registry |
-| **GitHub Releases** | [**Download v1.0.4 Assets (`.tgz`)**](https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.4) | Pre-packaged tarballs with signed release checksums |
+| **GitHub Releases** | [**Download v1.0.5 Assets (`.tgz`)**](https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.5) | Pre-packaged tarballs with signed release checksums |
 
 ---
 
@@ -128,7 +137,49 @@ Safely blanks `/Info` dictionary entries (`/Author`, `/Creator`, `/Producer`, `/
 
 ---
 
-### 5. Local Offline Web GUI Mode
+### 5. HTML & XSS Neutralizer (DOMPurify & sanitize-html Alternative)
+Zero-dependency server-side and browser HTML sanitizer. Defeats nested injection attempts, unclosed script evasion vectors, inline event handlers, and dangerous pseudoprotocols (`javascript:`, `vbscript:`, `data:text/html`).
+
+```bash
+# Neutralize XSS from CLI
+sanitize-me --html "<script>alert(1)</script><b>Clean</b>"
+# Output: <b>Clean</b>
+
+# Pipe HTML files through the airlock
+cat page.html | sanitize-me --html > clean.html
+
+# Text-only mode: strip all markup
+sanitize-me --html "<p>Keep text</p>" --text-only
+# Output: Keep text
+```
+
+---
+
+### 6. Database & NoSQL Query Shield (mongo-sanitize Alternative)
+Deep recursive sanitization of database query objects and JSON payloads. Strips MongoDB operator keys (`$gt`, `$ne`, `$where`, `$regex`) and dot-notation property traversal (`user.name`) to prevent authentication bypass and query injection:
+
+```bash
+# Sanitize JSON query payload
+sanitize-me --query '{"username": "admin", "password": {"$gt": ""}}'
+# Output: {"username": "admin", "password": {}}
+```
+
+---
+
+### 7. Cross-Platform Filename Sanitizer (sanitize-filename Alternative)
+Sanitizes file upload names against directory traversal escapes (`../../`), illegal filesystem characters (`/?<>\\:*|"`), control characters, trailing spaces/dots, and Windows reserved device names (`CON`, `PRN`, `AUX`, `NUL`, `COM1-9`, `LPT1-9`). Truncates safely to UTF-8 boundary 255 bytes.
+
+```bash
+sanitize-me --filename "../../../etc/bad:name?.png"
+# Output: etcbadname.png
+
+sanitize-me --filename "CON.tar.gz"
+# Output: _CON.tar.gz
+```
+
+---
+
+### 8. Local Offline Web GUI Mode
 Running `sanitize-me` with no arguments opens a local web airlock in your default browser:
 
 ```bash
@@ -138,7 +189,7 @@ sanitize-me
 
 - Runs on `http://127.0.0.1:4488`.
 - 100% offline, zero CDN calls, zero external telemetries.
-- Drag-and-drop interface for images, PDFs, logs, and URLs with live diff indicators.
+- Drag-and-drop interface for images, PDFs, logs, URLs, HTML/XSS, and NoSQL queries with live tactile sound feedback.
 
 ---
 
@@ -162,7 +213,13 @@ COMMAND GUIDE (/help)
    npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"
    Strips UTM parameters, affiliate tags, Facebook clids, YouTube session IDs.
 
-4. INTERACTIVE & WEB MODES
+4. HTML / XSS, NOSQL & FILENAME SANITIZING
+   npx sanitize-me --html "<script>alert(1)</script><b>Safe</b>"
+   cat page.html | npx sanitize-me --html
+   npx sanitize-me --query '{"user":"admin","$gt":""}'
+   npx sanitize-me --filename "../../bad:name?.txt"
+
+5. INTERACTIVE & WEB MODES
    npx sanitize-me                    Launch interactive terminal menu
    npx sanitize-me --gui              Open local drag-and-drop web UI in browser
 
@@ -172,6 +229,9 @@ OPTIONS & FLAGS
    -i, --in-place         Overwrite original file directly
    -d, --dry-run          Analyze metadata/PII without writing files
    -j, --json             Output machine-readable JSON format
+   -x, --html             Sanitize HTML content and neutralize XSS
+       --query, --nosql   Sanitize NoSQL injection keys ($gt, $ne, $where)
+   -fn, --filename        Sanitize filename and strip path traversal
        --gui, --ui        Force launch localhost Web GUI
    -h, --help, /help      Show this guide
    -v, --version          Show version
@@ -187,7 +247,10 @@ import {
   sanitizeUrl,
   sanitizeImage,
   sanitizePdf,
-  sanitizeFile
+  sanitizeFile,
+  sanitizeFilename,
+  sanitizeHtml,
+  sanitizeQuery
 } from 'sanitize-me';
 
 // 1. Scrub Text / Logs
@@ -201,6 +264,18 @@ console.log(cleanUrl); // 'https://example.com/'
 // 3. Lossless Image EXIF Stripping
 const { buffer, stripped, bytesSaved } = sanitizeImage(rawJpegBuffer);
 console.log(stripped); // ['APP1 (EXIF / GPS / XMP)']
+
+// 4. Sanitize Filenames (sanitize-filename replacement)
+const safeName = sanitizeFilename('../../bad:name?.png');
+console.log(safeName); // 'badname.png'
+
+// 5. Sanitize HTML / Neutralize XSS (DOMPurify replacement)
+const cleanHtml = sanitizeHtml('<script>alert("xss")</script><b>Hello</b>');
+console.log(cleanHtml); // '<b>Hello</b>'
+
+// 6. Sanitize NoSQL Queries (mongo-sanitize replacement)
+const cleanQuery = sanitizeQuery({ username: 'admin', password: { $gt: '' } });
+console.log(cleanQuery); // { username: 'admin', password: {} }
 ```
 
 ---

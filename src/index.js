@@ -4,6 +4,9 @@ import { sanitizeImage, sanitizeJpeg, sanitizePng, sanitizeWebp } from './saniti
 import { sanitizePdf } from './sanitizers/pdf.js';
 import { sanitizeText } from './sanitizers/text.js';
 import { sanitizeUrl, isLikelyUrl } from './sanitizers/url.js';
+import { sanitizeFilename } from './sanitizers/filename.js';
+import { sanitizeHtml } from './sanitizers/html.js';
+import { sanitizeQuery } from './sanitizers/query.js';
 import { startServer } from './ui/server.js';
 
 export {
@@ -14,6 +17,9 @@ export {
   sanitizePdf,
   sanitizeText,
   sanitizeUrl,
+  sanitizeFilename,
+  sanitizeHtml,
+  sanitizeQuery,
   isLikelyUrl,
   startServer
 };

@@ -4,6 +4,9 @@ import { sanitizeText } from '../src/sanitizers/text.js';
 import { sanitizeUrl, isLikelyUrl } from '../src/sanitizers/url.js';
 import { sanitizeJpeg, sanitizePng, sanitizeWebp } from '../src/sanitizers/images.js';
 import { sanitizePdf } from '../src/sanitizers/pdf.js';
+import { sanitizeFilename } from '../src/sanitizers/filename.js';
+import { sanitizeHtml } from '../src/sanitizers/html.js';
+import { sanitizeQuery } from '../src/sanitizers/query.js';
 import { startServer } from '../src/ui/server.js';
 
 describe('Text & Log Sanitizer', () => {
@@ -273,8 +276,105 @@ describe('Offline Web Server API', () => {
       const cleanPdfStr = Buffer.from(fileData).toString('utf8');
       assert.ok(!cleanPdfStr.includes('Top Secret'));
       assert.strictEqual(cleanPdfStr.length, fakePdf.length);
+
+      // 5. Test POST /api/sanitize-html
+      const resHtmlApi = await fetch(`${url}/api/sanitize-html`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: '<script>alert(1)</script><b>Clean</b>' })
+      });
+      const dataHtml = await resHtmlApi.json();
+      assert.strictEqual(dataHtml.cleanHtml, '<b>Clean</b>');
+
+      // 6. Test POST /api/sanitize-query
+      const resQueryApi = await fetch(`${url}/api/sanitize-query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: { user: 'test', $gt: '' } })
+      });
+      const dataQuery = await resQueryApi.json();
+      assert.deepStrictEqual(dataQuery.cleanQuery, { user: 'test' });
+
+      // 7. Test POST /api/sanitize-filename
+      const resFilenameApi = await fetch(`${url}/api/sanitize-filename`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: '../../danger?.txt' })
+      });
+      const dataFilename = await resFilenameApi.json();
+      assert.strictEqual(dataFilename.cleanFilename, 'danger.txt');
     } finally {
       server.close();
     }
+  });
+});
+
+describe('Filename Sanitizer', () => {
+  test('strips illegal characters and relative path traversal', () => {
+    assert.strictEqual(sanitizeFilename('invalid:name*here?.txt'), 'invalidnamehere.txt');
+    assert.strictEqual(sanitizeFilename('../../../etc/passwd'), 'etcpasswd');
+    assert.strictEqual(sanitizeFilename('..\\..\\windows\\system32'), 'windowssystem32');
+    assert.strictEqual(sanitizeFilename('trailing spaces and dots...   '), 'trailing spaces and dots');
+    assert.strictEqual(sanitizeFilename('test/file/name.png', { replacement: '_' }), 'test_file_name.png');
+  });
+
+  test('neutralizes Windows reserved device names', () => {
+    assert.strictEqual(sanitizeFilename('CON.txt'), '_CON.txt');
+    assert.strictEqual(sanitizeFilename('aux.json'), '_aux.json');
+    assert.strictEqual(sanitizeFilename('NUL'), '_NUL');
+    assert.strictEqual(sanitizeFilename('com1.tar.gz'), '_com1.tar.gz');
+  });
+});
+
+describe('HTML & XSS Sanitizer', () => {
+  test('neutralizes script tags, unclosed tags, and nested injection evasion', () => {
+    assert.strictEqual(sanitizeHtml('<script>alert("xss")</script><b>Safe</b>'), '<b>Safe</b>');
+    assert.strictEqual(sanitizeHtml('<scr<script>ipt>alert(1)</script></script>Safe'), 'Safe');
+    assert.strictEqual(sanitizeHtml('<script>alert("unclosed")'), '');
+    assert.strictEqual(sanitizeHtml('<div><iframe src="https://evil.com"></iframe><p>Keep</p></div>'), '<div><p>Keep</p></div>');
+  });
+
+  test('strips event handlers and dangerous protocol schemes', () => {
+    assert.strictEqual(sanitizeHtml('<img src="x" onerror="alert(1)">'), '<img>');
+    assert.strictEqual(sanitizeHtml('<a href="javascript:alert(1)">Click</a>'), '<a>Click</a>');
+    assert.strictEqual(sanitizeHtml('<a href="jav&#x09;ascript:alert(1)">Click</a>'), '<a>Click</a>');
+    assert.strictEqual(
+      sanitizeHtml('<a href="https://example.com" target="_blank">Link</a>'),
+      '<a href="https://example.com" target="_blank" rel="noopener noreferrer">Link</a>'
+    );
+  });
+
+  test('supports textOnly mode', () => {
+    assert.strictEqual(sanitizeHtml('<p style="color:red">Hello <b>World</b></p>', { textOnly: true }), 'Hello World');
+  });
+});
+
+describe('NoSQL Query Sanitizer', () => {
+  test('removes operator injection keys recursively', () => {
+    const unsafeQuery = {
+      username: 'admin',
+      password: { $gt: '' },
+      nested: {
+        $where: 'sleep(1000)',
+        valid: 123
+      }
+    };
+    const cleaned = sanitizeQuery(unsafeQuery);
+    assert.deepStrictEqual(cleaned, {
+      username: 'admin',
+      password: {},
+      nested: { valid: 123 }
+    });
+  });
+
+  test('supports replacement and cleans raw JSON string', () => {
+    const replaced = sanitizeQuery({ 'user.name': 'bob', $gt: 5 }, { replaceWith: '_' });
+    assert.deepStrictEqual(replaced, {
+      user_name: 'bob',
+      _gt: 5
+    });
+
+    const jsonStr = JSON.stringify({ user: 'alice', $ne: null });
+    assert.strictEqual(sanitizeQuery(jsonStr), JSON.stringify({ user: 'alice' }));
   });
 });

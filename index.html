@@ -37,9 +37,9 @@
         "name": "sanitize-me",
         "operatingSystem": "Windows, macOS, Linux",
         "applicationCategory": "SecurityApplication",
-        "softwareVersion": "1.0.4",
+        "softwareVersion": "1.0.5",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "description": "Local-first document, media, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, and confidential credentials before sharing.",
+        "description": "Local-first document, media, HTML, and data privacy airlock that losslessly strips EXIF GPS metadata, tracking URL parameters, confidential credentials, XSS payloads, and NoSQL injection operators.",
         "url": "https://liyfez.github.io/sanitize-me/",
         "installUrl": "https://www.npmjs.com/package/sanitize-me",
         "codeRepository": "https://github.com/Liyfez/sanitize-me",
@@ -48,6 +48,9 @@
           "Lossless JPEG, PNG, WebP EXIF and GPS stripping",
           "PDF /Info and XMP /Metadata blanking with byte offset preservation",
           "Log and text secret scrubbing for OpenAI, GitHub, AWS, Stripe tokens",
+          "HTML and text XSS neutralization (DOMPurify and sanitize-html alternative)",
+          "Recursive NoSQL query operator stripping (mongo-sanitize alternative)",
+          "Cross-platform filename sanitization and directory traversal defense (sanitize-filename alternative)",
           "Tracking URL and UTM parameter unwrapper and stripper",
           "Zero runtime dependencies, 100% offline execution"
         ]
@@ -78,6 +81,22 @@
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Run 'npx sanitize-me \"https://example.com/?utm_source=...\"' to unwrap redirect links and strip over 40 tracking and affiliate query parameters."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I neutralize XSS payloads in HTML markup without heavy dependencies?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Run 'npx sanitize-me --html \"<script>alert(1)</script><b>Safe</b>\"' or use sanitizeHtml() in code. It recursively eliminates script tags, unclosed injection vectors, inline event handlers, and dangerous pseudoprotocols with 0 external dependencies."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I prevent MongoDB / NoSQL operator injection in queries?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Run 'npx sanitize-me --query \"{\\\"user\\\": \\\"admin\\\", \\\"$gt\\\": \\\"\\\"}\"' or use sanitizeQuery(). It recursively removes keys starting with $ or containing dots to prevent authentication bypass."
             }
           }
         ]
@@ -673,7 +692,7 @@
 
       <a href="https://www.npmjs.com/package/sanitize-me" target="_blank" class="npm-link" title="sanitize-me on npm">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 0v24h24V0H0zm19.5 19.5h-4.5V9h-3v10.5H4.5V4.5h15v15z"/></svg>
-        npm v1.0.4
+        npm v1.0.5
       </a>
 
       <a href="https://github.com/Liyfez/sanitize-me" target="_blank" class="github-link">
@@ -691,7 +710,7 @@
     <img src="./assets/sanitize_me_banner.png" alt="SANITIZE-ME" class="hero-banner">
 
     <p class="hero-desc">
-      Losslessly strip <strong>camera EXIF GPS locations</strong>, tracking links, and <strong>confidential API credentials</strong> before sharing files, sending to clients, or posting online.
+      Losslessly strip <strong>camera EXIF GPS locations</strong>, tracking links, <strong>confidential credentials</strong>, and neutralize <strong>XSS & NoSQL injection</strong> before sharing files, queries, or logs.
     </p>
 
     <div class="quickstart">
@@ -707,6 +726,8 @@
       <button class="tab-btn active" onclick="switchTab('tab-media', this)">Files & media</button>
       <button class="tab-btn" onclick="switchTab('tab-text', this)">Logs & text</button>
       <button class="tab-btn" onclick="switchTab('tab-url', this)">Clean URLs</button>
+      <button class="tab-btn" onclick="switchTab('tab-html', this)">HTML & XSS</button>
+      <button class="tab-btn" onclick="switchTab('tab-query', this)">NoSQL & JSON</button>
     </div>
 
     <!-- Tab 1: Files & Media -->
@@ -765,6 +786,45 @@
         <button class="btn-primary" onclick="copyCleanUrl()">Copy clean URL</button>
       </div>
     </div>
+
+    <!-- Tab 4: HTML & XSS Sanitizer -->
+    <div id="tab-html" class="tab-content">
+      <textarea id="html-input" placeholder="Paste HTML markup with scripts, event handlers, or unsafe links: <script>alert(1)</script><img src=x onerror=alert(1)><b>Safe text</b>..."></textarea>
+      
+      <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+        <button class="btn-primary" onclick="sanitizeHtmlInput()">Sanitize HTML</button>
+        <button class="tab-btn" style="border:1px solid var(--border);" onclick="sanitizeHtmlInput(true)">Text only (strip all tags)</button>
+      </div>
+
+      <div id="html-result" class="result-panel">
+        <div class="result-header">
+          <span class="result-title">Neutralized safe HTML</span>
+          <span id="html-metric" class="result-metric">Protected</span>
+        </div>
+        <textarea id="html-output" readonly style="margin-bottom:0.75rem; font-family:var(--font-mono); font-size:0.85rem;"></textarea>
+        <div class="result-header" style="margin-bottom:0.4rem;">
+          <span class="result-title" style="font-size:0.8rem; color:var(--text-dim);">Sandboxed preview:</span>
+        </div>
+        <div id="html-preview" style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:0.75rem; margin-bottom:0.75rem; color:var(--text); font-size:0.9rem; overflow-x:auto;"></div>
+        <button class="btn-primary" onclick="copyCleanHtml()">Copy sanitized HTML</button>
+      </div>
+    </div>
+
+    <!-- Tab 5: NoSQL & JSON Sanitizer -->
+    <div id="tab-query" class="tab-content">
+      <textarea id="query-input" placeholder='Paste JSON or database query: {"username": "admin", "$where": "sleep(5000)", "password": {"$gt": ""}}'></textarea>
+      
+      <button class="btn-primary" onclick="sanitizeQueryInput()">Sanitize NoSQL query</button>
+
+      <div id="query-result" class="result-panel">
+        <div class="result-header">
+          <span class="result-title">Sanitized JSON query</span>
+          <span id="query-metric" class="result-metric">Operators stripped</span>
+        </div>
+        <textarea id="query-output" readonly style="margin-bottom:0.75rem; font-family:var(--font-mono); font-size:0.85rem;"></textarea>
+        <button class="btn-primary" onclick="copyCleanQuery()">Copy safe query</button>
+      </div>
+    </div>
   </section>
 
   <!-- Technical Features -->
@@ -776,6 +836,18 @@
     <div class="feature-card">
       <h3>Confidential log scrubbing</h3>
       <p>Scrub error logs, configs, and terminal traces before sharing with anyone. Redacts API tokens, private keys, JWTs, IPs, and Luhn-validated card numbers.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Bulletproof XSS defense</h3>
+      <p>Server & browser HTML sanitization (DOMPurify & sanitize-html alternative). Eliminates nested script tag evasion, unclosed tags, and inline event handlers.</p>
+    </div>
+    <div class="feature-card">
+      <h3>NoSQL & query shield</h3>
+      <p>Deep recursive sanitization of database queries (mongo-sanitize alternative). Strips MongoDB operators ($gt, $ne, $where) and dot-notation property traversal.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Safe cross-platform filenames</h3>
+      <p>Filename sanitization (sanitize-filename alternative). Strips illegal characters, path traversal escapes (../../), control codes, and Windows reserved names.</p>
     </div>
     <div class="feature-card">
       <h3>Zero runtime dependencies</h3>
@@ -812,7 +884,7 @@
           </tr>
           <tr>
             <td><strong>Releases</strong></td>
-            <td><a href="https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.4" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono);">v1.0.4 Assets (.tgz)</a></td>
+            <td><a href="https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.5" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono);">v1.0.5 Assets (.tgz)</a></td>
             <td>Pre-packaged signed tarball builds</td>
           </tr>
         </tbody>
@@ -831,6 +903,14 @@
       <div class="faq-item">
         <h4>How does sanitize-me prevent PDF corruption?</h4>
         <p>PDF documents require byte-offset cross-reference tables (xref). sanitize-me zeroes out /Info keys and /Metadata streams with space-padding, preserving exact byte positions.</p>
+      </div>
+      <div class="faq-item">
+        <h4>How does sanitize-me neutralize XSS payloads without dependencies?</h4>
+        <p>It uses recursive multi-pass elimination to destroy nested evasion tags (like &lt;scr&lt;script&gt;ipt&gt;), enforces a strict element whitelist, strips inline on* event handlers, and blocks dangerous URI schemes (javascript:, data:text/html).</p>
+      </div>
+      <div class="faq-item">
+        <h4>How does sanitize-me protect NoSQL and MongoDB queries?</h4>
+        <p>It recursively traverses incoming JSON objects and removes or neutralizes any key starting with '$' ($gt, $ne, $where) or containing dot-notation traversal, neutralizing NoSQL injection attacks.</p>
       </div>
       <div class="faq-item">
         <h4>Can sanitize-me run offline in air-gapped environments?</h4>
@@ -1105,8 +1185,12 @@
     };
     const logInputEl = document.getElementById('log-input');
     const urlInputEl = document.getElementById('url-input');
+    const htmlInputEl = document.getElementById('html-input');
+    const queryInputEl = document.getElementById('query-input');
     if (logInputEl) logInputEl.addEventListener('keydown', onKeydownSound);
     if (urlInputEl) urlInputEl.addEventListener('keydown', onKeydownSound);
+    if (htmlInputEl) htmlInputEl.addEventListener('keydown', onKeydownSound);
+    if (queryInputEl) queryInputEl.addEventListener('keydown', onKeydownSound);
 
     function cleanJpegClient(arrayBuffer) {
       const bytes = new Uint8Array(arrayBuffer);
@@ -1495,6 +1579,147 @@
       sfx.success();
       navigator.clipboard.writeText(document.getElementById('url-output').value);
       showToast('Clean URL copied to clipboard');
+    }
+
+    // HTML & XSS Sanitizer (DOMPurify & sanitize-html client-side alternative)
+    function cleanHtmlClient(html, options = {}) {
+      if (!html || typeof html !== 'string') return '';
+      let clean = html;
+
+      // 1. Defeat nested script evasion and dangerous block elements
+      const dangerousTags = ['script', 'style', 'iframe', 'frame', 'object', 'embed', 'applet', 'noscript', 'meta', 'link', 'base', 'form'];
+      let prev;
+      do {
+        prev = clean;
+        for (const tag of dangerousTags) {
+          const re = new RegExp(`<\\s*${tag}\\b[^>]*>[\\s\\S]*?(?:<\\s*\\/\\s*${tag}\\s*>|$)`, 'gi');
+          clean = clean.replace(re, '');
+        }
+      } while (clean !== prev);
+
+      // 2. Strip HTML comments
+      clean = clean.replace(/<!--[\s\S]*?-->/g, '');
+
+      // 3. Text-only mode if requested
+      if (options.textOnly) {
+        return clean.replace(/<[^>]+>/g, '').trim();
+      }
+
+      // 4. Neutralize inline event handlers (onload, onerror, onclick, etc.)
+      clean = clean.replace(/\s+on[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+
+      // 5. Neutralize dangerous pseudo-protocols in href and src
+      clean = clean.replace(/\s+(href|src)\s*=\s*(["'])([\s\S]*?)\2/gi, (match, attr, quote, val) => {
+        const decoded = val.replace(/&#x?[0-9a-fA-F]+;/g, '').replace(/\s+/g, '').toLowerCase();
+        if (decoded.startsWith('javascript:') || decoded.startsWith('vbscript:') || decoded.startsWith('data:text/html')) {
+          return '';
+        }
+        if (attr.toLowerCase() === 'href' && (val.startsWith('http://') || val.startsWith('https://'))) {
+          return ` ${attr}=${quote}${val}${quote} rel="noopener noreferrer"`;
+        }
+        return ` ${attr}=${quote}${val}${quote}`;
+      });
+
+      // 6. Whitelist allowed safe tags
+      const allowed = new Set([
+        'a', 'b', 'i', 'u', 'em', 'strong', 'code', 'pre', 'p', 'br', 'hr',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'ul', 'ol', 'li',
+        'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'span', 'img'
+      ]);
+
+      clean = clean.replace(/<\s*(\/?)\s*([a-zA-Z0-9_-]+)([^>]*)>/g, (match, slash, tagName, attrs) => {
+        const lower = tagName.toLowerCase();
+        if (!allowed.has(lower)) {
+          return '';
+        }
+        if (slash) {
+          return `</${lower}>`;
+        }
+        return `<${lower}${attrs}>`;
+      });
+
+      return clean.trim();
+    }
+
+    function sanitizeHtmlInput(textOnly = false) {
+      const input = document.getElementById('html-input').value;
+      if (!input.trim()) return;
+      sfx.purge();
+
+      const clean = cleanHtmlClient(input, { textOnly });
+
+      sfx.success();
+      document.getElementById('html-result').classList.add('visible');
+      document.getElementById('html-output').value = clean;
+      document.getElementById('html-metric').textContent = textOnly ? 'Text Only' : 'Safe HTML';
+
+      // Sandboxed preview
+      const preview = document.getElementById('html-preview');
+      preview.innerHTML = '';
+      if (textOnly) {
+        preview.textContent = clean;
+      } else {
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('sandbox', '');
+        iframe.style.width = '100%';
+        iframe.style.border = 'none';
+        iframe.style.height = '70px';
+        iframe.srcdoc = `<!DOCTYPE html><html><head><style>body{color:#f8fafc;font-family:sans-serif;margin:0;padding:4px;font-size:14px;}a{color:#39ff14;}</style></head><body>${clean}</body></html>`;
+        preview.appendChild(iframe);
+      }
+    }
+
+    function copyCleanHtml() {
+      sfx.success();
+      navigator.clipboard.writeText(document.getElementById('html-output').value);
+      showToast('Sanitized HTML copied to clipboard');
+    }
+
+    // NoSQL Query Sanitizer (mongo-sanitize client-side alternative)
+    function cleanQueryClient(val) {
+      if (typeof val === 'string') {
+        try {
+          const parsed = JSON.parse(val);
+          const cleaned = stripQueryOperators(parsed);
+          return JSON.stringify(cleaned, null, 2);
+        } catch {
+          return val;
+        }
+      }
+      return stripQueryOperators(val);
+    }
+
+    function stripQueryOperators(target) {
+      if (!target || typeof target !== 'object') return target;
+      if (Array.isArray(target)) return target.map(stripQueryOperators);
+
+      const out = {};
+      for (const [key, value] of Object.entries(target)) {
+        if (key.startsWith('$') || key.includes('.')) {
+          continue; // Strip MongoDB operator injection
+        }
+        out[key] = stripQueryOperators(value);
+      }
+      return out;
+    }
+
+    function sanitizeQueryInput() {
+      const input = document.getElementById('query-input').value;
+      if (!input.trim()) return;
+      sfx.purge();
+
+      const clean = cleanQueryClient(input);
+
+      sfx.success();
+      document.getElementById('query-result').classList.add('visible');
+      document.getElementById('query-output').value = clean;
+      document.getElementById('query-metric').textContent = 'Safe Query';
+    }
+
+    function copyCleanQuery() {
+      sfx.success();
+      navigator.clipboard.writeText(document.getElementById('query-output').value);
+      showToast('Sanitized query copied to clipboard');
     }
   </script>
 </body>

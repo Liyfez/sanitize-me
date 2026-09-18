@@ -1,7 +1,7 @@
 {
   "name": "sanitize-me",
-  "version": "1.0.4",
-  "description": "Local-first document, image, URL, and log sanitizer that strips tracking tags, EXIF GPS locations, and confidential data before sharing.",
+  "version": "1.0.5",
+  "description": "Local-first document, image, URL, log, HTML/XSS, filename, and NoSQL query sanitizer. Zero dependencies.",
   "type": "module",
   "main": "src/index.js",
   "bin": {

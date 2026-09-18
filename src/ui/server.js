@@ -7,6 +7,9 @@ import { sanitizeText } from '../sanitizers/text.js';
 import { sanitizeUrl } from '../sanitizers/url.js';
 import { sanitizeImage } from '../sanitizers/images.js';
 import { sanitizePdf } from '../sanitizers/pdf.js';
+import { sanitizeFilename } from '../sanitizers/filename.js';
+import { sanitizeHtml } from '../sanitizers/html.js';
+import { sanitizeQuery } from '../sanitizers/query.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -96,6 +99,60 @@ export function startServer(options = {}) {
             const result = sanitizeUrl(data.url || '');
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(result));
+          } catch (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+          }
+        });
+        return;
+      }
+
+      // API: HTML & XSS Sanitization
+      if (req.method === 'POST' && parsedUrl.pathname === '/api/sanitize-html') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const data = JSON.parse(body || '{}');
+            const cleanHtml = sanitizeHtml(data.html || '', data.options || {});
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ cleanHtml }));
+          } catch (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+          }
+        });
+        return;
+      }
+
+      // API: NoSQL Query Sanitization
+      if (req.method === 'POST' && parsedUrl.pathname === '/api/sanitize-query') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const data = JSON.parse(body || '{}');
+            const cleanQuery = sanitizeQuery(data.query, data.options || {});
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ cleanQuery }));
+          } catch (err) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+          }
+        });
+        return;
+      }
+
+      // API: Filename Sanitization
+      if (req.method === 'POST' && parsedUrl.pathname === '/api/sanitize-filename') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const data = JSON.parse(body || '{}');
+            const cleanFilename = sanitizeFilename(data.filename || '', data.options || {});
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ cleanFilename }));
           } catch (err) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: err.message }));
