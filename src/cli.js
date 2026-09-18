@@ -16,6 +16,7 @@ const BOLD = '\x1b[1m';
 const RESET = '\x1b[0m';
 const CYAN = '\x1b[36m';
 const GREEN = '\x1b[32m';
+const YELLOW = '\x1b[33m';
 
 const BANNER = `${LIME}
   ███████╗ █████╗ ███╗   ██╗██╗████████╗██╗███████╗███████╗       ███╗   ███╗███████╗
@@ -29,45 +30,67 @@ ${RESET}  ${LIME}Local-First Document, Media & Data Privacy Airlock${RESET} ${DI
 function printHelp() {
   console.log(BANNER);
   console.log(`
-${BOLD}COMMAND GUIDE (/help)${RESET}
+${BOLD}COMMAND GUIDE & CHEATSHEET (/help, -help)${RESET}
 
-${BOLD}1. FILE CLEANING (Images, PDFs, Logs)${RESET}
-   ${CYAN}npx sanitize-me --pick${RESET}             Open native File Explorer dialog to pick a file
-   ${CYAN}npx sanitize-me photo.jpg${RESET}          Strips EXIF, GPS, camera serial, maker notes
-   ${CYAN}npx sanitize-me doc.pdf${RESET}            Blanks PDF /Author, /Creator, /Producer metadata
-   ${CYAN}npx sanitize-me file.png -i${RESET}        Overwrite file in-place
-   ${CYAN}npx sanitize-me f1.jpg f2.pdf -o ./out${RESET} Save sanitized files to custom folder
+${LIME}${BOLD}QUICK START — 3 EASIEST WAYS TO USE:${RESET}
+  1. ${CYAN}npx sanitize-me${RESET}              Open interactive menu (press Enter to choose)
+  2. ${CYAN}npx sanitize-me --pick${RESET}       Open native File Explorer / Finder to choose any file
+  3. ${CYAN}npx sanitize-me <file>${RESET}       Directly clean any photo, document, or log file
 
-${BOLD}2. TEXT & LOG SANITIZING (Secrets & PII)${RESET}
-   ${CYAN}cat server.log | npx sanitize-me${RESET}   Redact API keys, tokens, IPs, emails from piped stream
-   ${CYAN}pbpaste | npx sanitize-me | pbcopy${RESET} Sanitize clipboard before pasting into tickets or chats
+─────────────────────────────────────────────────────────────────────────────
+${BOLD}WHAT DO YOU WANT TO CLEAN? (BY TASK)${RESET}
 
-${BOLD}3. URL TRACKER STRIPPING${RESET}
-   ${CYAN}npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"${RESET}
-   Strips UTM parameters, affiliate tags, Facebook clids, YouTube session IDs.
+  📸 ${BOLD}1. PHOTOS & IMAGES (Lossless EXIF Stripper)${RESET}
+     ${CYAN}npx sanitize-me photo.jpg${RESET}          Creates clean_photo.jpg (0% compression loss)
+     ${CYAN}npx sanitize-me -i image.png${RESET}       Overwrite original file in-place
+     ${CYAN}npx sanitize-me *.webp -o ./clean${RESET}   Batch clean into specific folder
+     ${DIM}Strips: GPS coordinates, camera serial, maker notes, timestamps, Photoshop IPTC.${RESET}
 
-${BOLD}4. HTML / XSS, NOSQL & FILENAME SANITIZING${RESET}
-   ${CYAN}npx sanitize-me --html "<script>alert(1)</script><b>Safe</b>"${RESET}
-   ${CYAN}cat page.html | npx sanitize-me --html${RESET}
-   ${CYAN}npx sanitize-me --query '{"user":"admin","$gt":""}'${RESET}
-   ${CYAN}npx sanitize-me --filename "../../bad:name?.txt"${RESET}
+  📄 ${BOLD}2. PDF DOCUMENTS (Safe Metadata Blanking)${RESET}
+     ${CYAN}npx sanitize-me contract.pdf${RESET}       Blanks /Author, /Creator, /Producer, /XMP
+     ${DIM}Keeps byte offsets identical so PDF pages and tables never corrupt.${RESET}
 
-${BOLD}5. INTERACTIVE & WEB MODES${RESET}
-   ${CYAN}npx sanitize-me${RESET}                    Launch interactive terminal menu
-   ${CYAN}npx sanitize-me --gui${RESET}              Open local drag-and-drop web UI in browser
+  🔑 ${BOLD}3. LOGS, SECRETS & TEXT (PII & Token Scrubber)${RESET}
+     ${CYAN}cat app.log | npx sanitize-me${RESET}      Redact API keys, tokens, IPs, emails from stream
+     ${CYAN}pbpaste | npx sanitize-me | pbcopy${RESET}  Scrub clipboard before pasting into tickets or chats
+     ${DIM}Redacts: OpenAI (sk-...), GitHub (ghp_...), AWS, Stripe, JWTs, IPs, Luhn credit cards.${RESET}
 
-${BOLD}OPTIONS & FLAGS${RESET}
-   ${GREEN}-p, --pick${RESET}             Open file explorer to browse and choose a file
-   ${GREEN}-o, --output <dir>${RESET}     Specify output directory for sanitized files
-   ${GREEN}-i, --in-place${RESET}         Overwrite original file directly
-   ${GREEN}-d, --dry-run${RESET}          Analyze metadata/PII without writing files
-   ${GREEN}-j, --json${RESET}             Output machine-readable JSON format
-   ${GREEN}-x, --html${RESET}             Sanitize HTML content and neutralize XSS
-   ${GREEN}    --query, --nosql${RESET}   Sanitize NoSQL injection keys ($gt, $ne, $where)
-   ${GREEN}-fn, --filename${RESET}        Sanitize filename and strip path traversal
-   ${GREEN}    --gui, --ui${RESET}        Force launch localhost Web GUI
-   ${GREEN}-h, --help, /help${RESET}      Show this guide
-   ${GREEN}-v, --version${RESET}          Show version
+  🔗 ${BOLD}4. URLS & TRACKING LINKS${RESET}
+     ${CYAN}npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&tag=aff-20"${RESET}
+     ${DIM}Strips 40+ tracking parameters (utm_*, fbclid, gclid, si, aff_*) and unwraps redirects.${RESET}
+
+  🛡️  ${BOLD}5. HTML & XSS NEUTRALIZATION (DOMPurify Alternative)${RESET}
+     ${CYAN}npx sanitize-me --html "<script>alert(1)</script><b>Safe</b>"${RESET}
+     ${CYAN}cat page.html | npx sanitize-me --html > clean.html${RESET}
+     ${CYAN}npx sanitize-me --html "<p>Text</p>" --text-only${RESET}
+     ${DIM}Destroys nested evasion tags (<scr<script>ipt>), inline on* handlers, and javascript: URIs.${RESET}
+
+  🗄️  ${BOLD}6. DATABASE & NOSQL QUERIES (mongo-sanitize Alternative)${RESET}
+     ${CYAN}npx sanitize-me --query '{"user":"admin","$gt":""}'${RESET}
+     ${DIM}Recursively strips MongoDB operator keys ($gt, $ne, $where) and dot-notation paths.${RESET}
+
+  📁 ${BOLD}7. FILENAMES (sanitize-filename Alternative)${RESET}
+     ${CYAN}npx sanitize-me --filename "../../bad:name?.txt"${RESET}
+     ${DIM}Strips path traversal (../), illegal characters, control codes, and Windows reserved names (CON, PRN).${RESET}
+
+  🌐 ${BOLD}8. OFFLINE WEB DASHBOARD${RESET}
+     ${CYAN}npx sanitize-me --gui${RESET}              Launch browser drag-and-drop airlock (100% offline)
+
+─────────────────────────────────────────────────────────────────────────────
+${BOLD}OPTIONS & FLAGS REFERENCE${RESET}
+
+  ${GREEN}-p,  --pick, -pick${RESET}             Open native file explorer dialog to browse files
+  ${GREEN}-o,  --output <dir>${RESET}             Specify destination folder for sanitized files
+  ${GREEN}-i,  --in-place${RESET}                 Overwrite original file directly
+  ${GREEN}-d,  --dry-run${RESET}                  Analyze and preview stripped tags without writing
+  ${GREEN}-j,  --json${RESET}                     Output machine-readable JSON format
+  ${GREEN}-x,  --html, -html [markup]${RESET}    Sanitize HTML string or stream and neutralize XSS
+  ${GREEN}     --text-only${RESET}                Used with --html to strip all HTML tags
+  ${GREEN}     --query, --nosql [json]${RESET}    Sanitize NoSQL / JSON query from operator injection
+  ${GREEN}-fn, --filename, -filename [n]${RESET} Sanitize a filename and strip path traversal
+  ${GREEN}     --gui, --ui, -gui${RESET}          Force launch local Web GUI on http://127.0.0.1:4488
+  ${GREEN}-h,  --help, -help, /help${RESET}       Show this comprehensive guide
+  ${GREEN}-v,  --version, -version${RESET}        Show package version
 `);
 }
 
@@ -84,6 +107,12 @@ async function readStdin() {
 async function processSingleFile(filePath, flags) {
   try {
     const resolvedPath = resolve(process.cwd(), filePath);
+    if (!existsSync(resolvedPath)) {
+      console.error(`\n\x1b[31m✖ File not found:\x1b[0m ${filePath}`);
+      console.error(`  ${DIM}Tip: Run ${CYAN}npx sanitize-me --pick${DIM} to select your file visually using the file explorer.${RESET}\n`);
+      return;
+    }
+
     const result = sanitizeFile(resolvedPath, {
       outputPath: flags.output,
       inPlace: flags.inPlace,
@@ -115,16 +144,16 @@ async function processSingleFile(filePath, flags) {
 
 async function runInteractiveMenu(flags) {
   console.log(BANNER);
-  console.log(`${BOLD}Choose an action or type /help:${RESET}
-  ${GREEN}[1]${RESET} Pick file via File Explorer ${DIM}(or type: pick)${RESET}
-  ${GREEN}[2]${RESET} Paste text or error log to scrub
-  ${GREEN}[3]${RESET} Clean a tracking link (URL)
-  ${GREEN}[4]${RESET} Sanitize HTML / XSS
-  ${GREEN}[5]${RESET} Sanitize NoSQL / JSON query
-  ${GREEN}[6]${RESET} Sanitize a filename
-  ${GREEN}[7]${RESET} Launch offline Web GUI ${DIM}(browser)${RESET}
-  ${GREEN}[8]${RESET} Command guide & examples ${DIM}(/help)${RESET}
-  ${GREEN}[0]${RESET} Exit
+  console.log(`${BOLD}Quick Menu — Select an action or type /help:${RESET}
+  ${GREEN}[1]${RESET} 📁 Pick file via File Explorer      ${DIM}(browse visually)${RESET}
+  ${GREEN}[2]${RESET} 🔑 Paste text / log to scrub        ${DIM}(API keys, tokens, emails, IPs)${RESET}
+  ${GREEN}[3]${RESET} 🔗 Clean a tracking link (URL)      ${DIM}(strip UTM, fbclid, session IDs)${RESET}
+  ${GREEN}[4]${RESET} 🛡️  Sanitize HTML / XSS              ${DIM}(neutralize scripts & event handlers)${RESET}
+  ${GREEN}[5]${RESET} 🗄️  Sanitize NoSQL / JSON query      ${DIM}(strip $gt, $where, operator injection)${RESET}
+  ${GREEN}[6]${RESET} 📝 Sanitize a filename              ${DIM}(strip path traversal & illegal chars)${RESET}
+  ${GREEN}[7]${RESET} 🌐 Launch browser Web GUI           ${DIM}(100% offline visual dashboard)${RESET}
+  ${GREEN}[8]${RESET} ❓ Command guide & cheatsheet       ${DIM}(/help, -help)${RESET}
+  ${GREEN}[0]${RESET} 🚪 Exit
 `);
 
   const rl = readline.createInterface({ input, output });
@@ -132,13 +161,14 @@ async function runInteractiveMenu(flags) {
   try {
     const rawChoice = await rl.question(`${BOLD}> ${RESET}`);
     const choice = rawChoice.trim();
+    const lowerChoice = choice.toLowerCase();
 
-    if (!choice || choice === '0' || choice.toLowerCase() === 'exit' || choice.toLowerCase() === 'q') {
-      console.log('Exiting.');
+    if (!choice || choice === '0' || ['exit', 'quit', 'q', 'close', 'done'].includes(lowerChoice)) {
+      console.log(`${DIM}Exited. Tip: Run ${CYAN}npx sanitize-me <file>${DIM} anytime.${RESET}`);
       return;
     }
 
-    if (choice === '1' || choice.toLowerCase() === 'pick' || choice.toLowerCase() === 'p') {
+    if (choice === '1' || ['pick', 'p', 'file', 'files', 'browse', 'explorer'].includes(lowerChoice)) {
       console.log(`${DIM}Opening file explorer...${RESET}`);
       const selected = await openFilePicker();
       if (selected) {
@@ -150,8 +180,8 @@ async function runInteractiveMenu(flags) {
       return;
     }
 
-    if (choice === '2' || choice.toLowerCase() === 'text' || choice.toLowerCase() === 'log') {
-      console.log(`${DIM}Enter text (paste and press Enter):${RESET}`);
+    if (choice === '2' || ['text', 'log', 'logs', 'secret', 'secrets', 'token', 'tokens', 't'].includes(lowerChoice)) {
+      console.log(`${DIM}Enter text / error log (paste and press Enter):${RESET}`);
       const text = await rl.question('> ');
       if (text) {
         const res = sanitizeText(text);
@@ -161,12 +191,12 @@ async function runInteractiveMenu(flags) {
       return;
     }
 
-    if (choice === '3' || choice.toLowerCase() === 'url') {
-      console.log(`${DIM}Paste target URL:${RESET}`);
+    if (choice === '3' || ['url', 'link', 'links', 'u', 'clean-url', 'uri'].includes(lowerChoice)) {
+      console.log(`${DIM}Paste target URL with tracking parameters:${RESET}`);
       const url = await rl.question('> ');
       if (url) {
         const clean = sanitizeUrl(url);
-        console.log(`\n${GREEN}Clean URL:${RESET} ${clean.cleanUrl}`);
+        console.log(`\n${GREEN}✔ Clean URL:${RESET} ${clean.cleanUrl}`);
         if (clean.removedParams.length > 0) {
           console.log(`${DIM}Removed ${clean.removedParams.length} tracker(s): ${clean.removedParams.join(', ')}${RESET}`);
         }
@@ -174,29 +204,29 @@ async function runInteractiveMenu(flags) {
       return;
     }
 
-    if (choice === '4' || choice.toLowerCase() === 'html' || choice.toLowerCase() === 'xss') {
-      console.log(`${DIM}Paste HTML payload:${RESET}`);
+    if (choice === '4' || ['html', 'xss', 'h', 'webpage'].includes(lowerChoice)) {
+      console.log(`${DIM}Paste HTML markup to sanitize:${RESET}`);
       const rawHtml = await rl.question('> ');
       if (rawHtml) {
         const clean = sanitizeHtml(rawHtml);
-        console.log(`\n${GREEN}✔ Sanitized HTML:${RESET}`);
+        console.log(`\n${GREEN}✔ Sanitized HTML (XSS Neutralized):${RESET}`);
         console.log(clean);
       }
       return;
     }
 
-    if (choice === '5' || choice.toLowerCase() === 'query' || choice.toLowerCase() === 'nosql') {
-      console.log(`${DIM}Paste JSON / query string:${RESET}`);
+    if (choice === '5' || ['query', 'nosql', 'json', 'mongo', 'q'].includes(lowerChoice)) {
+      console.log(`${DIM}Paste JSON or database query string:${RESET}`);
       const rawQuery = await rl.question('> ');
       if (rawQuery) {
         const clean = sanitizeQuery(rawQuery);
-        console.log(`\n${GREEN}✔ Sanitized query:${RESET}`);
+        console.log(`\n${GREEN}✔ Sanitized query (Operators Removed):${RESET}`);
         console.log(typeof clean === 'string' ? clean : JSON.stringify(clean, null, 2));
       }
       return;
     }
 
-    if (choice === '6' || choice.toLowerCase() === 'filename' || choice.toLowerCase() === 'name') {
+    if (choice === '6' || ['filename', 'name', 'fn', 'f'].includes(lowerChoice)) {
       console.log(`${DIM}Enter filename to sanitize:${RESET}`);
       const rawName = await rl.question('> ');
       if (rawName) {
@@ -206,7 +236,7 @@ async function runInteractiveMenu(flags) {
       return;
     }
 
-    if (choice === '7' || choice.toLowerCase() === 'gui' || choice.toLowerCase() === 'web') {
+    if (choice === '7' || ['gui', 'ui', 'web', 'browser', 'g', 'w'].includes(lowerChoice)) {
       console.log(`${GREEN}[sanitize-me]${RESET} Starting local web airlock...`);
       const { url } = await startServer({ open: true });
       console.log(`${CYAN}✔ Web GUI running at:${RESET} ${url}`);
@@ -214,7 +244,7 @@ async function runInteractiveMenu(flags) {
       return;
     }
 
-    if (choice === '8' || choice === '/help' || choice.toLowerCase() === 'help' || choice === '?') {
+    if (choice === '8' || ['help', '/help', '-help', '--help', '?', '-?', '/?', 'h', 'guide', 'info', 'cheat'].includes(lowerChoice)) {
       printHelp();
       return;
     }
@@ -222,7 +252,7 @@ async function runInteractiveMenu(flags) {
     // Check if user directly pasted or typed a URL
     if (isLikelyUrl(choice)) {
       const clean = sanitizeUrl(choice);
-      console.log(`\n${GREEN}Clean URL:${RESET} ${clean.cleanUrl}`);
+      console.log(`\n${GREEN}✔ Clean URL:${RESET} ${clean.cleanUrl}`);
       if (clean.removedParams.length > 0) {
         console.log(`${DIM}Removed: ${clean.removedParams.join(', ')}${RESET}`);
       }
@@ -234,11 +264,15 @@ async function runInteractiveMenu(flags) {
     if (existsSync(strippedPath)) {
       await processSingleFile(strippedPath, flags);
       return;
+    } else if (/\.(jpe?g|png|webp|gif|pdf|txt|log|json|env|xml|csv)$/i.test(strippedPath)) {
+      console.log(`\n\x1b[31m✖ File not found:\x1b[0m "${strippedPath}"`);
+      console.log(`  ${DIM}Tip: Type ${CYAN}1${DIM} or run ${CYAN}npx sanitize-me --pick${DIM} to select files with your file manager.${RESET}\n`);
+      return;
     }
 
     // Otherwise treat as plain text to scrub
     const res = sanitizeText(choice);
-    console.log(`\n${GREEN}Sanitized output (${res.totalRedactions} redacted):${RESET}`);
+    console.log(`\n${GREEN}✔ Sanitized output (${res.totalRedactions} redacted):${RESET}`);
     console.log(res.text);
 
   } finally {
@@ -247,6 +281,10 @@ async function runInteractiveMenu(flags) {
 }
 
 export async function runCli(argv = process.argv.slice(2)) {
+  const HELP_ALIASES = new Set([
+    '-h', '--help', '-help', '/help', 'help', '?', '-?', '/?', '--guide', 'guide', '-man', '--man'
+  ]);
+
   const getFlagVal = (...names) => {
     for (const name of names) {
       const idx = argv.indexOf(name);
@@ -257,36 +295,41 @@ export async function runCli(argv = process.argv.slice(2)) {
     return null;
   };
 
-  const htmlVal = getFlagVal('-x', '--html');
-  const queryVal = getFlagVal('--query', '--nosql');
-  const filenameVal = getFlagVal('-fn', '--filename');
+  const htmlVal = getFlagVal('-x', '--html', '-html');
+  const queryVal = getFlagVal('--query', '-query', '--nosql', '-nosql');
+  const filenameVal = getFlagVal('-fn', '--filename', '-filename');
 
   const flags = {
-    help: argv.includes('-h') || argv.includes('--help') || argv.includes('/help') || argv.includes('help') || argv.includes('?'),
-    version: argv.includes('-v') || argv.includes('--version'),
-    gui: argv.includes('--gui') || argv.includes('--ui'),
-    pick: argv.includes('-p') || argv.includes('--pick') || argv.includes('pick'),
-    inPlace: argv.includes('-i') || argv.includes('--in-place'),
-    dryRun: argv.includes('-d') || argv.includes('--dry-run'),
-    json: argv.includes('-j') || argv.includes('--json'),
-    html: argv.includes('-x') || argv.includes('--html'),
-    query: argv.includes('--query') || argv.includes('--nosql'),
-    filename: argv.includes('-fn') || argv.includes('--filename'),
-    textOnly: argv.includes('--text-only'),
+    help: argv.some(a => HELP_ALIASES.has(a.toLowerCase())),
+    version: argv.includes('-v') || argv.includes('--version') || argv.includes('-version'),
+    gui: argv.includes('--gui') || argv.includes('--ui') || argv.includes('-gui'),
+    pick: argv.includes('-p') || argv.includes('--pick') || argv.includes('-pick') || argv.includes('pick'),
+    inPlace: argv.includes('-i') || argv.includes('--in-place') || argv.includes('-in-place'),
+    dryRun: argv.includes('-d') || argv.includes('--dry-run') || argv.includes('-dry-run'),
+    json: argv.includes('-j') || argv.includes('--json') || argv.includes('-json'),
+    html: argv.includes('-x') || argv.includes('--html') || argv.includes('-html'),
+    query: argv.includes('--query') || argv.includes('-query') || argv.includes('--nosql') || argv.includes('-nosql'),
+    filename: argv.includes('-fn') || argv.includes('--filename') || argv.includes('-filename'),
+    textOnly: argv.includes('--text-only') || argv.includes('-text-only'),
     output: null
   };
 
-  const outputIdx = argv.findIndex(a => a === '-o' || a === '--output');
+  const outputIdx = argv.findIndex(a => a === '-o' || a === '--output' || a === '-output');
   if (outputIdx !== -1 && argv[outputIdx + 1]) {
     flags.output = argv[outputIdx + 1];
   }
 
   // Filter out flag args to get positional targets
-  const flagNamesWithVal = new Set(['-o', '--output', '-x', '--html', '--query', '--nosql', '-fn', '--filename']);
+  const flagNamesWithVal = new Set([
+    '-o', '--output', '-output',
+    '-x', '--html', '-html',
+    '--query', '-query', '--nosql', '-nosql',
+    '-fn', '--filename', '-filename'
+  ]);
   const targets = argv.filter((arg, idx) => {
     if (arg.startsWith('-')) return false;
     if (idx > 0 && flagNamesWithVal.has(argv[idx - 1])) return false;
-    if (['help', '/help', '?', 'pick', 'gui', 'web'].includes(arg.toLowerCase())) return false;
+    if (['help', '/help', '-help', '?', 'pick', 'gui', 'web'].includes(arg.toLowerCase())) return false;
     return true;
   });
 
@@ -300,13 +343,43 @@ export async function runCli(argv = process.argv.slice(2)) {
     return;
   }
 
+  // Unknown flag warning
+  const KNOWN_FLAGS = new Set([
+    '-h', '--help', '-help', '/help', 'help', '?', '-?', '/?', '--guide', 'guide', '-man', '--man',
+    '-v', '--version', '-version',
+    '-gui', '--gui', '--ui', '-ui',
+    '-p', '--pick', '-pick', 'pick',
+    '-i', '--in-place', '-in-place',
+    '-d', '--dry-run', '-dry-run',
+    '-j', '--json', '-json',
+    '-x', '--html', '-html',
+    '--query', '-query', '--nosql', '-nosql',
+    '-fn', '--filename', '-filename',
+    '--text-only', '-text-only',
+    '-o', '--output', '-output'
+  ]);
+
+  for (const arg of argv) {
+    if (arg.startsWith('-') && !KNOWN_FLAGS.has(arg.toLowerCase())) {
+      console.log(`\n${YELLOW}⚠ Unknown option:${RESET} "${arg}"`);
+      console.log(`  ${DIM}Run ${CYAN}npx sanitize-me --help${DIM} to see all valid commands and flags.${RESET}\n`);
+      return;
+    }
+  }
+
   // Direct HTML sanitizer
   if (flags.html) {
     let payload = htmlVal || targets[0];
     if (!payload && !process.stdin.isTTY) {
       payload = await readStdin();
     }
-    if (payload != null) {
+    if (!payload && process.stdin.isTTY) {
+      const rl = readline.createInterface({ input, output });
+      console.log(`${DIM}Enter HTML markup to sanitize (press Enter):${RESET}`);
+      payload = await rl.question('> ');
+      rl.close();
+    }
+    if (payload != null && payload.trim().length > 0) {
       const clean = sanitizeHtml(payload, { textOnly: flags.textOnly });
       if (flags.json) {
         console.log(JSON.stringify({ cleanHtml: clean }, null, 2));
@@ -323,7 +396,13 @@ export async function runCli(argv = process.argv.slice(2)) {
     if (!payload && !process.stdin.isTTY) {
       payload = await readStdin();
     }
-    if (payload != null) {
+    if (!payload && process.stdin.isTTY) {
+      const rl = readline.createInterface({ input, output });
+      console.log(`${DIM}Enter NoSQL / JSON query to sanitize (press Enter):${RESET}`);
+      payload = await rl.question('> ');
+      rl.close();
+    }
+    if (payload != null && payload.trim().length > 0) {
       const clean = sanitizeQuery(payload);
       if (flags.json) {
         console.log(JSON.stringify({ cleanQuery: clean }, null, 2));
@@ -341,7 +420,13 @@ export async function runCli(argv = process.argv.slice(2)) {
     if (!payload && !process.stdin.isTTY) {
       payload = (await readStdin()).trim();
     }
-    if (payload != null) {
+    if (!payload && process.stdin.isTTY) {
+      const rl = readline.createInterface({ input, output });
+      console.log(`${DIM}Enter filename to sanitize (press Enter):${RESET}`);
+      payload = (await rl.question('> ')).trim();
+      rl.close();
+    }
+    if (payload != null && payload.trim().length > 0) {
       const clean = sanitizeFilename(payload);
       if (flags.json) {
         console.log(JSON.stringify({ cleanFilename: clean }, null, 2));
