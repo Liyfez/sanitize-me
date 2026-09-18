@@ -552,6 +552,100 @@
       line-height: 1.5;
     }
 
+    /* Step-by-Step Task Guides */
+    .guides-box {
+      max-width: 900px;
+      margin: 0 auto 5rem auto;
+      padding: 0 1.5rem;
+    }
+    .guides-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 1.25rem;
+    }
+    .guide-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s ease;
+    }
+    .guide-card:hover {
+      border-color: rgba(57, 255, 20, 0.4);
+    }
+    .guide-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--lime);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .guide-card h4 {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      flex: 1;
+    }
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--lime);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-text {
+      flex: 1;
+    }
+    .guide-code {
+      margin: 0.25rem 0 0.4rem 1.7rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.45rem 0.65rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--lime);
+      overflow-x: auto;
+    }
+    .guide-code code {
+      color: var(--lime);
+      font-family: var(--font-mono);
+    }
+
     /* Distribution Table */
     .dist-box {
       max-width: 900px;
@@ -852,6 +946,184 @@
     <div class="feature-card">
       <h3>Zero runtime dependencies</h3>
       <p>Built using pure Node.js and browser Web API standard libraries. Zero third-party npm supply-chain risk and instant execution.</p>
+    </div>
+  </section>
+
+  <!-- Step-by-Step Task Guides -->
+  <section class="guides-box">
+    <div class="guides-header">
+      <h3 class="section-title" style="margin-bottom:0.4rem;">Step-by-step task guides</h3>
+      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1.5rem;">Direct copy-paste recipes for every data sanitization and privacy workflow.</p>
+    </div>
+
+    <div class="guides-grid">
+      <!-- Guide 1 -->
+      <div class="guide-card">
+        <div class="guide-badge">Photos &amp; Images</div>
+        <h4>How to remove camera GPS and serial numbers from photos</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Run command or pick a file visually:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me photo.jpg</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Binary engine parses JPEG/PNG/WebP streams and strips APP1/EXIF segments.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Generates <code>clean_photo.jpg</code> with 100% pixel fidelity and zero re-encoding loss.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 2 -->
+      <div class="guide-card">
+        <div class="guide-badge">PDF Documents</div>
+        <h4>How to anonymize PDF documents and contracts</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Pass your PDF document:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me contract.pdf</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Zeroes out /Author, /Creator, /Producer, and /Metadata streams with space-padding.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Exact byte offsets preserved so PDF cross-reference (xref) tables never corrupt.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 3 -->
+      <div class="guide-card">
+        <div class="guide-badge">Logs &amp; Secrets</div>
+        <h4>How to redact API keys and PII from server logs</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Pipe server log or scrub system clipboard:</span>
+          </div>
+          <pre class="guide-code"><code>cat debug.log | npx sanitize-me &gt; clean.log</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Detects OpenAI, AWS, GitHub, Stripe keys, JWTs, IPs, and Luhn-validated credit cards.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Replaces secrets with safe privacy tags ready for bug reports or public sharing.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 4 -->
+      <div class="guide-card">
+        <div class="guide-badge">Links &amp; URLs</div>
+        <h4>How to strip tracking tags and unwrap redirect URLs</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Pass URL with marketing tags:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&amp;tag=aff-20"</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Unwraps Google/Facebook redirect wrappers and purges 40+ analytics parameters.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Outputs clean canonical destination URL for privacy-safe sharing.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 5 -->
+      <div class="guide-card">
+        <div class="guide-badge">HTML &amp; XSS</div>
+        <h4>How to neutralize XSS in HTML markup without heavy packages</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Run CLI flag or programmatic function:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me --html "&lt;script&gt;alert(1)&lt;/script&gt;&lt;b&gt;Safe&lt;/b&gt;"</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Multi-pass reduction loop destroys nested evasion tags (&lt;scr&lt;script&gt;ipt&gt;) and inline handlers.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Returns sanitized safe HTML structure with safe URI schemes.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 6 -->
+      <div class="guide-card">
+        <div class="guide-badge">NoSQL &amp; Database</div>
+        <h4>How to stop MongoDB query and operator injection</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Pass untrusted query object or JSON:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me --query '{"username":"admin","$gt":""}'</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Deep recursive walker scans keys for $ operators ($gt, $ne, $where) and dot notation.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Neutralizes injection keys to protect backend database calls.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 7 -->
+      <div class="guide-card">
+        <div class="guide-badge">Uploads &amp; Filesystem</div>
+        <h4>How to sanitize filenames and block directory traversal</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Clean user-provided filename:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me --filename "../../bad:name?.txt"</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Strips path traversal (../), control codes, and Windows reserved device names (CON, PRN).</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">Truncates to UTF-8 boundary safe 255 bytes for reliable cross-platform disk storage.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guide 8 -->
+      <div class="guide-card">
+        <div class="guide-badge">Offline GUI</div>
+        <h4>How to use the local browser privacy airlock</h4>
+        <div class="guide-steps">
+          <div class="step-row">
+            <span class="step-num">1</span>
+            <span class="step-text">Open website or launch offline web server:</span>
+          </div>
+          <pre class="guide-code"><code>npx sanitize-me --gui</code></pre>
+          <div class="step-row">
+            <span class="step-num">2</span>
+            <span class="step-text">Drag and drop images, PDFs, or paste text/queries directly into the dashboard.</span>
+          </div>
+          <div class="step-row">
+            <span class="step-num">3</span>
+            <span class="step-text">100% processed locally in browser memory with zero cloud uploads or network latency.</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

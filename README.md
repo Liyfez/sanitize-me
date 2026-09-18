@@ -76,6 +76,129 @@ npm install -g sanitize-me
 
 ---
 
+## 📖 Step-by-Step Task Guides
+
+### 📸 Task 1: Clean Photos Before Posting Online (GPS & EXIF)
+**Scenario**: Photos taken on smartphones or DSLR cameras contain hidden embedded GPS coordinates (your home/work address), camera serial numbers, and device maker notes.
+
+1. **Run the command** (or don't know the file path? Run `npx sanitize-me --pick`):
+   ```bash
+   npx sanitize-me photo.jpg
+   ```
+2. **What happens**: The engine parses the raw binary stream and strips `APP1` / `EXIF` segments losslessly without touching pixel data (0% JPEG re-encoding loss).
+3. **Result**: Creates `clean_photo.jpg` in the same directory, 100% safe to upload to Reddit, Discord, forums, or bug trackers.
+   - *Tip*: Use `-i` to overwrite in-place: `npx sanitize-me -i photo.jpg`.
+
+---
+
+### 📄 Task 2: Anonymize PDF Resumes, Contracts & Legal Docs
+**Scenario**: PDFs store internal author usernames, generator software (`/Creator (Adobe InDesign)`), company names, and revision history.
+
+1. **Run the command**:
+   ```bash
+   npx sanitize-me contract.pdf
+   ```
+2. **What happens**: Blanks out `/Author`, `/Creator`, `/Producer`, and `/Metadata` XMP streams with space-padding.
+3. **Result**: Byte offsets remain exactly identical, guaranteeing that cross-reference (`xref`) tables and document pages never corrupt.
+
+---
+
+### 🔑 Task 3: Redact Server Logs & Clipboard Before Sharing
+**Scenario**: You need to paste terminal traces or error logs into a public GitHub issue, Discord support channel, or client ticket without leaking OpenAI keys, AWS tokens, or user emails.
+
+1. **Pipe your log file or clipboard**:
+   ```bash
+   # From a log file:
+   cat server.log | npx sanitize-me > clean_server.log
+
+   # Directly from system clipboard (macOS):
+   pbpaste | npx sanitize-me | pbcopy
+   ```
+2. **What happens**: Detects and redacts OpenAI (`sk-...`), GitHub (`ghp_...`), AWS (`AKIA...`), Stripe (`sk_...`), JWTs, IPs, and Luhn-validated credit card numbers.
+3. **Result**: All secrets are replaced with `<API_KEY_REDACTED>`, `<IP_REDACTED>`, etc., while preserving JSON/stack trace formatting.
+
+---
+
+### 🔗 Task 4: Clean Tracking Links & Strip Surveillance Queries
+**Scenario**: URLs copied from Amazon, Twitter/X, YouTube, TikTok, or newsletters contain surveillance parameters and affiliate tags (`utm_*`, `fbclid`, `si=`, `gclid`).
+
+1. **Run with the URL**:
+   ```bash
+   npx sanitize-me "https://amazon.com/dp/B00000?utm_source=tw&tag=affiliate-20&ref_=as_li"
+   ```
+2. **What happens**: Unwraps Google and Facebook redirect gateways, removes 40+ tracking parameters, and rebuilds the clean URL.
+3. **Result**: Outputs clean canonical URL: `https://amazon.com/dp/B00000`.
+
+---
+
+### 🛡️ Task 5: Prevent XSS in HTML Content (DOMPurify Alternative)
+**Scenario**: You accept user-submitted HTML in a web app, comment system, or CMS, and need bulletproof XSS defense without heavy external dependencies.
+
+1. **Run via CLI or import into Node.js**:
+   ```bash
+   npx sanitize-me --html "<script>alert(1)</script><b>Clean content</b>"
+   ```
+   ```javascript
+   import { sanitizeHtml } from 'sanitize-me';
+
+   const cleanHtml = sanitizeHtml(userInputHtml);
+   // Strips scripts, on* handlers, and javascript: protocols
+   ```
+2. **What happens**: Multi-pass reduction loop destroys nested script evasion vectors (`<scr<script>ipt>`), removes inline event handlers (`onload`, `onerror`), and blocks dangerous pseudo-protocols (`javascript:`, `data:text/html`).
+3. **Result**: Safe, clean HTML markup ready to render. Use `--text-only` to strip all tags if plain text is needed.
+
+---
+
+### 🗄️ Task 6: Secure Backend Against NoSQL Query Injection (mongo-sanitize Alternative)
+**Scenario**: Attackers bypass authentication by passing objects like `{"password": {"$gt": ""}}` or injecting `$where` clauses into MongoDB queries.
+
+1. **Run via CLI or use in Express middleware**:
+   ```bash
+   npx sanitize-me --query '{"username": "admin", "password": {"$gt": ""}}'
+   ```
+   ```javascript
+   import { sanitizeQuery } from 'sanitize-me';
+
+   app.use((req, res, next) => {
+     req.body = sanitizeQuery(req.body);
+     req.query = sanitizeQuery(req.query);
+     next();
+   });
+   ```
+2. **What happens**: Deep recursive object walker removes any key starting with `$` or containing dot notation (`user.name`).
+3. **Result**: Query is neutralized: `{"username": "admin", "password": {}}`.
+
+---
+
+### 📁 Task 7: Clean Uploaded Filenames & Block Directory Traversal
+**Scenario**: Attackers upload files with names like `../../../../etc/passwd` or Windows reserved names like `CON.txt` to trigger server-side traversal or filesystem locks.
+
+1. **Run via CLI or import in your file upload handler**:
+   ```bash
+   npx sanitize-me --filename "../../../etc/evil:name?.png"
+   ```
+   ```javascript
+   import { sanitizeFilename } from 'sanitize-me';
+
+   const safeFileName = sanitizeFilename(file.originalname);
+   // Output: 'etc_evil_name.png'
+   ```
+2. **What happens**: Strips relative navigation (`../`), illegal characters (`/?<>\\:*|"`), control codes, and prepends underscores to Windows reserved device names (`CON`, `PRN`, `AUX`, `NUL`, `COM1-9`, `LPT1-9`).
+3. **Result**: Safe, sanitized filename truncated safely to 255 UTF-8 bytes.
+
+---
+
+### 🌐 Task 8: Non-Terminal Browser Airlock (Zero-Install Drag & Drop)
+**Scenario**: Team members, clients, or non-developers want to clean files and secrets without touching the terminal.
+
+1. **Open the airlock**:
+   - Online: Go to [https://liyfez.github.io/sanitize-me/](https://liyfez.github.io/sanitize-me/)
+   - Local: Run `npx sanitize-me --gui` (runs local server on `http://127.0.0.1:4488`)
+2. **What happens**: Drag and drop your image, PDF, or paste text/queries.
+3. **Result**: All processing runs in browser memory via Web APIs with zero network uploads. Instant download button for clean files.
+
+---
+
 ## Core Sanitization Engines
 
 ### 1. Image & Media Mode (Lossless Binary Stripper)
