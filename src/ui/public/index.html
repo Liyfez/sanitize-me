@@ -88,7 +88,7 @@
             "name": "How do I neutralize XSS payloads in HTML markup without heavy dependencies?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Run 'npx sanitize-me --html \"<script>alert(1)</script><b>Safe</b>\"' or use sanitizeHtml() in code. It recursively eliminates script tags, unclosed injection vectors, inline event handlers, and dangerous pseudoprotocols with 0 external dependencies."
+              "text": "Run 'npx sanitize-me --html \"<script>alert(1)<\\/script><b>Safe</b>\"' or use sanitizeHtml() in code. It recursively eliminates script tags, unclosed injection vectors, inline event handlers, and dangerous pseudoprotocols with 0 external dependencies."
             }
           },
           {
@@ -166,9 +166,9 @@
 
     /* Navigation */
     nav {
-      max-width: 1120px;
+      max-width: 1360px;
       margin: 0 auto;
-      padding: 1.5rem 1.5rem;
+      padding: 1.5rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -258,10 +258,10 @@
 
     /* Hero */
     .hero {
-      max-width: 860px;
-      margin: 2.5rem auto 3rem auto;
+      max-width: 1080px;
+      margin: 2.5rem auto 3.5rem auto;
       text-align: center;
-      padding: 0 1.5rem;
+      padding: 0 2rem;
       position: relative;
       z-index: 1;
     }
@@ -349,14 +349,15 @@
 
     /* Main Airlock Box */
     .airlock-box {
-      max-width: 900px;
+      max-width: 1360px;
       margin: 0 auto 5rem auto;
-      background: var(--surface);
+      background: linear-gradient(180deg, #0e131f 0%, #090d16 100%);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 2rem;
+      border-radius: 16px;
+      padding: 2.25rem 2.5rem;
       position: relative;
       z-index: 1;
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
     }
 
     /* Tab switcher */
@@ -524,24 +525,29 @@
 
     /* Feature Grid */
     .feature-grid {
-      max-width: 900px;
+      max-width: 1360px;
       margin: 0 auto 5rem auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.25rem;
-      padding: 0 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 1.5rem;
+      padding: 0 2rem;
     }
 
     .feature-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: all 0.2s ease;
+    }
+    .feature-card:hover {
+      border-color: rgba(57, 255, 20, 0.35);
+      transform: translateY(-2px);
     }
     .feature-card h3 {
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: var(--text);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.6rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -549,114 +555,197 @@
     .feature-card p {
       color: var(--text-muted);
       font-size: 0.88rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
-    /* Step-by-Step Task Guides */
+    /* Step-by-Step Task Guides - High-End Redesign */
     .guides-box {
-      max-width: 900px;
+      max-width: 1360px;
       margin: 0 auto 5rem auto;
-      padding: 0 1.5rem;
+      padding: 0 2rem;
+    }
+    .guides-header {
+      margin-bottom: 2rem;
+    }
+    .guides-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+    .guide-filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.45rem 1rem;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .guide-filter-btn:hover {
+      border-color: var(--text-dim);
+      color: var(--text);
+    }
+    .guide-filter-btn.active {
+      background: var(--surface-subtle);
+      border-color: var(--lime);
+      color: var(--lime);
+      box-shadow: 0 0 12px rgba(57, 255, 20, 0.12);
     }
     .guides-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+      gap: 1.5rem;
     }
     .guide-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
+      border-radius: 12px;
+      padding: 1.75rem;
       display: flex;
       flex-direction: column;
-      transition: border-color 0.15s ease;
+      transition: all 0.2s ease;
+      position: relative;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
     }
     .guide-card:hover {
       border-color: rgba(57, 255, 20, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px -4px rgba(57, 255, 20, 0.08);
+    }
+    .guide-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
     }
     .guide-badge {
-      display: inline-block;
-      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
       font-family: var(--font-mono);
       font-size: 0.72rem;
       font-weight: 600;
       color: var(--lime);
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      margin-bottom: 0.75rem;
+      background: rgba(57, 255, 20, 0.06);
+      border: 1px solid rgba(57, 255, 20, 0.2);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
+    .guide-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
     .guide-card h4 {
-      font-size: 0.98rem;
+      font-size: 1.05rem;
       font-weight: 600;
       color: var(--text);
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       line-height: 1.4;
     }
-    .guide-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      flex: 1;
+    .guide-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
     }
-    .step-row {
+    .guide-cmd-box {
+      background: #04070d;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 0.75rem 0.85rem;
+      margin-bottom: 1.15rem;
       display: flex;
       align-items: flex-start;
       gap: 0.6rem;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      line-height: 1.5;
+      transition: border-color 0.15s ease;
     }
-    .step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      color: var(--lime);
+    .guide-cmd-box:hover {
+      border-color: rgba(57, 255, 20, 0.3);
+    }
+    .guide-prompt {
       font-family: var(--font-mono);
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      user-select: none;
+      margin-top: 1px;
+    }
+    .guide-cmd-text {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      word-break: break-all;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      flex: 1;
+      overflow-x: visible;
+    }
+    .guide-copy-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .guide-copy-btn:hover {
+      border-color: var(--lime);
+      color: var(--text);
+    }
+    .guide-copy-btn.copied {
+      background: var(--lime-soft);
+      border-color: var(--lime);
+      color: var(--lime);
+    }
+    .guide-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 1rem;
+    }
+    .guide-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .guide-check {
+      color: var(--lime);
       flex-shrink: 0;
       margin-top: 2px;
-    }
-    .step-text {
-      flex: 1;
-    }
-    .guide-code {
-      margin: 0.25rem 0 0.4rem 1.7rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.45rem 0.65rem;
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      color: var(--lime);
-      overflow-x: auto;
-    }
-    .guide-code code {
-      color: var(--lime);
-      font-family: var(--font-mono);
     }
 
     /* Distribution Table */
     .dist-box {
-      max-width: 900px;
+      max-width: 1360px;
       margin: 0 auto 5rem auto;
-      padding: 0 1.5rem;
+      padding: 0 2rem;
     }
     .dist-table-wrap {
-      background: var(--surface);
+      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
+      border-radius: 12px;
+      overflow-x: auto;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
     }
     .dist-table {
       width: 100%;
@@ -664,8 +753,8 @@
       font-size: 0.88rem;
     }
     .dist-table th {
-      background: var(--bg);
-      padding: 0.9rem 1.25rem;
+      background: #04070d;
+      padding: 1rem 1.4rem;
       text-align: left;
       font-family: var(--font-mono);
       font-size: 0.78rem;
@@ -675,15 +764,20 @@
       letter-spacing: 0.04em;
     }
     .dist-table td {
-      padding: 1rem 1.25rem;
+      padding: 1.1rem 1.4rem;
       border-bottom: 1px solid var(--border);
       color: var(--text);
     }
     .dist-table tr:last-child td { border-bottom: none; }
+    .dist-cmd-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
     .dist-cmd {
       font-family: var(--font-mono);
       color: var(--lime);
-      background: var(--bg);
+      background: #04070d;
       padding: 0.25rem 0.6rem;
       border-radius: 4px;
       border: 1px solid var(--border);
@@ -716,30 +810,36 @@
 
     /* FAQ Section */
     .faq-box {
-      max-width: 900px;
+      max-width: 1360px;
       margin: 0 auto 5rem auto;
-      padding: 0 1.5rem;
+      padding: 0 2rem;
     }
     .section-title {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       color: var(--text);
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem;
       font-family: var(--font-sans);
       font-weight: 600;
+      letter-spacing: -0.01em;
     }
     .faq-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
     }
     .faq-item {
-      background: var(--surface);
+      background: linear-gradient(180deg, #0e131f 0%, #0a0e17 100%);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.25rem;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.15s ease;
+    }
+    .faq-item:hover {
+      border-color: rgba(57, 255, 20, 0.3);
     }
     .faq-item h4 {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
       color: var(--text);
       margin-bottom: 0.5rem;
       font-weight: 600;
@@ -752,10 +852,12 @@
 
     footer {
       border-top: 1px solid var(--border);
-      padding: 3rem 1.5rem;
+      padding: 3.5rem 2rem;
       text-align: center;
       color: var(--text-dim);
       font-size: 0.85rem;
+      max-width: 1360px;
+      margin: 0 auto;
     }
     footer a {
       color: var(--text-muted);
@@ -764,6 +866,16 @@
     }
     footer a:hover {
       color: var(--lime);
+    }
+
+    /* Responsive Mobile Canvas */
+    @media (max-width: 768px) {
+      nav { padding: 1.25rem 1rem; }
+      .hero { padding: 0 1rem; margin: 1.5rem auto 2.5rem auto; }
+      .airlock-box { padding: 1.5rem 1rem; margin-bottom: 3rem; }
+      .feature-grid, .guides-box, .dist-box, .faq-box { padding: 0 1rem; margin-bottom: 3rem; }
+      .guides-grid, .faq-grid { grid-template-columns: 1fr; }
+      .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
 
     .hidden { display: none; }
@@ -949,180 +1061,284 @@
     </div>
   </section>
 
-  <!-- Step-by-Step Task Guides -->
+  <!-- Step-by-Step Task Guides - High-End Redesign -->
   <section class="guides-box">
     <div class="guides-header">
-      <h3 class="section-title" style="margin-bottom:0.4rem;">Step-by-step task guides</h3>
-      <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1.5rem;">Direct copy-paste recipes for every data sanitization and privacy workflow.</p>
+      <h3 class="section-title">Step-by-step task guides &amp; recipes</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; max-width:760px; line-height:1.55;">
+        Direct copy-paste terminal commands and programmatic recipes for every data sanitization, privacy, and security workflow.
+      </p>
+
+      <div class="guides-filter-bar">
+        <button class="guide-filter-btn active" onclick="filterGuides('all', this)">All recipes (9)</button>
+        <button class="guide-filter-btn" onclick="filterGuides('media', this)">Photos &amp; PDFs</button>
+        <button class="guide-filter-btn" onclick="filterGuides('logs', this)">Logs &amp; Secrets</button>
+        <button class="guide-filter-btn" onclick="filterGuides('web', this)">URLs &amp; XSS</button>
+        <button class="guide-filter-btn" onclick="filterGuides('db', this)">NoSQL &amp; Files</button>
+        <button class="guide-filter-btn" onclick="filterGuides('cli', this)">Terminal &amp; GUI</button>
+      </div>
     </div>
 
     <div class="guides-grid">
-      <!-- Guide 1 -->
-      <div class="guide-card">
-        <div class="guide-badge">Photos &amp; Images</div>
-        <h4>How to remove camera GPS and serial numbers from photos</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Run command or pick a file visually:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me photo.jpg</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Binary engine parses JPEG/PNG/WebP streams and strips APP1/EXIF segments.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Generates <code>clean_photo.jpg</code> with 100% pixel fidelity and zero re-encoding loss.</span>
-          </div>
+      <!-- Recipe 1: Photos -->
+      <div class="guide-card" data-category="media">
+        <div class="guide-card-top">
+          <span class="guide-badge">Photos &amp; Images</span>
+          <span class="guide-tag">Lossless Strip</span>
         </div>
+        <h4>Strip camera GPS &amp; EXIF from photos</h4>
+        <p class="guide-desc">Eliminate precise GPS coordinates, serial numbers, camera lens data, and timestamps from user photos.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me photo.jpg</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me photo.jpg')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Direct binary stream scanning strips APP1/EXIF segments from JPEG, PNG, and WebP.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Preserves 100% pixel fidelity with zero re-encoding compression or color shifts.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Generates <code>clean_photo.jpg</code> immediately ready for public web distribution.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 2 -->
-      <div class="guide-card">
-        <div class="guide-badge">PDF Documents</div>
-        <h4>How to anonymize PDF documents and contracts</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Pass your PDF document:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me contract.pdf</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Zeroes out /Author, /Creator, /Producer, and /Metadata streams with space-padding.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Exact byte offsets preserved so PDF cross-reference (xref) tables never corrupt.</span>
-          </div>
+      <!-- Recipe 2: PDFs -->
+      <div class="guide-card" data-category="media">
+        <div class="guide-card-top">
+          <span class="guide-badge">PDF Documents</span>
+          <span class="guide-tag">xref Safe</span>
         </div>
+        <h4>Anonymize PDF contracts &amp; invoices</h4>
+        <p class="guide-desc">Purge author names, creation timestamps, printer models, and XML metadata streams from contract files.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me contract.pdf</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me contract.pdf')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Space-pads /Author, /Creator, /Producer, and /Metadata streams without altering lengths.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Preserves exact byte offsets so PDF cross-reference (xref) index tables never corrupt.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Creates <code>clean_contract.pdf</code> suitable for external clients and public repositories.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 3 -->
-      <div class="guide-card">
-        <div class="guide-badge">Logs &amp; Secrets</div>
-        <h4>How to redact API keys and PII from server logs</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Pipe server log or scrub system clipboard:</span>
-          </div>
-          <pre class="guide-code"><code>cat debug.log | npx sanitize-me &gt; clean.log</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Detects OpenAI, AWS, GitHub, Stripe keys, JWTs, IPs, and Luhn-validated credit cards.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Replaces secrets with safe privacy tags ready for bug reports or public sharing.</span>
-          </div>
+      <!-- Recipe 3: Logs -->
+      <div class="guide-card" data-category="logs">
+        <div class="guide-card-top">
+          <span class="guide-badge">Logs &amp; Secrets</span>
+          <span class="guide-tag">Stream Pipeline</span>
         </div>
+        <h4>Redact API keys, tokens &amp; PII from logs</h4>
+        <p class="guide-desc">Scrub sensitive credentials, IP addresses, emails, and credit cards from terminal dumps before sharing.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">cat server.log | npx sanitize-me &gt; clean.log</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'cat server.log | npx sanitize-me &gt; clean.log')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Redacts OpenAI (sk-), AWS (AKIA), GitHub (ghp_), Stripe, JWT tokens, and private keys.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Executes Luhn checksum validation to strip real credit card numbers without false alarms.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Emits sanitized logs directly to stdout, clipboard, or target files.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 4 -->
-      <div class="guide-card">
-        <div class="guide-badge">Links &amp; URLs</div>
-        <h4>How to strip tracking tags and unwrap redirect URLs</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Pass URL with marketing tags:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&amp;tag=aff-20"</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Unwraps Google/Facebook redirect wrappers and purges 40+ analytics parameters.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Outputs clean canonical destination URL for privacy-safe sharing.</span>
-          </div>
+      <!-- Recipe 4: URLs -->
+      <div class="guide-card" data-category="web">
+        <div class="guide-card-top">
+          <span class="guide-badge">Links &amp; URLs</span>
+          <span class="guide-tag">40+ Trackers</span>
         </div>
+        <h4>Strip UTM analytics &amp; unwrap redirect URLs</h4>
+        <p class="guide-desc">Unwrap tracking redirects and strip marketing campaign parameters from links before sending to anyone.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me "https://amazon.com/dp/B000?utm_source=tw&amp;tag=aff-20"</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me &quot;https://amazon.com/dp/B000?utm_source=tw&amp;tag=aff-20&quot;')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Unwraps Google (/url?q=), Facebook (/l.php?u=), and URL shortener wrappers.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Strips UTM parameters, fbclid, gclid, mc_eid, and 40+ ad network tracking cookies.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Outputs canonical, privacy-friendly clean destination links.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 5 -->
-      <div class="guide-card">
-        <div class="guide-badge">HTML &amp; XSS</div>
-        <h4>How to neutralize XSS in HTML markup without heavy packages</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Run CLI flag or programmatic function:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me --html "&lt;script&gt;alert(1)&lt;/script&gt;&lt;b&gt;Safe&lt;/b&gt;"</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Multi-pass reduction loop destroys nested evasion tags (&lt;scr&lt;script&gt;ipt&gt;) and inline handlers.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Returns sanitized safe HTML structure with safe URI schemes.</span>
-          </div>
+      <!-- Recipe 5: HTML -->
+      <div class="guide-card" data-category="web">
+        <div class="guide-card-top">
+          <span class="guide-badge">HTML &amp; XSS</span>
+          <span class="guide-tag">Zero Dependencies</span>
         </div>
+        <h4>Neutralize XSS payloads in HTML markup</h4>
+        <p class="guide-desc">Zero-dependency alternative to DOMPurify &amp; sanitize-html that defeats nested script injection.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me --html "&lt;script&gt;alert(1)&lt;/script&gt;&lt;b&gt;Safe text&lt;/b&gt;"</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me --html &quot;<script>alert(1)<\\/script><b>Safe text</b>&quot;')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Recursive multi-pass reduction loop destroys nested evasion tags (&lt;scr&lt;script&gt;ipt&gt;).</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Strips inline event handlers (onerror, onload, onclick) and dangerous uri schemes.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Supports <code>--text-only</code> flag to strip all tags down to raw safe plaintext.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 6 -->
-      <div class="guide-card">
-        <div class="guide-badge">NoSQL &amp; Database</div>
-        <h4>How to stop MongoDB query and operator injection</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Pass untrusted query object or JSON:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me --query '{"username":"admin","$gt":""}'</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Deep recursive walker scans keys for $ operators ($gt, $ne, $where) and dot notation.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Neutralizes injection keys to protect backend database calls.</span>
-          </div>
+      <!-- Recipe 6: NoSQL -->
+      <div class="guide-card" data-category="db">
+        <div class="guide-card-top">
+          <span class="guide-badge">NoSQL &amp; Database</span>
+          <span class="guide-tag">Recursive Shield</span>
         </div>
+        <h4>Block MongoDB operator injection in JSON</h4>
+        <p class="guide-desc">Drop-in replacement for mongo-sanitize that prevents authentication bypass in backend APIs.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me --query '{"username":"admin","$gt":""}'</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me --query \'{\&quot;username\&quot;:\&quot;admin\&quot;,\&quot;$gt\&quot;:\&quot;\&quot;}\'')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Deep recursive tree traversal scans arbitrarily nested objects and arrays.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Neutralizes operators starting with $ ($gt, $ne, $where, $regex, $expr).</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Strips dot-notation keys preventing unauthorized property traversal attacks.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 7 -->
-      <div class="guide-card">
-        <div class="guide-badge">Uploads &amp; Filesystem</div>
-        <h4>How to sanitize filenames and block directory traversal</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Clean user-provided filename:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me --filename "../../bad:name?.txt"</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Strips path traversal (../), control codes, and Windows reserved device names (CON, PRN).</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">Truncates to UTF-8 boundary safe 255 bytes for reliable cross-platform disk storage.</span>
-          </div>
+      <!-- Recipe 7: Filenames -->
+      <div class="guide-card" data-category="db">
+        <div class="guide-card-top">
+          <span class="guide-badge">Filenames &amp; Storage</span>
+          <span class="guide-tag">Cross-Platform</span>
         </div>
+        <h4>Sanitize uploaded filenames &amp; path traversal</h4>
+        <p class="guide-desc">Cross-platform alternative to sanitize-filename that protects against filesystem directory escape.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me --filename "../../bad:name?.txt"</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me --filename &quot;../../bad:name?.txt&quot;')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Strips relative directory traversal (../, ..\) to prevent unauthorized directory writes.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Neutralizes Windows reserved device names (CON, PRN, AUX, NUL, COM1-9, LPT1-9).</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Truncates at UTF-8 boundary within 255 bytes for reliable cross-platform storage.</span>
+          </li>
+        </ul>
       </div>
 
-      <!-- Guide 8 -->
-      <div class="guide-card">
-        <div class="guide-badge">Offline GUI</div>
-        <h4>How to use the local browser privacy airlock</h4>
-        <div class="guide-steps">
-          <div class="step-row">
-            <span class="step-num">1</span>
-            <span class="step-text">Open website or launch offline web server:</span>
-          </div>
-          <pre class="guide-code"><code>npx sanitize-me --gui</code></pre>
-          <div class="step-row">
-            <span class="step-num">2</span>
-            <span class="step-text">Drag and drop images, PDFs, or paste text/queries directly into the dashboard.</span>
-          </div>
-          <div class="step-row">
-            <span class="step-num">3</span>
-            <span class="step-text">100% processed locally in browser memory with zero cloud uploads or network latency.</span>
-          </div>
+      <!-- Recipe 8: Interactive File Picker -->
+      <div class="guide-card" data-category="cli">
+        <div class="guide-card-top">
+          <span class="guide-badge">Developer CLI</span>
+          <span class="guide-tag">Visual OS Picker</span>
         </div>
+        <h4>Pick files with native OS file explorer</h4>
+        <p class="guide-desc">Sanitize any file without typing or copying complex absolute filesystem paths into terminal.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me --pick</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me --pick')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Opens native Windows Explorer, macOS Finder, or Linux Zenity file picker dialog.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Supports multi-file selection of images, PDFs, server logs, or configs.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Sanitizes each file in place and outputs clean, tagged versions instantly.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Recipe 9: Offline Browser GUI -->
+      <div class="guide-card" data-category="cli">
+        <div class="guide-card-top">
+          <span class="guide-badge">Offline GUI</span>
+          <span class="guide-tag">Localhost Airlock</span>
+        </div>
+        <h4>Run local web airlock with tactile sound FX</h4>
+        <p class="guide-desc">Launch a local offline web server on your machine with drag-and-drop file processing.</p>
+        <div class="guide-cmd-box">
+          <span class="guide-prompt">$</span>
+          <code class="guide-cmd-text">npx sanitize-me --gui</code>
+          <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me --gui')">Copy</button>
+        </div>
+        <ul class="guide-points">
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Starts a 100% offline local web server on <code>http://localhost:3000</code>.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Drag-and-drop images/PDFs, paste logs, test XSS payloads, and clean queries visually.</span>
+          </li>
+          <li class="guide-point">
+            <svg class="guide-check" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Zero cloud telemetry, zero remote requests, and built-in tactile audio feedback.</span>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -1135,29 +1351,48 @@
           <tr>
             <th>Channel</th>
             <th>Command / Source</th>
-            <th>Usage</th>
+            <th>Usage &amp; Target</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><a href="https://www.npmjs.com/package/sanitize-me" target="_blank" style="color:var(--text); text-decoration:underline;"><strong>NPX</strong></a></td>
-            <td><span class="dist-cmd">npx sanitize-me [targets]</span></td>
-            <td>Instant execution via official npm package</td>
+            <td>
+              <div class="dist-cmd-row">
+                <span class="dist-cmd">npx sanitize-me [targets]</span>
+                <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npx sanitize-me')">Copy</button>
+              </div>
+            </td>
+            <td>Zero-install instant execution via official npm package</td>
           </tr>
           <tr>
             <td><a href="https://www.npmjs.com/package/sanitize-me" target="_blank" style="color:var(--text); text-decoration:underline;"><strong>NPM Global</strong></a></td>
-            <td><span class="dist-cmd">npm install -g sanitize-me</span></td>
-            <td>Standalone system binary published on npmjs.com</td>
+            <td>
+              <div class="dist-cmd-row">
+                <span class="dist-cmd">npm install -g sanitize-me</span>
+                <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npm install -g sanitize-me')">Copy</button>
+              </div>
+            </td>
+            <td>Global system CLI command across all terminal sessions</td>
           </tr>
           <tr>
             <td><strong>GitHub Packages</strong></td>
-            <td><span class="dist-cmd">npm install @liyfez/sanitize-me</span></td>
-            <td>GitHub Package registry distribution</td>
+            <td>
+              <div class="dist-cmd-row">
+                <span class="dist-cmd">npm install @liyfez/sanitize-me</span>
+                <button class="guide-copy-btn" onclick="copyGuideCmd(this, 'npm install @liyfez/sanitize-me')">Copy</button>
+              </div>
+            </td>
+            <td>GitHub Package registry distribution dependency</td>
           </tr>
           <tr>
             <td><strong>Releases</strong></td>
-            <td><a href="https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.5" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono);">v1.0.5 Assets (.tgz)</a></td>
-            <td>Pre-packaged signed tarball builds</td>
+            <td>
+              <div class="dist-cmd-row">
+                <a href="https://github.com/Liyfez/sanitize-me/releases/tag/v1.0.5" target="_blank" style="color:var(--lime); text-decoration:none; font-family:var(--font-mono); font-size:0.82rem;">v1.0.5 Assets (.tgz)</a>
+              </div>
+            </td>
+            <td>Pre-packaged signed standalone tarball builds</td>
           </tr>
         </tbody>
       </table>
@@ -1432,6 +1667,33 @@
         btn.textContent = 'Copy';
         btn.classList.remove('copied');
       }, 1800);
+    }
+
+    function copyGuideCmd(btn, cmd) {
+      sfx.success();
+      navigator.clipboard.writeText(cmd);
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      showToast('Copied: ' + cmd);
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+      }, 1800);
+    }
+
+    function filterGuides(category, btn) {
+      sfx.click();
+      document.querySelectorAll('.guide-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cards = document.querySelectorAll('.guide-card');
+      cards.forEach(card => {
+        if (category === 'all' || card.dataset.category === category) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
     }
 
     // Media & Document Sanitizers (Client-Side Lossless ArrayBuffer)
